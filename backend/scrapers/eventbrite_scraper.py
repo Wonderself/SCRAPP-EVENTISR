@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from models import EventSource
 from base_scraper import BaseScraper
 from scraping_utils import ScrapingUtils
+from scraping_config import ScrapingConfig
 
 logger = logging.getLogger(__name__)
 
