@@ -85,12 +85,18 @@ def create_event_router(db: AsyncIOMotorDatabase) -> APIRouter:
             raise HTTPException(status_code=500, detail=str(e))
     
     @router.get("/top/{limit}")
-    async def get_top_events(limit: int = Query(default=250, ge=1, le=1000)):
+    async def get_top_events(limit: int):
         """Get top events by importance"""
         try:
+            # Validate limit
+            if limit < 1 or limit > 1000:
+                raise HTTPException(status_code=400, detail="Limit must be between 1 and 1000")
+            
             events = await scraping_service.get_top_events(limit=limit)
             return events
             
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error(f"Error getting top events: {e}")
             raise HTTPException(status_code=500, detail=str(e))
