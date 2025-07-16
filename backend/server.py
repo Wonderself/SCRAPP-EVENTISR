@@ -58,6 +58,10 @@ async def get_status_checks():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Include event routes
+event_router = create_event_router(db)
+app.include_router(event_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
