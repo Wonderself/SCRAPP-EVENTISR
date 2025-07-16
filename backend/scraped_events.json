@@ -1,0 +1,50 @@
+[
+  {
+    "name": "פסטיvalu תרבות ירושלים",
+    "date": "2025-08-20 20:00:00",
+    "location": "המדרחוב, ירושלים",
+    "url": "https://jerusalem.muni.il/events/culture-festival-2025",
+    "description": "פסטיבל תרבות שנתי במדרחוב ירושלים",
+    "organizer_email": "culture@jerusalem.muni.il",
+    "organizer_name": "מחלקת תרבות עיריית ירושלים",
+    "source": "matkonet",
+    "importance": "high",
+    "is_hebrew": true
+  },
+  {
+    "name": "Tel Aviv Music Festival",
+    "date": "2025-09-15 19:30:00",
+    "location": "Park HaYarkon, Tel Aviv",
+    "url": "https://www.tel-aviv.gov.il/events/music-festival-2025",
+    "description": "Annual music festival in Tel Aviv with international artists",
+    "organizer_email": "events@tel-aviv.gov.il",
+    "organizer_name": "Tel Aviv Municipality",
+    "source": "eventbrite",
+    "importance": "high",
+    "is_hebrew": false
+  },
+  {
+    "name": "סדנת צילום בטבע",
+    "date": "2025-08-25 08:00:00",
+    "location": "שמורת עין גדי",
+    "url": "https://www.photography-workshop.co.il/ein-gedi-2025",
+    "description": "סדנת צילום מקצועית בשמורת עין גדי",
+    "organizer_email": "workshop@photoart.co.il",
+    "organizer_name": "אמנון צלם",
+    "source": "funzing",
+    "importance": "medium",
+    "is_hebrew": true
+  },
+  {
+    "name": "אירוע מיוחד - אירועים",
+    "date": "2025-08-10 19:00:00",
+    "location": "תל אביב",
+    "url": "https://www.matkonet.co.il/%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d/",
+    "description": "אירוע מעניין: אירועים",
+    "organizer_email": "info1@matkonet.co.il",
+    "organizer_name": "מארגן מתכונת 1",
+    "source": "matkonet",
+    "importance": "medium",
+    "is_hebrew": true
+  }
+]
