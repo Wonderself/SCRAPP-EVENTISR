@@ -200,9 +200,9 @@ backend:
 
 frontend:
   - task: "Event Display Interface"
-    implemented: false
-    working: false
-    file: "Not created yet"
+    implemented: true
+    working: true
+    file: "components/EventsTable.js, App.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -210,11 +210,17 @@ frontend:
       - working: false
         agent: "main"
         comment: "Frontend interface for displaying scraped events not yet implemented"
+      - working: true
+        agent: "main"
+        comment: "Implemented complete EventsTable component with Hebrew support, filtering, search, export, and responsive design"
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed - all functionality working: table display, filtering, search, export CSV, Hebrew/RTL support, responsive design"
 
   - task: "Scraping Control Interface"
-    implemented: false
-    working: false
-    file: "Not created yet"
+    implemented: true
+    working: true
+    file: "components/ScrapingControl.js, App.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -222,6 +228,12 @@ frontend:
       - working: false
         agent: "main"
         comment: "Frontend interface for triggering scraping jobs not yet implemented"
+      - working: true
+        agent: "main"
+        comment: "Implemented complete ScrapingControl component with individual and bulk scraping controls, job monitoring, and status tracking"
+      - working: true
+        agent: "testing"
+        comment: "All scraping controls tested and working: bulk scraping, individual sources, job tracking, status updates, Hebrew interface"
 
 metadata:
   created_by: "main_agent"
