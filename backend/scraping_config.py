@@ -1,6 +1,6 @@
 import os
 from typing import Dict, List, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from fake_useragent import UserAgent
 
 @dataclass
@@ -18,25 +18,25 @@ class ScrapingConfig:
     
     # Event filtering
     MAX_EVENTS_PER_SOURCE: int = 50  # Max 50 events per source = 250 total
-    TARGET_MONTHS: List[int] = [8, 9]  # August, September
+    TARGET_MONTHS: List[int] = field(default_factory=lambda: [8, 9])  # August, September
     TARGET_YEAR: int = 2025
     
     # Language settings
-    HEBREW_KEYWORDS: List[str] = [
+    HEBREW_KEYWORDS: List[str] = field(default_factory=lambda: [
         'אירוע', 'פסטיבל', 'קונצרט', 'תערוכה', 'הופעה',
         'מופע', 'סדנה', 'הרצאה', 'מסיבה', 'יריד'
-    ]
+    ])
     
-    PUBLIC_EVENT_KEYWORDS: List[str] = [
+    PUBLIC_EVENT_KEYWORDS: List[str] = field(default_factory=lambda: [
         'קהל', 'ציבור', 'פתוח', 'כולם', 'חינם', 'בחינם',
         'public', 'open', 'free', 'community', 'festival'
-    ]
+    ])
     
     # Excluded keywords (professional/restricted events)
-    EXCLUDED_KEYWORDS: List[str] = [
+    EXCLUDED_KEYWORDS: List[str] = field(default_factory=lambda: [
         'פרטי', 'סגור', 'עובדים', 'מוזמנים בלבד', 'חברים',
         'private', 'closed', 'employees', 'members only', 'staff'
-    ]
+    ])
 
 # Website-specific configurations
 SITE_CONFIGS: Dict[str, Dict] = {
