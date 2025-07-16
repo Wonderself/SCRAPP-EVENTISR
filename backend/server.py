@@ -55,12 +55,12 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+# Include event routes in the api router
+event_router = create_event_router(db)
+api_router.include_router(event_router)
+
 # Include the router in the main app
 app.include_router(api_router)
-
-# Include event routes
-event_router = create_event_router(db)
-app.include_router(event_router)
 
 app.add_middleware(
     CORSMiddleware,
