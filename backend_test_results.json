@@ -3,58 +3,85 @@
     "test_name": "Health Check (/api/)",
     "success": true,
     "details": "API is responding correctly with message: Hello World",
-    "timestamp": "2025-07-16T10:18:42.855859",
+    "timestamp": "2025-07-16T10:20:02.316353",
     "response_data": {
       "message": "Hello World"
     }
   },
   {
     "test_name": "Get Events (/api/events/)",
-    "success": false,
-    "details": "Unexpected status code: 404",
-    "timestamp": "2025-07-16T10:18:53.827530",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "success": true,
+    "details": "Successfully retrieved 0 events",
+    "timestamp": "2025-07-16T10:20:02.340520",
+    "response_data": {
+      "event_count": 0,
+      "sample": []
+    }
   },
   {
     "test_name": "Get Event Stats (/api/events/stats)",
-    "success": false,
-    "details": "Unexpected status code: 404",
-    "timestamp": "2025-07-16T10:19:11.052776",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "success": true,
+    "details": "Successfully retrieved event statistics with all expected fields",
+    "timestamp": "2025-07-16T10:20:02.400500",
+    "response_data": {
+      "total_events": 0,
+      "by_source": {
+        "eventbrite": 0,
+        "matkonet": 0,
+        "getout": 0,
+        "habama": 0,
+        "funzing": 0
+      },
+      "by_importance": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "by_language": {
+        "hebrew": 0,
+        "english": 0
+      }
+    }
   },
   {
     "test_name": "Get Scraping Jobs (/api/events/jobs)",
-    "success": false,
-    "details": "Unexpected status code: 404",
-    "timestamp": "2025-07-16T10:19:24.116811",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "success": true,
+    "details": "Successfully retrieved 0 scraping jobs",
+    "timestamp": "2025-07-16T10:20:02.421166",
+    "response_data": {
+      "job_count": 0,
+      "sample": []
+    }
   },
   {
     "test_name": "Start Scraping All Sources (/api/events/scrape/all)",
     "success": false,
-    "details": "Unexpected status code: 404",
-    "timestamp": "2025-07-16T10:19:24.163909",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "details": "Unexpected status code: 422",
+    "timestamp": "2025-07-16T10:20:02.472540",
+    "response_data": "{\"detail\":[{\"type\":\"enum\",\"loc\":[\"path\",\"source\"],\"msg\":\"Input should be 'eventbrite', 'matkonet', 'getout', 'habama' or 'funzing'\",\"input\":\"all\",\"ctx\":{\"expected\":\"'eventbrite', 'matkonet', 'getout', 'habama' or 'funzing'\"},\"url\":\"https://errors.pydantic.dev/2.11/v/enum\"}]}"
   },
   {
     "test_name": "Get Top 250 Events (/api/events/top/250)",
-    "success": false,
-    "details": "Unexpected status code: 404",
-    "timestamp": "2025-07-16T10:19:24.212102",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "success": true,
+    "details": "Successfully retrieved 0 top events (limit: 250)",
+    "timestamp": "2025-07-16T10:20:02.483940",
+    "response_data": {
+      "event_count": 0,
+      "sample": []
+    }
   },
   {
     "test_name": "Error Handling (Invalid Endpoint)",
     "success": true,
     "details": "Correctly returned 404 for invalid endpoint",
-    "timestamp": "2025-07-16T10:19:24.219672",
+    "timestamp": "2025-07-16T10:20:02.492468",
     "response_data": null
   },
   {
     "test_name": "Error Handling (Invalid Limit)",
-    "success": false,
-    "details": "Expected 400, got 404",
-    "timestamp": "2025-07-16T10:19:24.266850",
-    "response_data": "{\"detail\":\"Not Found\"}"
+    "success": true,
+    "details": "Correctly returned 400 for invalid limit",
+    "timestamp": "2025-07-16T10:20:02.541031",
+    "response_data": null
   }
 ]
