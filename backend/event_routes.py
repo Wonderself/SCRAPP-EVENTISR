@@ -17,6 +17,22 @@ def create_event_router(db: AsyncIOMotorDatabase) -> APIRouter:
     router = APIRouter(prefix="/events", tags=["events"])
     scraping_service = EventScrapingService(db)
     
+    @router.post("/scrape/all")
+    async def scrape_all_events(background_tasks: BackgroundTasks):
+        """Scrape events from all sources"""
+        try:
+            # Start scraping in background
+            background_tasks.add_task(scraping_service.scrape_all_sources)
+            
+            return {
+                "message": "Started scraping from all sources",
+                "sources": [source.value for source in EventSource]
+            }
+            
+        except Exception as e:
+            logger.error(f"Error starting scraping from all sources: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
     @router.post("/scrape/{source}")
     async def scrape_events_from_source(
         source: EventSource,
@@ -42,22 +58,6 @@ def create_event_router(db: AsyncIOMotorDatabase) -> APIRouter:
             
         except Exception as e:
             logger.error(f"Error starting scraping from {source}: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
-    
-    @router.post("/scrape/all")
-    async def scrape_all_events(background_tasks: BackgroundTasks):
-        """Scrape events from all sources"""
-        try:
-            # Start scraping in background
-            background_tasks.add_task(scraping_service.scrape_all_sources)
-            
-            return {
-                "message": "Started scraping from all sources",
-                "sources": [source.value for source in EventSource]
-            }
-            
-        except Exception as e:
-            logger.error(f"Error starting scraping from all sources: {e}")
             raise HTTPException(status_code=500, detail=str(e))
     
     @router.get("/", response_model=List[Event])
