@@ -1,0 +1,60 @@
+[
+  {
+    "test_name": "Health Check (/api/)",
+    "success": true,
+    "details": "API is responding correctly with message: Hello World",
+    "timestamp": "2025-07-16T10:18:42.855859",
+    "response_data": {
+      "message": "Hello World"
+    }
+  },
+  {
+    "test_name": "Get Events (/api/events/)",
+    "success": false,
+    "details": "Unexpected status code: 404",
+    "timestamp": "2025-07-16T10:18:53.827530",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Get Event Stats (/api/events/stats)",
+    "success": false,
+    "details": "Unexpected status code: 404",
+    "timestamp": "2025-07-16T10:19:11.052776",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Get Scraping Jobs (/api/events/jobs)",
+    "success": false,
+    "details": "Unexpected status code: 404",
+    "timestamp": "2025-07-16T10:19:24.116811",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Start Scraping All Sources (/api/events/scrape/all)",
+    "success": false,
+    "details": "Unexpected status code: 404",
+    "timestamp": "2025-07-16T10:19:24.163909",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Get Top 250 Events (/api/events/top/250)",
+    "success": false,
+    "details": "Unexpected status code: 404",
+    "timestamp": "2025-07-16T10:19:24.212102",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Error Handling (Invalid Endpoint)",
+    "success": true,
+    "details": "Correctly returned 404 for invalid endpoint",
+    "timestamp": "2025-07-16T10:19:24.219672",
+    "response_data": null
+  },
+  {
+    "test_name": "Error Handling (Invalid Limit)",
+    "success": false,
+    "details": "Expected 400, got 404",
+    "timestamp": "2025-07-16T10:19:24.266850",
+    "response_data": "{\"detail\":\"Not Found\"}"
+  }
+]
