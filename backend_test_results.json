@@ -3,7 +3,7 @@
     "test_name": "Health Check (/api/)",
     "success": true,
     "details": "API is responding correctly with message: Hello World",
-    "timestamp": "2025-07-16T10:20:02.316353",
+    "timestamp": "2025-07-16T10:21:08.968420",
     "response_data": {
       "message": "Hello World"
     }
@@ -12,7 +12,7 @@
     "test_name": "Get Events (/api/events/)",
     "success": true,
     "details": "Successfully retrieved 0 events",
-    "timestamp": "2025-07-16T10:20:02.340520",
+    "timestamp": "2025-07-16T10:21:09.023645",
     "response_data": {
       "event_count": 0,
       "sample": []
@@ -22,7 +22,7 @@
     "test_name": "Get Event Stats (/api/events/stats)",
     "success": true,
     "details": "Successfully retrieved event statistics with all expected fields",
-    "timestamp": "2025-07-16T10:20:02.400500",
+    "timestamp": "2025-07-16T10:21:09.047417",
     "response_data": {
       "total_events": 0,
       "by_source": {
@@ -47,7 +47,7 @@
     "test_name": "Get Scraping Jobs (/api/events/jobs)",
     "success": true,
     "details": "Successfully retrieved 0 scraping jobs",
-    "timestamp": "2025-07-16T10:20:02.421166",
+    "timestamp": "2025-07-16T10:21:09.098610",
     "response_data": {
       "job_count": 0,
       "sample": []
@@ -55,16 +55,25 @@
   },
   {
     "test_name": "Start Scraping All Sources (/api/events/scrape/all)",
-    "success": false,
-    "details": "Unexpected status code: 422",
-    "timestamp": "2025-07-16T10:20:02.472540",
-    "response_data": "{\"detail\":[{\"type\":\"enum\",\"loc\":[\"path\",\"source\"],\"msg\":\"Input should be 'eventbrite', 'matkonet', 'getout', 'habama' or 'funzing'\",\"input\":\"all\",\"ctx\":{\"expected\":\"'eventbrite', 'matkonet', 'getout', 'habama' or 'funzing'\"},\"url\":\"https://errors.pydantic.dev/2.11/v/enum\"}]}"
+    "success": true,
+    "details": "Successfully initiated scraping for 5 sources",
+    "timestamp": "2025-07-16T10:21:09.147990",
+    "response_data": {
+      "message": "Started scraping from all sources",
+      "sources": [
+        "eventbrite",
+        "matkonet",
+        "getout",
+        "habama",
+        "funzing"
+      ]
+    }
   },
   {
     "test_name": "Get Top 250 Events (/api/events/top/250)",
     "success": true,
     "details": "Successfully retrieved 0 top events (limit: 250)",
-    "timestamp": "2025-07-16T10:20:02.483940",
+    "timestamp": "2025-07-16T10:21:09.195205",
     "response_data": {
       "event_count": 0,
       "sample": []
@@ -74,14 +83,14 @@
     "test_name": "Error Handling (Invalid Endpoint)",
     "success": true,
     "details": "Correctly returned 404 for invalid endpoint",
-    "timestamp": "2025-07-16T10:20:02.492468",
+    "timestamp": "2025-07-16T10:21:21.044117",
     "response_data": null
   },
   {
     "test_name": "Error Handling (Invalid Limit)",
     "success": true,
     "details": "Correctly returned 400 for invalid limit",
-    "timestamp": "2025-07-16T10:20:02.541031",
+    "timestamp": "2025-07-16T10:21:21.054475",
     "response_data": null
   }
 ]
