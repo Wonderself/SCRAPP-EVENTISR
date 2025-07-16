@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import Event, EventCreate, EventSource, ScrapingJob, ScrapingJobCreate, ScrapingJobUpdate
 from scrapers import EventbriteScraper, MatkonetScraper, GetoutScraper, HabamaScraper, FunzingScraper
 from motor.motor_asyncio import AsyncIOMotorDatabase
