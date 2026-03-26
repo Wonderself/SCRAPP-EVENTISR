@@ -48,18 +48,37 @@ export async function chatWithClaude(
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error("[Chat] ANTHROPIC_API_KEY not set");
     return "אוי, יש בעיה עם החיבור שלי 😅 תגידי לעמנואל לבדוק את ה-API key!";
   }
 
   const client = new Anthropic({ apiKey });
 
-  // Build context
-  const memoryContext = await readMemoryContext();
+  // Build context (with fallback if memory fails)
+  let memoryContext = "";
+  try {
+    memoryContext = await readMemoryContext();
+  } catch (e) {
+    console.error("[Chat] Memory read error (continuing without memory):", e);
+  }
+
   const today = new Date();
   const dateStr = toDateString(today);
   const dayKey = getDayKey(today.getDay());
-  const todayTasks = getTasksForDate(dateStr, dayKey);
-  const recentConvos = getRecentConversations(20);
+
+  let todayTasks: any[] = [];
+  try {
+    todayTasks = getTasksForDate(dateStr, dayKey);
+  } catch (e) {
+    console.error("[Chat] Tasks read error (continuing without tasks):", e);
+  }
+
+  let recentConvos: any[] = [];
+  try {
+    recentConvos = getRecentConversations(20);
+  } catch (e) {
+    console.error("[Chat] Conversations read error:", e);
+  }
 
   const tasksText = todayTasks.length > 0
     ? todayTasks.map((t: any) => `- ${t.priority === "urgent" ? "🔴 " : ""}${t.description}`).join("\n")
@@ -93,8 +112,17 @@ ${tasksText}`;
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
     return text;
-  } catch (error) {
-    console.error("Claude API error:", error);
+  } catch (error: any) {
+    console.error("[Chat] Claude API error:", error?.message || error);
+    if (error?.status === 401) {
+      return "בעיה עם ה-API key — תגידי לעמנואל לבדוק את ANTHROPIC_API_KEY 🔑";
+    }
+    if (error?.status === 429) {
+      return "יותר מדי הודעות ברגע 😅 חכי שניה ותנסי שוב נשמה";
+    }
+    if (error?.status === 529 || error?.status === 503) {
+      return "שירות Claude עמוס כרגע 😅 תנסי שוב עוד רגע נשמה";
+    }
     return "אוי, משהו קרה 😅 תנסי שוב עוד רגע!";
   }
 }
