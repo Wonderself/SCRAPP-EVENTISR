@@ -43,7 +43,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
 
   if (loading) {
     return (
-      <div className={`text-center py-4 text-base font-black ${isDay ? "text-sky-300" : "text-white/15"}`}>
+      <div className={`text-center py-4 text-base font-black ${isDay ? "text-sky-300" : "text-white/35"}`}>
         ...
       </div>
     );
@@ -79,22 +79,24 @@ export default function WeekView({ isDay, refreshKey }: Props) {
       {/* Weekly progress */}
       {totalThisWeek > 0 && (
         <div className={`mt-2.5 lg:mt-4 rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
-          isDay ? "cartoon-card-day" : "cartoon-card-sunset"
+          isDay
+            ? "bg-white border-2 border-sky-100 shadow-sm"
+            : "bg-white/[0.06] backdrop-blur-sm border-2 border-white/10"
         }`}>
           <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-white/80"}`}>
               {completedThisWeek} / {totalThisWeek}
             </span>
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-orange-400"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
-          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/5"}`}>
+          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/10"}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay
                   ? "bg-gradient-to-r from-sky-400 to-teal-400"
-                  : "bg-gradient-to-r from-orange-400 to-pink-500"
+                  : "bg-gradient-to-r from-fuchsia-500 to-violet-600"
               }`}
               style={{ width: `${(completedThisWeek / totalThisWeek) * 100}%` }}
             />
