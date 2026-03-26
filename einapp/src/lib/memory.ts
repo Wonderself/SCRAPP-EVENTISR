@@ -12,6 +12,7 @@ const MEMORY_FILES = [
   "issues-log.md",
   "financial-notes.md",
   "ideas.md",
+  "einat-personal.md",
 ];
 
 export function ensureMemoryDir() {
@@ -74,6 +75,7 @@ function getDefaultContent(filename: string): string {
     "issues-log.md": "# יומן בעיות",
     "financial-notes.md": "# הערות כספיות",
     "ideas.md": "# רעיונות לשיפור",
+    "einat-personal.md": "# עינת — דברים אישיים\n\n## מי את עינת?\nכאן נאסוף דברים שלמדנו על עינת — מה היא אוהבת, מה מעציב אותה, תחביבים, משפחה, מזג רוח, דברים שחשובים לה.\n",
   };
   return `${titles[filename] || "# " + filename}\n\n`;
 }
@@ -88,6 +90,20 @@ export async function readMemoryContext(): Promise<string> {
       if (content) parts.push(content);
     }
   }
+
+  // Include recent weekly summaries (last 4 weeks)
+  const summaryDir = path.join(MEMORY_DIR, "chat-summaries");
+  if (fs.existsSync(summaryDir)) {
+    const summaries = fs.readdirSync(summaryDir)
+      .filter(f => f.endsWith(".md"))
+      .sort()
+      .slice(-4);
+    for (const file of summaries) {
+      const content = fs.readFileSync(path.join(summaryDir, file), "utf-8").trim();
+      if (content) parts.push(content);
+    }
+  }
+
   return parts.join("\n\n---\n\n");
 }
 
