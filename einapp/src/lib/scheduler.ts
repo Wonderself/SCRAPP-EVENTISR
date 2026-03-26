@@ -2,6 +2,7 @@ import { sendWhatsAppMessage } from "./whatsapp";
 import { generateMorningMessage, generateEveningMessage } from "./ai-parser";
 import { getTasksForDate, getCompletionsForDate, getAppState, setAppState } from "./db";
 import { toDateString, getDayKey, getDayName } from "./hebrew";
+import { getWeather, formatWeatherForMessage } from "./weather";
 
 const EINAT_PHONE = process.env.EINAT_PHONE_NUMBER || "";
 
@@ -17,6 +18,10 @@ export async function sendMorningMessage() {
   const dayName = getDayName(today.getDay());
   const tasks = getTasksForDate(dateStr, dayKey);
 
+  // Get weather
+  const weather = await getWeather();
+  const weatherText = weather ? formatWeatherForMessage(weather) : "";
+
   const tasksJson = JSON.stringify(
     tasks.map((t: any) => ({
       description: t.description,
@@ -26,7 +31,7 @@ export async function sendMorningMessage() {
     }))
   );
 
-  const message = await generateMorningMessage(tasksJson, dayName, dateStr);
+  const message = await generateMorningMessage(tasksJson, dayName, dateStr, weatherText);
   await sendWhatsAppMessage(EINAT_PHONE, message);
   setAppState("last_morning_message_date", dateStr);
 }
@@ -77,7 +82,6 @@ export async function checkMissingYou() {
   const threshold = parseInt(process.env.MISSING_YOU_HOURS || "48");
 
   if (hours >= threshold) {
-    // Check we haven't sent one recently
     const lastMissing = getAppState("last_missing_you_at");
     if (lastMissing) {
       const sinceMissing = (Date.now() - new Date(lastMissing).getTime()) / (1000 * 60 * 60);
@@ -86,7 +90,7 @@ export async function checkMissingYou() {
 
     await sendWhatsAppMessage(
       EINAT_PHONE,
-      "הייי עינת! 💛 נעלמת לי! הכל בסדר?\nמחכה לך פה אם צריך משהו 🐬"
+      "היי עינת, נעלמת לי! הכל בסדר?\nאני פה אם צריך משהו"
     );
     setAppState("last_missing_you_at", new Date().toISOString());
   }

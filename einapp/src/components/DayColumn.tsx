@@ -2,17 +2,18 @@
 
 import type { Task } from "@/types";
 import TaskCard from "./TaskCard";
-import { getDayShort, getDayName } from "@/lib/hebrew";
+import { getDayShort } from "@/lib/hebrew";
 
 interface Props {
   date: string;
   dayIndex: number;
   tasks: (Task & { completed: boolean })[];
   isToday: boolean;
+  isDay: boolean;
   onToggle: (taskId: number, date: string) => void;
 }
 
-export default function DayColumn({ date, dayIndex, tasks, isToday, onToggle }: Props) {
+export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onToggle }: Props) {
   const dayNum = new Date(date + "T12:00:00").getDate();
   const sorted = [...tasks].sort((a, b) => {
     if (a.priority === "urgent" && b.priority !== "urgent") return -1;
@@ -24,27 +25,46 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, onToggle }: 
 
   return (
     <div
-      className={`rounded-xl p-3 min-w-0 ${
+      className={`rounded-2xl p-3 min-w-0 transition-all ${
         isToday
-          ? "bg-dolphin-ocean/10 border-2 border-dolphin-ocean"
-          : "bg-white border border-dolphin-sand-light"
+          ? isDay
+            ? "bg-[#2196c8]/8 border-2 border-[#2196c8]/30 shadow-sm shadow-[#2196c8]/10"
+            : "bg-[#e65100]/8 border-2 border-[#e65100]/30 shadow-sm shadow-[#e65100]/10"
+          : isDay
+          ? "bg-white/60 border border-[#d8eef5]"
+          : "bg-[#2a2035]/60 border border-[#3a2540]"
       }`}
     >
-      <div className="text-center mb-2">
-        <div className={`text-xs font-medium ${isToday ? "text-dolphin-ocean" : "text-dolphin-sand-dark"}`}>
+      <div className="text-center mb-3">
+        <div className={`text-[10px] font-semibold uppercase tracking-wider ${
+          isToday
+            ? isDay ? "text-[#2196c8]" : "text-[#e65100]"
+            : isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
+        }`}>
           {getDayShort(dayIndex)}
         </div>
-        <div className={`text-lg font-bold ${isToday ? "text-dolphin-ocean-dark" : "text-gray-700"}`}>
+        <div className={`text-lg font-bold mt-0.5 ${
+          isToday
+            ? isDay ? "text-[#1a7fb5]" : "text-[#ff8f00]"
+            : isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"
+        }`}>
           {dayNum}
         </div>
+        {isToday && (
+          <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
+            isDay ? "bg-[#2196c8]" : "bg-[#e65100]"
+          }`} />
+        )}
       </div>
 
       <div className="space-y-1.5">
         {sorted.length === 0 && (
-          <p className="text-xs text-dolphin-sand-dark text-center py-2">—</p>
+          <p className={`text-[10px] text-center py-3 ${isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"}`}>
+            —
+          </p>
         )}
         {sorted.map((task) => (
-          <TaskCard key={`${task.id}-${date}`} task={task} date={date} onToggle={onToggle} />
+          <TaskCard key={`${task.id}-${date}`} task={task} date={date} isDay={isDay} onToggle={onToggle} />
         ))}
       </div>
     </div>

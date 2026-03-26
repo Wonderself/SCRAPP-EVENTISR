@@ -6,6 +6,12 @@ import { useRouter } from "next/navigation";
 import ChatBubble from "@/components/ChatBubble";
 import BottomTabs from "@/components/BottomTabs";
 
+function getTimeMode(): "day" | "sunset" {
+  const now = new Date();
+  const m = now.getHours() * 60 + now.getMinutes();
+  return m >= 990 || m < 300 ? "sunset" : "day";
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -17,11 +23,15 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [greeted, setGreeted] = useState(false);
+  const [mode, setMode] = useState<"day" | "sunset">("day");
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Load recent conversations
+    setMounted(true);
+    setMode(getTimeMode());
+
     fetch("/api/chat/history")
       .then((r) => r.json())
       .then((data) => {
@@ -34,19 +44,25 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    // Auto-greet on first open of the day
-    if (!greeted && messages.length === 0) {
+    if (!greeted && mounted && messages.length === 0) {
       setGreeted(true);
-      const greetings = [
-        "הייי עינת! מה נשמע נשמה? 💛 מוכנה ליום?",
-        "שלום מלכה! ☀️ איך את היום?",
-        "אלוהה! 🐬 ספרי לי מה חדש!",
-      ];
+      const isDay = mode === "day";
+      const greetings = isDay
+        ? [
+            "היי עינת, מה נשמע? מוכנה ליום?",
+            "בוקר טוב עינת! ספרי לי מה בתוכנית",
+            "שלום עינת, יאללה נתחיל את היום",
+          ]
+        : [
+            "ערב טוב עינת, איך היה היום?",
+            "היי עינת, ספרי לי איך עבר היום",
+            "ערב טוב! הכל בסדר?",
+          ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
       setMessages([{ role: "assistant", content: greeting, time: now }]);
     }
-  }, [greeted, messages.length]);
+  }, [greeted, mounted, messages.length, mode]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -76,35 +92,53 @@ export default function ChatPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "אוי, משהו קרה 😅 תנסי שוב!", time: now },
+        { role: "assistant", content: "בעיה בחיבור, נסי שוב", time: now },
       ]);
     } finally {
       setLoading(false);
     }
   }
 
+  const isDay = mode === "day";
+
+  if (!mounted) return <div className="min-h-screen bg-[#F0F7FA]" />;
+
   return (
-    <div className="min-h-screen bg-dolphin-cream flex flex-col pb-20">
+    <div className={`min-h-screen flex flex-col pb-20 ${isDay ? "bg-[#F0F7FA]" : "bg-[#1a1520]"}`}>
       {/* Header */}
-      <div className="bg-gradient-to-l from-dolphin-ocean to-dolphin-ocean-dark text-white p-4 flex items-center gap-3">
-        <button onClick={() => router.push("/dashboard")}>
-          <ArrowRight size={22} />
+      <div
+        className={`px-4 pt-12 pb-4 flex items-center gap-3 ${
+          isDay
+            ? "bg-gradient-to-l from-[#1a7fb5] to-[#47b8e0]"
+            : "bg-gradient-to-l from-[#1a1025] to-[#4a1a3a]"
+        }`}
+      >
+        <button onClick={() => router.push("/dashboard")} className="text-white/70 hover:text-white">
+          <ArrowRight size={20} />
         </button>
         <div>
-          <h1 className="font-bold text-lg">Einapp 🐬</h1>
-          <p className="text-xs text-dolphin-ocean-light">החברה שלך</p>
+          <h1 className="font-bold text-white">Einapp</h1>
+          <p className="text-[10px] text-white/50 tracking-widest uppercase">your assistant</p>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
         {messages.map((msg, i) => (
-          <ChatBubble key={i} role={msg.role} content={msg.content} time={msg.time} />
+          <div key={i} className="animate-fade-up no-color-transition" style={{ animationDelay: `${Math.min(i * 30, 300)}ms` }}>
+            <ChatBubble role={msg.role} content={msg.content} time={msg.time} isDay={isDay} />
+          </div>
         ))}
         {loading && (
           <div className="flex justify-end">
-            <div className="bg-white border border-dolphin-sand rounded-[18px] px-4 py-2 text-sm text-dolphin-sand-dark">
-              מקלידה... 🐬
+            <div className={`px-4 py-3 rounded-2xl text-sm ${
+              isDay ? "bg-white text-[#8ab0c0]" : "bg-[#2a2035] text-[#8a6a5a]"
+            }`}>
+              <span className="inline-flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce" style={{ animationDelay: "300ms" }} />
+              </span>
             </div>
           </div>
         )}
@@ -112,28 +146,38 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-dolphin-sand-light p-3">
+      <div className={`fixed bottom-20 left-0 right-0 px-4 py-3 ${
+        isDay ? "bg-[#F0F7FA]/90 backdrop-blur-md" : "bg-[#1a1520]/90 backdrop-blur-md"
+      }`}>
         <div className="flex gap-2 max-w-lg mx-auto">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="כתבי לי... 💬"
-            className="flex-1 px-4 py-3 rounded-full border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none text-sm bg-dolphin-cream"
+            placeholder="כתבי הודעה..."
+            className={`flex-1 px-5 py-3.5 rounded-2xl border outline-none text-sm transition-all ${
+              isDay
+                ? "bg-white border-[#d8eef5] focus:border-[#2196c8] text-[#1a3a4a] placeholder-[#8ab0c0]"
+                : "bg-[#2a2035] border-[#3a2540] focus:border-[#e65100] text-[#f5e6d8] placeholder-[#8a6a5a]"
+            }`}
             disabled={loading}
           />
           <button
             onClick={sendMessage}
             disabled={loading || !input.trim()}
-            className="w-11 h-11 rounded-full bg-dolphin-ocean text-white flex items-center justify-center hover:bg-dolphin-ocean-dark transition-colors disabled:opacity-50"
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all disabled:opacity-30 ${
+              isDay
+                ? "bg-[#2196c8] text-white hover:bg-[#1a7fb5]"
+                : "bg-[#e65100] text-white hover:bg-[#c2185b]"
+            }`}
           >
             <Send size={18} />
           </button>
         </div>
       </div>
 
-      <BottomTabs />
+      <BottomTabs isDay={isDay} />
     </div>
   );
 }

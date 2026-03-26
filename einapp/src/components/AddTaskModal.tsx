@@ -4,22 +4,23 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 const DAYS = [
-  { key: "sunday", label: "א׳" },
-  { key: "monday", label: "ב׳" },
-  { key: "tuesday", label: "ג׳" },
-  { key: "wednesday", label: "ד׳" },
-  { key: "thursday", label: "ה׳" },
-  { key: "friday", label: "ו׳" },
-  { key: "saturday", label: "ש׳" },
+  { key: "sunday", label: "א" },
+  { key: "monday", label: "ב" },
+  { key: "tuesday", label: "ג" },
+  { key: "wednesday", label: "ד" },
+  { key: "thursday", label: "ה" },
+  { key: "friday", label: "ו" },
+  { key: "saturday", label: "ש" },
 ];
 
 interface Props {
   open: boolean;
+  isDay: boolean;
   onClose: () => void;
   onCreated: () => void;
 }
 
-export default function AddTaskModal({ open, onClose, onCreated }: Props) {
+export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props) {
   const [type, setType] = useState<"one_time" | "recurring">("one_time");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
@@ -54,7 +55,6 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
       }),
     });
 
-    // Reset
     setDescription("");
     setDate("");
     setTime("");
@@ -65,15 +65,22 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
     onClose();
   }
 
+  const cardBg = isDay ? "bg-white" : "bg-[#2a2035]";
+  const inputBg = isDay
+    ? "bg-[#f0f7fa] border-[#d8eef5] focus:border-[#2196c8] text-[#1a3a4a] placeholder-[#8ab0c0]"
+    : "bg-[#1a1520] border-[#3a2540] focus:border-[#e65100] text-[#f5e6d8] placeholder-[#8a6a5a]";
+  const textPrimary = isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]";
+  const textSoft = isDay ? "text-[#4a7a8a]" : "text-[#c8a88a]";
+  const activeBtn = isDay ? "bg-[#2196c8] text-white" : "bg-[#e65100] text-white";
+  const inactiveBtn = isDay ? "bg-[#f0f7fa] text-[#4a7a8a]" : "bg-[#1a1520] text-[#c8a88a]";
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
+      <div className={`${cardBg} rounded-3xl w-full max-w-md p-6 space-y-5 max-h-[85vh] overflow-y-auto shadow-2xl`}>
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-dolphin-ocean-dark">
-            הוסיפי משימה 📌
-          </h2>
-          <button onClick={onClose} className="text-dolphin-sand-dark hover:text-gray-600">
-            <X size={24} />
+          <h2 className={`text-xl font-bold ${textPrimary}`}>משימה חדשה</h2>
+          <button onClick={onClose} className={textSoft}>
+            <X size={22} />
           </button>
         </div>
 
@@ -81,23 +88,19 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
         <div className="flex gap-2">
           <button
             onClick={() => setType("one_time")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-              type === "one_time"
-                ? "bg-dolphin-ocean text-white"
-                : "bg-dolphin-sand-light text-dolphin-earth"
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              type === "one_time" ? activeBtn : inactiveBtn
             }`}
           >
-            📌 מיוחדת
+            חד-פעמית
           </button>
           <button
             onClick={() => setType("recurring")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-              type === "recurring"
-                ? "bg-dolphin-ocean text-white"
-                : "bg-dolphin-sand-light text-dolphin-earth"
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              type === "recurring" ? activeBtn : inactiveBtn
             }`}
           >
-            🔄 קבועה
+            קבועה
           </button>
         </div>
 
@@ -107,7 +110,7 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
           placeholder="מה צריך לעשות?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none focus:ring-2 focus:ring-dolphin-ocean-light text-sm bg-dolphin-cream"
+          className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm transition-all ${inputBg}`}
           autoFocus
         />
 
@@ -117,43 +120,41 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none text-sm bg-dolphin-cream"
+              className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm ${inputBg}`}
             />
             <div className="flex gap-2">
               <button
                 onClick={() => setPriority("normal")}
-                className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
                   priority === "normal"
-                    ? "bg-dolphin-sea text-white"
-                    : "bg-dolphin-sand-light text-dolphin-earth"
+                    ? "bg-[#43a047] text-white"
+                    : inactiveBtn
                 }`}
               >
                 רגיל
               </button>
               <button
                 onClick={() => setPriority("urgent")}
-                className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
                   priority === "urgent"
-                    ? "bg-dolphin-urgent text-white"
-                    : "bg-dolphin-sand-light text-dolphin-earth"
+                    ? "bg-[#e53935] text-white"
+                    : inactiveBtn
                 }`}
               >
-                🔴 דחוף
+                דחוף
               </button>
             </div>
           </>
         ) : (
           <div>
-            <p className="text-sm text-dolphin-earth mb-2">באילו ימים?</p>
+            <p className={`text-sm mb-3 ${textSoft}`}>באילו ימים?</p>
             <div className="flex gap-1.5">
               {DAYS.map((d) => (
                 <button
                   key={d.key}
                   onClick={() => toggleDay(d.key)}
-                  className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${
-                    daysOfWeek.includes(d.key)
-                      ? "bg-dolphin-ocean text-white"
-                      : "bg-dolphin-sand-light text-dolphin-earth"
+                  className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
+                    daysOfWeek.includes(d.key) ? activeBtn : inactiveBtn
                   }`}
                 >
                   {d.label}
@@ -163,22 +164,23 @@ export default function AddTaskModal({ open, onClose, onCreated }: Props) {
           </div>
         )}
 
-        {/* Time (optional) */}
         <input
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none text-sm bg-dolphin-cream"
-          placeholder="שעה (אופציונלי)"
+          className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm ${inputBg}`}
         />
 
-        {/* Save */}
         <button
           onClick={handleSave}
           disabled={saving || !description.trim()}
-          className="w-full py-3 rounded-xl bg-dolphin-ocean text-white font-semibold hover:bg-dolphin-ocean-dark transition-colors disabled:opacity-50"
+          className={`w-full py-4 rounded-2xl text-white font-semibold transition-all disabled:opacity-40 ${
+            isDay
+              ? "bg-gradient-to-l from-[#1a7fb5] to-[#47b8e0] hover:shadow-lg"
+              : "bg-gradient-to-l from-[#c2185b] to-[#e65100] hover:shadow-lg"
+          }`}
         >
-          {saving ? "שומרת..." : "הוסיפי ✨"}
+          {saving ? "..." : "הוסיפי"}
         </button>
       </div>
     </div>

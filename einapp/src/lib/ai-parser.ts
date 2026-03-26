@@ -15,15 +15,14 @@ export async function extractTasksFromTranscription(
     max_tokens: 512,
     system: `את עוזרת ניהול מלונאי. חלצי משימות מההודעה הקולית.
 החזירי JSON בלבד (מערך): [{ "description": "...", "date": "YYYY-MM-DD", "type": "one_time|recurring", "priority": "normal|urgent", "days_of_week": ["sunday"] }]
-התאריך של היום: ${today}. אם היא אומרת "יום חמישי" בלי לציין — זה יום חמישי הקרוב.
+התאריך של היום: ${today}. אם היא אומרת "יום חמישי" — זה יום חמישי הקרוב.
 אם היא אומרת "כל יום שני" — זו משימה קבועה.
 אם אין משימות ברורות — החזירי מערך ריק [].`,
     messages: [{ role: "user", content: transcription }],
   });
 
   try {
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "[]";
+    const text = response.content[0].type === "text" ? response.content[0].text : "[]";
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
   } catch {
@@ -34,38 +33,42 @@ export async function extractTasksFromTranscription(
 export async function generateMorningMessage(
   tasksJson: string,
   dayName: string,
-  date: string
+  date: string,
+  weatherInfo: string = ""
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return `🐬 בוקר טוב! היום ${dayName} ${date}`;
+  if (!apiKey) return `בוקר טוב עינת! היום ${dayName}`;
 
   const client = new Anthropic({ apiKey });
 
   const response = await client.messages.create({
     model: process.env.UTILITY_MODEL || "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    system: `את Einapp — חברה סולארית של עינת. צרי הודעת בוקר טוב חמה ב-WhatsApp.
+    max_tokens: 600,
+    system: `את Einapp — חברה של עינת, מנהלת דולפין וילג'.
+צרי הודעת בוקר טוב חמה ב-WhatsApp.
+
 כללים:
-- פתחי בחום אישי (מה נשמע נשמה / בוקר טוב מלכה / הייי עינת)
+- פתחי בחום אישי — "בוקר טוב עינת", "היי עינת, מוכנה ליום?"
 - שני כל תבנית — כל יום קצת אחרת
+- הוסיפי את מזג האוויר — טמפרטורה, רוח, גשם צפוי
+- אם יש גשם בימים הקרובים — הזכירי שצריך לתכנן מראש
 - הוסיפי את המשימות בצורה ברורה (קבועות + מיוחדות)
-- סיימי בעידוד אישי
-- אימוג'ים: 🐬☀️💛🌊💪🌺 — בטבעיות
-- עברית יומיומית, קצר, חם, לא פורמלי
-- אם יש הרבה משימות: "יום עמוס! אבל את מטורפת 💪"
-- אם יום שישי: "שישי! כמעט סוף שבוע! 🌅"
-- אם אין משימות מיוחדות: "יום רגוע! תהני 😎"`,
+- סיימי בעידוד אישי קצר
+- עברית יומיומית, חם, לא פורמלי, בלי אימוג'ים
+- אם יום שישי: "שישי! כמעט סוף שבוע"
+- אם אין משימות מיוחדות: "יום רגוע"
+- קצר ותמציתי — 8-12 שורות מקסימום`,
     messages: [
       {
         role: "user",
-        content: `המשימות: ${tasksJson}\nהיום: ${dayName} ${date}`,
+        content: `המשימות: ${tasksJson}\nהיום: ${dayName} ${date}\nמזג אוויר: ${weatherInfo || "לא זמין"}`,
       },
     ],
   });
 
   return response.content[0].type === "text"
     ? response.content[0].text
-    : `🐬 בוקר טוב! היום ${dayName}`;
+    : `בוקר טוב עינת! היום ${dayName}`;
 }
 
 export async function generateEveningMessage(
@@ -73,22 +76,25 @@ export async function generateEveningMessage(
   tomorrowTasksJson: string
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return "🌅 ערב טוב עינת! איך היה היום? 💛";
+  if (!apiKey) return "ערב טוב עינת! איך היה היום?";
 
   const client = new Anthropic({ apiKey });
 
   const response = await client.messages.create({
     model: process.env.UTILITY_MODEL || "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    system: `את Einapp — חברה של עינת. צרי הודעת ערב קצרה ב-WhatsApp.
+    max_tokens: 400,
+    system: `את Einapp — חברה של עינת.
+צרי הודעת ערב קצרה ב-WhatsApp — זה הפוינט של 16:30.
+
 כללים:
-- שאלי איך היה היום — בחום אמיתי
-- אם יש משימות שלא הושלמו: שאלי אם להעביר למחר (בלי שיפוט!)
-- אם הכל הושלם: חגגי! "את אלופה!"
+- שאלי איך עבר היום — בחום אמיתי
+- אם יש משימות שלא הושלמו: שאלי אם להעביר למחר (בלי שיפוט)
+- אם הכל הושלם: חגגי! "סיימת הכל!"
 - תני הצצה למחר
-- סיימי בלילה טוב חם
+- סיימי בצורה חמה
 - קצר! 4-6 שורות מקסימום
-- אם יום שישי ערב: "שבת שלום נשמה! 🕯️ תנוחי, מגיע לך"`,
+- בלי אימוג'ים
+- אם יום שישי: "שבת שלום עינת, תנוחי, מגיע לך"`,
     messages: [
       {
         role: "user",
@@ -99,5 +105,5 @@ export async function generateEveningMessage(
 
   return response.content[0].type === "text"
     ? response.content[0].text
-    : "🌅 ערב טוב! לילה טוב נשמה 💛🐬";
+    : "ערב טוב עינת! איך היה היום?";
 }

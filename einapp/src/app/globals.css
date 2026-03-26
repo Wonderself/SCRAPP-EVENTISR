@@ -1,18 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dolphin-ocean: #4A90B8;
-  --color-dolphin-ocean-light: #7AB5D4;
-  --color-dolphin-ocean-dark: #2D6A8F;
-  --color-dolphin-sand: #D4C5A9;
-  --color-dolphin-sand-light: #E8DFD0;
-  --color-dolphin-sand-dark: #B5A488;
-  --color-dolphin-earth: #8B6F47;
-  --color-dolphin-sea: #5B9E8F;
-  --color-dolphin-cream: #FAF6F0;
-  --color-dolphin-sunset: #E8946A;
-  --color-dolphin-sunset-light: #F5B899;
-  --color-dolphin-urgent: #E85D4A;
+  /* Day theme */
+  --color-day-sky: #87CEEB;
+  --color-day-ocean: #2196c8;
+  --color-day-ocean-deep: #1a7fb5;
+  --color-day-ocean-light: #47b8e0;
+  --color-day-foam: #F0F7FA;
+  --color-day-sand: #f5efe6;
+  --color-day-sand-dark: #d4c5a9;
+  --color-day-text: #1a3a4a;
+  --color-day-text-soft: #4a7a8a;
+  --color-day-text-muted: #8ab0c0;
+
+  /* Sunset theme */
+  --color-sunset-deep: #1a1520;
+  --color-sunset-card: #2a2035;
+  --color-sunset-warm: #e65100;
+  --color-sunset-rose: #c2185b;
+  --color-sunset-gold: #ff8f00;
+  --color-sunset-text: #f5e6d8;
+  --color-sunset-text-soft: #c8a88a;
+  --color-sunset-text-muted: #8a6a5a;
+
+  /* Shared */
+  --color-urgent: #e53935;
+  --color-success: #43a047;
+  --color-white: #ffffff;
 
   --font-family-hebrew: 'Heebo', sans-serif;
   --font-family-english: 'Inter', sans-serif;
@@ -20,5 +34,58 @@
 
 body {
   font-family: var(--font-family-hebrew);
-  background-color: var(--color-dolphin-cream);
+}
+
+/* Smooth transitions between themes */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 500ms;
+  transition-timing-function: ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 4px;
+}
+
+/* No transition on transforms/opacity for animations */
+.no-color-transition {
+  transition-property: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease-out forwards;
 }

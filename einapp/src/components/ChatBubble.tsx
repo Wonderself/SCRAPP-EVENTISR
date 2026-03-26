@@ -4,23 +4,30 @@ interface Props {
   role: "user" | "assistant";
   content: string;
   time?: string;
+  isDay: boolean;
 }
 
-export default function ChatBubble({ role, content, time }: Props) {
+export default function ChatBubble({ role, content, time, isDay }: Props) {
   const isUser = role === "user";
 
   return (
     <div className={`flex ${isUser ? "justify-start" : "justify-end"} mb-2`}>
       <div
-        className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+        className={`max-w-[82%] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
           isUser
-            ? "bg-dolphin-ocean text-white rounded-t-[18px] rounded-bl-[18px] rounded-br-[4px]"
-            : "bg-white border border-dolphin-sand text-gray-800 rounded-t-[18px] rounded-br-[18px] rounded-bl-[4px]"
+            ? isDay
+              ? "bg-[#2196c8] text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px]"
+              : "bg-[#e65100] text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px]"
+            : isDay
+            ? "bg-white border border-[#d8eef5] text-[#1a3a4a] rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm"
+            : "bg-[#2a2035] border border-[#3a2540] text-[#f5e6d8] rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
         }`}
       >
         {content}
         {time && (
-          <p className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-dolphin-sand-dark"}`}>
+          <p className={`text-[10px] mt-1.5 ${
+            isUser ? "text-white/50" : isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
+          }`}>
             {time}
           </p>
         )}
