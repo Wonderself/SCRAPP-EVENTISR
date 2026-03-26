@@ -7,7 +7,7 @@ function hashPassword(pw: string): string {
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json();
-  const expected = process.env.APP_PASSWORD || "einapp2026";
+  const expected = process.env.APP_PASSWORD || "2026";
 
   if (password === expected) {
     const token = crypto.randomBytes(32).toString("hex");

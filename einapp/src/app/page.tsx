@@ -7,6 +7,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -43,14 +44,24 @@ export default function LoginPage() {
         <p className="text-dolphin-earth text-lg mb-6">שלום עינת! 💛</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="סיסמה"
-            className="w-full px-4 py-3 rounded-xl border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none focus:ring-2 focus:ring-dolphin-ocean-light text-center text-lg bg-dolphin-cream"
-            autoFocus
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              inputMode="numeric"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="קוד כניסה"
+              className="w-full px-4 py-3 rounded-xl border border-dolphin-sand focus:border-dolphin-ocean focus:outline-none focus:ring-2 focus:ring-dolphin-ocean-light text-center text-lg bg-dolphin-cream tracking-widest"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-dolphin-sand-dark text-sm"
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
 
           {error && (
             <p className="text-dolphin-urgent text-sm">{error}</p>
