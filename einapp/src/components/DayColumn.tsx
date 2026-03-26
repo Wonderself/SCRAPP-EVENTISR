@@ -23,50 +23,72 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
     return 0;
   });
 
+  const completed = tasks.filter((t) => t.completed).length;
+  const total = tasks.length;
+
   return (
     <div
-      className={`rounded-2xl p-3 min-w-0 transition-all ${
+      className={`rounded-2xl p-3 min-w-[110px] transition-all ${
         isToday
           ? isDay
-            ? "bg-[#2196c8]/8 border-2 border-[#2196c8]/30 shadow-sm shadow-[#2196c8]/10"
-            : "bg-[#e65100]/8 border-2 border-[#e65100]/30 shadow-sm shadow-[#e65100]/10"
+            ? "bg-gradient-to-b from-cyan-50 to-white border-2 border-cyan-300 shadow-md shadow-cyan-100/50"
+            : "bg-gradient-to-b from-orange-500/10 to-transparent border-2 border-orange-400/30 shadow-md shadow-orange-500/10"
           : isDay
-          ? "bg-white/60 border border-[#d8eef5]"
-          : "bg-[#2a2035]/60 border border-[#3a2540]"
+          ? "bg-white/50 border border-cyan-100"
+          : "bg-white/[0.03] border border-white/5"
       }`}
     >
-      <div className="text-center mb-3">
-        <div className={`text-xs lg:text-sm font-semibold uppercase tracking-wider ${
-          isToday
-            ? isDay ? "text-[#2196c8]" : "text-[#e65100]"
-            : isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
-        }`}>
+      {/* Day header */}
+      <div className="text-center mb-2.5">
+        <div
+          className={`text-[11px] font-bold uppercase tracking-wider ${
+            isToday
+              ? isDay ? "text-cyan-500" : "text-orange-400"
+              : isDay ? "text-cyan-300" : "text-white/25"
+          }`}
+        >
           {getDayShort(dayIndex)}
         </div>
-        <div className={`text-xl lg:text-2xl font-bold mt-0.5 ${
-          isToday
-            ? isDay ? "text-[#1a7fb5]" : "text-[#ff8f00]"
-            : isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"
-        }`}>
+        <div
+          className={`text-2xl font-extrabold mt-0.5 ${
+            isToday
+              ? isDay ? "text-cyan-700" : "text-orange-300"
+              : isDay ? "text-cyan-900" : "text-white/70"
+          }`}
+        >
           {dayNum}
         </div>
         {isToday && (
-          <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
-            isDay ? "bg-[#2196c8]" : "bg-[#e65100]"
-          }`} />
+          <div
+            className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
+              isDay ? "bg-cyan-500" : "bg-orange-400"
+            }`}
+          />
         )}
       </div>
 
+      {/* Tasks */}
       <div className="space-y-1.5">
         {sorted.length === 0 && (
-          <p className={`text-[10px] text-center py-3 ${isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"}`}>
-            —
+          <p className={`text-[10px] text-center py-2 ${isDay ? "text-cyan-200" : "text-white/10"}`}>
+            ---
           </p>
         )}
         {sorted.map((task) => (
           <TaskCard key={`${task.id}-${date}`} task={task} date={date} isDay={isDay} onToggle={onToggle} />
         ))}
       </div>
+
+      {/* Mini progress */}
+      {total > 0 && (
+        <div className="mt-2 flex justify-center">
+          <span className={`text-[10px] font-semibold ${
+            isDay ? "text-cyan-400" : "text-orange-400/50"
+          }`}>
+            {completed}/{total}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

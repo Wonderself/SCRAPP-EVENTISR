@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MessageCircle, ListChecks, Waves } from "lucide-react";
+import { Plus, MessageCircle, Waves } from "lucide-react";
 import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
@@ -39,111 +39,154 @@ export default function DashboardPage() {
 
   const isDay = mode === "day";
 
-  if (!mounted) return <div className="min-h-screen bg-[#F0F7FA]" />;
+  if (!mounted) return <div className="min-h-screen bg-[#f0f9ff]" />;
 
   return (
-    <div className={`min-h-screen pb-28 ${isDay ? "bg-[#F0F7FA]" : "bg-[#1a1520]"}`}>
-      {/* Hero Header */}
+    <div
+      className={`min-h-screen pb-24 ${
+        isDay
+          ? "bg-gradient-to-b from-[#f0f9ff] to-white"
+          : "bg-gradient-to-b from-[#0f0a1a] to-[#1a1228]"
+      }`}
+    >
+      {/* ===== HERO ===== */}
       <div
-        className={`relative overflow-hidden px-6 pt-14 pb-12 ${
+        className={`relative overflow-hidden ${
           isDay
-            ? "bg-gradient-to-bl from-[#0d6eaa] via-[#1a8ec8] to-[#5bc0eb]"
-            : "bg-gradient-to-bl from-[#0d0a14] via-[#2d1540] to-[#6a1b4d]"
+            ? "bg-gradient-to-br from-[#0e7490] via-[#0891b2] to-[#06b6d4]"
+            : "bg-gradient-to-br from-[#7c2d12] via-[#be185d] to-[#581c87] animate-gradient"
         }`}
       >
-        {/* Animated sun / moon */}
-        <div className="absolute top-8 left-8 animate-float no-color-transition">
+        {/* Sun / Moon */}
+        <div className="absolute top-6 left-6 no-color-transition">
           {isDay ? (
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#fff8c4] to-[#ffd54f] opacity-80 blur-[1px]"
-              style={{ boxShadow: "0 0 40px rgba(255,213,79,0.5), 0 0 80px rgba(255,213,79,0.2)" }}
-            />
+            <div className="relative">
+              <div
+                className="w-20 h-20 rounded-full animate-pulse-glow no-color-transition"
+                style={{
+                  background: "radial-gradient(circle, #fef3c7, #fbbf24, #f59e0b)",
+                  boxShadow: "0 0 50px rgba(251,191,36,0.5), 0 0 100px rgba(251,191,36,0.25), 0 0 150px rgba(251,191,36,0.1)",
+                }}
+              />
+              {/* Sun rays */}
+              <div className="absolute inset-0 animate-float no-color-transition">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-yellow-300/40 rounded-full" />
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-yellow-300/40 rounded-full" />
+                <div className="absolute top-1/2 -left-2 -translate-y-1/2 h-0.5 w-4 bg-yellow-300/40 rounded-full" />
+                <div className="absolute top-1/2 -right-2 -translate-y-1/2 h-0.5 w-4 bg-yellow-300/40 rounded-full" />
+              </div>
+            </div>
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ffecd2] to-[#fcb69f] opacity-60"
-              style={{ boxShadow: "0 0 30px rgba(252,182,159,0.3)" }}
+            <div
+              className="w-16 h-16 rounded-full animate-pulse-glow no-color-transition"
+              style={{
+                background: "radial-gradient(circle at 35% 35%, #fef3c7, #fde68a, #fbbf24)",
+                boxShadow: "0 0 40px rgba(253,230,138,0.3), 0 0 80px rgba(253,230,138,0.15)",
+              }}
             />
           )}
         </div>
 
-        {/* Decorative circles */}
-        <div className={`absolute -bottom-16 -right-16 w-48 h-48 rounded-full opacity-[0.07] ${isDay ? "bg-white" : "bg-[#e65100]"}`} />
-        <div className={`absolute top-4 right-1/3 w-24 h-24 rounded-full opacity-[0.05] ${isDay ? "bg-white" : "bg-[#c2185b]"}`} />
+        {/* Decorative dots */}
+        {isDay ? (
+          <>
+            <div className="absolute top-12 right-12 w-2 h-2 rounded-full bg-white/20" />
+            <div className="absolute top-24 right-8 w-1.5 h-1.5 rounded-full bg-white/15" />
+            <div className="absolute top-8 right-24 w-1 h-1 rounded-full bg-white/25" />
+          </>
+        ) : (
+          <>
+            <div className="absolute top-10 right-16 w-1.5 h-1.5 rounded-full bg-white/20" />
+            <div className="absolute top-20 right-10 w-1 h-1 rounded-full bg-white/30" />
+            <div className="absolute top-6 right-32 w-1 h-1 rounded-full bg-white/15" />
+            <div className="absolute top-28 right-20 w-0.5 h-0.5 rounded-full bg-white/25" />
+            <div className="absolute top-14 right-40 w-1 h-1 rounded-full bg-white/20" />
+          </>
+        )}
 
-        {/* Waves decoration at bottom */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-8">
-            <path
-              fill={isDay ? "#F0F7FA" : "#1a1520"}
-              d="M0,60 C360,100 720,20 1080,60 C1260,80 1380,40 1440,60 L1440,100 L0,100 Z"
-            />
-          </svg>
-        </div>
-
-        <div className="relative z-10">
-          <p className="text-white/50 text-sm font-light tracking-wider mb-2">
+        {/* Content */}
+        <div className="relative z-10 px-6 pt-16 pb-20">
+          <p className="text-white/50 text-xs font-light tracking-wider mb-3 animate-fade-in no-color-transition">
             {formatHebrewDate(today)}
           </p>
-          <h1 className="text-white text-4xl lg:text-5xl font-extrabold leading-tight">
+          <h1 className="text-white text-4xl lg:text-5xl font-extrabold leading-tight mb-1 animate-fade-up no-color-transition">
             {getGreeting()}
           </h1>
-          <p className="text-white/40 text-sm mt-2 tracking-[0.2em] uppercase font-light">
+          <p className="text-white/30 text-[11px] mt-3 tracking-[0.3em] uppercase font-light">
             Sea Vibes Vacation
           </p>
         </div>
+
+        {/* Wave transition */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-10 block">
+            <path
+              fill={isDay ? "#f0f9ff" : "#0f0a1a"}
+              d="M0,40 C240,70 480,10 720,40 C960,70 1200,10 1440,40 L1440,80 L0,80 Z"
+            />
+          </svg>
+        </div>
       </div>
 
-      <div className="px-4 lg:px-8 max-w-6xl mx-auto -mt-4 space-y-5">
-        {/* Weather */}
-        <div className="animate-fade-up no-color-transition">
+      {/* ===== CONTENT ===== */}
+      <div className="px-5 lg:px-8 max-w-2xl mx-auto -mt-6 space-y-5 relative z-10">
+
+        {/* Weather widget */}
+        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.05s" }}>
           <WeatherWidget isDay={isDay} />
         </div>
 
-        {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-4 animate-fade-up no-color-transition" style={{ animationDelay: "0.1s" }}>
+        {/* Quick actions — 2 big buttons */}
+        <div className="grid grid-cols-2 gap-3 animate-fade-up no-color-transition" style={{ animationDelay: "0.1s" }}>
           <button
-            onClick={() => setShowAddTask(true)}
-            className={`rounded-2xl p-6 lg:p-8 flex flex-col items-center gap-3 transition-all active:scale-[0.97] group ${
-              isDay
-                ? "bg-white border border-[#d8eef5] hover:shadow-lg hover:shadow-[#2196c8]/10"
-                : "bg-[#2a2035] border border-[#3a2540] hover:shadow-lg hover:shadow-[#e65100]/10"
+            onClick={() => router.push("/chat")}
+            className={`relative overflow-hidden rounded-2xl p-5 flex flex-col items-center gap-3 transition-all active:scale-[0.97] ${
+              isDay ? "glass-day shadow-lg shadow-cyan-100/50" : "glass-sunset shadow-lg shadow-orange-900/20"
             }`}
           >
-            <div className={`p-4 rounded-2xl transition-all group-hover:scale-110 ${
-              isDay ? "bg-[#2196c8]/10" : "bg-[#e65100]/10"
-            }`}>
-              <Plus size={28} className={isDay ? "text-[#2196c8]" : "text-[#e65100]"} />
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                isDay
+                  ? "bg-gradient-to-br from-cyan-400 to-cyan-600"
+                  : "bg-gradient-to-br from-orange-400 to-pink-500"
+              }`}
+            >
+              <MessageCircle size={26} className="text-white" strokeWidth={2} />
             </div>
-            <span className={`text-sm lg:text-base font-semibold ${isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"}`}>
-              משימה חדשה
+            <span className={`text-sm font-bold ${isDay ? "text-cyan-800" : "text-orange-100"}`}>
+              דברי עם Einapp
             </span>
           </button>
 
           <button
-            onClick={() => router.push("/chat")}
-            className={`rounded-2xl p-6 lg:p-8 flex flex-col items-center gap-3 transition-all active:scale-[0.97] group ${
-              isDay
-                ? "bg-white border border-[#d8eef5] hover:shadow-lg hover:shadow-[#2196c8]/10"
-                : "bg-[#2a2035] border border-[#3a2540] hover:shadow-lg hover:shadow-[#e65100]/10"
+            onClick={() => setShowAddTask(true)}
+            className={`relative overflow-hidden rounded-2xl p-5 flex flex-col items-center gap-3 transition-all active:scale-[0.97] ${
+              isDay ? "glass-day shadow-lg shadow-cyan-100/50" : "glass-sunset shadow-lg shadow-orange-900/20"
             }`}
           >
-            <div className={`p-4 rounded-2xl transition-all group-hover:scale-110 ${
-              isDay ? "bg-[#47b8e0]/10" : "bg-[#c2185b]/10"
-            }`}>
-              <MessageCircle size={28} className={isDay ? "text-[#47b8e0]" : "text-[#c2185b]"} />
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                isDay
+                  ? "bg-gradient-to-br from-teal-400 to-emerald-500"
+                  : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
+              }`}
+            >
+              <Plus size={28} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className={`text-sm lg:text-base font-semibold ${isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"}`}>
-              דברי עם Einapp
+            <span className={`text-sm font-bold ${isDay ? "text-teal-800" : "text-fuchsia-100"}`}>
+              משימה חדשה
             </span>
           </button>
         </div>
 
-        {/* Week View */}
+        {/* Week view */}
         <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.2s" }}>
-          <h2 className={`text-base lg:text-lg font-bold mb-4 flex items-center gap-2 ${
-            isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"
-          }`}>
-            <Waves size={18} className={isDay ? "text-[#2196c8]" : "text-[#e65100]"} />
-            השבוע שלך
-          </h2>
+          <div className="flex items-center gap-2 mb-3">
+            <Waves size={16} className={isDay ? "text-cyan-500" : "text-orange-400"} />
+            <h2 className={`text-base font-bold ${isDay ? "text-cyan-900" : "text-orange-100"}`}>
+              השבוע שלך
+            </h2>
+          </div>
           <WeekView isDay={isDay} refreshKey={refreshKey} />
         </div>
       </div>

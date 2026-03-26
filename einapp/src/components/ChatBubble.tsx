@@ -16,17 +16,17 @@ export default function ChatBubble({ role, content, time, isDay }: Props) {
         className={`max-w-[82%] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
           isUser
             ? isDay
-              ? "bg-[#2196c8] text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px]"
-              : "bg-[#e65100] text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px]"
+              ? "bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px] shadow-sm shadow-cyan-200/30"
+              : "bg-gradient-to-br from-orange-500 to-pink-500 text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px] shadow-sm shadow-orange-500/20"
             : isDay
-            ? "bg-white border border-[#d8eef5] text-[#1a3a4a] rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm"
-            : "bg-[#2a2035] border border-[#3a2540] text-[#f5e6d8] rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
+            ? "bg-white text-cyan-900 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm shadow-cyan-100/50"
+            : "bg-white/[0.06] text-white/90 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
         }`}
       >
         {content}
         {time && (
           <p className={`text-[10px] mt-1.5 ${
-            isUser ? "text-white/50" : isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
+            isUser ? "text-white/50" : isDay ? "text-cyan-300" : "text-white/20"
           }`}>
             {time}
           </p>

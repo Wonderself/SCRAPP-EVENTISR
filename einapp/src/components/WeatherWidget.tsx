@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cloud, Droplets, Wind, Sun, CloudRain } from "lucide-react";
+import { Droplets, Wind, Sun, CloudRain, Cloud, Thermometer } from "lucide-react";
 
 interface Weather {
   temp: number;
@@ -30,48 +30,51 @@ export default function WeatherWidget({ isDay }: Props) {
 
   if (!weather) return null;
 
+  const WeatherIcon = weather.rainToday ? CloudRain : Sun;
+
   return (
-    <div
-      className={`rounded-2xl p-4 ${
-        isDay
-          ? "bg-gradient-to-bl from-[#e8f4f8] to-white border border-[#d8eef5]"
-          : "bg-gradient-to-bl from-[#2a2035] to-[#1a1520] border border-[#3a2540]"
-      }`}
-    >
-      {/* Current */}
-      <div className="flex items-center justify-between mb-3">
+    <div className={`rounded-2xl overflow-hidden ${isDay ? "glass-day" : "glass-sunset"}`}>
+      {/* Main weather row */}
+      <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-xl ${isDay ? "bg-[#2196c8]/10" : "bg-[#e65100]/10"}`}>
-            {weather.rainToday ? (
-              <CloudRain size={22} className={isDay ? "text-[#2196c8]" : "text-[#e65100]"} />
-            ) : (
-              <Sun size={22} className={isDay ? "text-[#2196c8]" : "text-[#ff8f00]"} />
-            )}
+          <div
+            className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+              isDay
+                ? "bg-gradient-to-br from-amber-300 to-orange-400"
+                : "bg-gradient-to-br from-orange-400 to-rose-500"
+            }`}
+          >
+            <WeatherIcon size={20} className="text-white" />
           </div>
           <div>
-            <span className={`text-2xl font-bold ${isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"}`}>
-              {weather.temp}°
-            </span>
-            <p className={`text-xs ${isDay ? "text-[#4a7a8a]" : "text-[#c8a88a]"}`}>
+            <div className="flex items-baseline gap-1">
+              <span className={`text-3xl font-extrabold tracking-tight ${isDay ? "text-cyan-900" : "text-white"}`}>
+                {weather.temp}°
+              </span>
+            </div>
+            <p className={`text-xs font-medium -mt-0.5 ${isDay ? "text-cyan-600" : "text-orange-200"}`}>
               {weather.description}
             </p>
           </div>
         </div>
-        <div className={`flex gap-3 text-xs ${isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"}`}>
+
+        <div className={`flex gap-4 text-xs ${isDay ? "text-cyan-600" : "text-orange-200/70"}`}>
           <span className="flex items-center gap-1">
-            <Wind size={12} /> {weather.windSpeed}
+            <Wind size={13} /> {weather.windSpeed}
           </span>
           <span className="flex items-center gap-1">
-            <Droplets size={12} /> {weather.humidity}%
+            <Droplets size={13} /> {weather.humidity}%
           </span>
         </div>
       </div>
 
       {/* Rain warning */}
       {weather.rainUpcoming && weather.rainDays.length > 0 && (
-        <div className={`text-xs px-3 py-2 rounded-xl mb-3 flex items-center gap-2 ${
-          isDay ? "bg-[#fff3e0] text-[#e65100]" : "bg-[#3a2540] text-[#ff8f00]"
-        }`}>
+        <div
+          className={`mx-4 mb-3 px-3 py-2 rounded-xl flex items-center gap-2 text-xs font-medium ${
+            isDay ? "bg-amber-50 text-amber-700" : "bg-orange-500/10 text-orange-300"
+          }`}
+        >
           <CloudRain size={14} />
           <span>
             {weather.rainToday
@@ -82,21 +85,23 @@ export default function WeatherWidget({ isDay }: Props) {
       )}
 
       {/* Mini forecast */}
-      <div className="flex gap-2 overflow-x-auto">
-        {weather.forecast.slice(0, 4).map((day) => (
+      <div className={`flex gap-0 border-t ${isDay ? "border-cyan-100" : "border-white/5"}`}>
+        {weather.forecast.slice(0, 4).map((day, i) => (
           <div
             key={day.dayName}
-            className={`flex-1 min-w-[52px] text-center py-2 px-1 rounded-xl text-xs ${
-              isDay ? "bg-[#f5f9fb]" : "bg-[#231a2e]"
+            className={`flex-1 text-center py-2.5 ${
+              i < 3 ? (isDay ? "border-r border-cyan-100" : "border-r border-white/5") : ""
             }`}
           >
-            <p className={`font-medium mb-1 ${isDay ? "text-[#4a7a8a]" : "text-[#c8a88a]"}`}>
+            <p className={`text-[10px] font-semibold mb-0.5 ${isDay ? "text-cyan-500" : "text-orange-300/60"}`}>
               {day.dayName}
             </p>
-            <p className={isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"}>
+            <p className={`text-sm font-bold ${isDay ? "text-cyan-800" : "text-white"}`}>
               {day.tempMax}°
             </p>
-            {day.rain && <CloudRain size={10} className={`mx-auto mt-0.5 ${isDay ? "text-[#2196c8]" : "text-[#e65100]"}`} />}
+            {day.rain && (
+              <CloudRain size={10} className={`mx-auto mt-0.5 ${isDay ? "text-cyan-400" : "text-orange-400"}`} />
+            )}
           </div>
         ))}
       </div>

@@ -1,31 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  /* Day theme */
+  /* Day theme — ocean, surf, sunshine */
   --color-day-sky: #87CEEB;
-  --color-day-ocean: #2196c8;
-  --color-day-ocean-deep: #1a7fb5;
-  --color-day-ocean-light: #47b8e0;
-  --color-day-foam: #F0F7FA;
-  --color-day-sand: #f5efe6;
-  --color-day-sand-dark: #d4c5a9;
-  --color-day-text: #1a3a4a;
-  --color-day-text-soft: #4a7a8a;
-  --color-day-text-muted: #8ab0c0;
+  --color-day-ocean: #0891b2;
+  --color-day-ocean-deep: #0e7490;
+  --color-day-ocean-light: #22d3ee;
+  --color-day-foam: #f0f9ff;
+  --color-day-sand: #fef3c7;
+  --color-day-text: #164e63;
+  --color-day-text-soft: #0e7490;
+  --color-day-text-muted: #67e8f9;
 
-  /* Sunset theme */
-  --color-sunset-deep: #1a1520;
-  --color-sunset-card: #2a2035;
-  --color-sunset-warm: #e65100;
-  --color-sunset-rose: #c2185b;
-  --color-sunset-gold: #ff8f00;
-  --color-sunset-text: #f5e6d8;
-  --color-sunset-text-soft: #c8a88a;
-  --color-sunset-text-muted: #8a6a5a;
+  /* Sunset theme — Instagram warm gradients */
+  --color-sunset-deep: #0f0a1a;
+  --color-sunset-card: #1a1228;
+  --color-sunset-warm: #f97316;
+  --color-sunset-rose: #ec4899;
+  --color-sunset-gold: #fbbf24;
+  --color-sunset-text: #fef2f2;
+  --color-sunset-text-soft: #fdba74;
+  --color-sunset-text-muted: #78716c;
 
   /* Shared */
-  --color-urgent: #e53935;
-  --color-success: #43a047;
+  --color-urgent: #ef4444;
+  --color-success: #22c55e;
   --color-white: #ffffff;
 
   --font-family-hebrew: 'Heebo', sans-serif;
@@ -34,6 +33,7 @@
 
 body {
   font-family: var(--font-family-hebrew);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Smooth transitions between themes */
@@ -46,6 +46,7 @@ body {
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -53,7 +54,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.12);
   border-radius: 4px;
 }
 
@@ -62,9 +63,15 @@ body {
   transition-property: none;
 }
 
+/* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 @keyframes shimmer {
@@ -73,12 +80,31 @@ body {
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wave-slow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 .animate-shimmer {
@@ -87,5 +113,44 @@ body {
 }
 
 .animate-fade-up {
-  animation: fadeUp 0.5s ease-out forwards;
+  animation: fadeUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-wave {
+  animation: wave-slow 20s linear infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Glass effect */
+.glass-day {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-sunset {
+  background: rgba(26, 18, 40, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Hide scrollbar for horizontal scroll areas */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

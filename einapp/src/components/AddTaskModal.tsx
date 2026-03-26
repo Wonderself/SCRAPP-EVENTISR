@@ -65,14 +65,16 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
     onClose();
   }
 
-  const cardBg = isDay ? "bg-white" : "bg-[#2a2035]";
+  const cardBg = isDay ? "bg-white" : "bg-[#1a1228]";
   const inputBg = isDay
-    ? "bg-[#f0f7fa] border-[#d8eef5] focus:border-[#2196c8] text-[#1a3a4a] placeholder-[#8ab0c0]"
-    : "bg-[#1a1520] border-[#3a2540] focus:border-[#e65100] text-[#f5e6d8] placeholder-[#8a6a5a]";
-  const textPrimary = isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]";
-  const textSoft = isDay ? "text-[#4a7a8a]" : "text-[#c8a88a]";
-  const activeBtn = isDay ? "bg-[#2196c8] text-white" : "bg-[#e65100] text-white";
-  const inactiveBtn = isDay ? "bg-[#f0f7fa] text-[#4a7a8a]" : "bg-[#1a1520] text-[#c8a88a]";
+    ? "bg-cyan-50 border-cyan-100 focus:border-cyan-400 text-cyan-900 placeholder-cyan-300"
+    : "bg-white/5 border-white/10 focus:border-orange-400 text-white placeholder-white/20";
+  const textPrimary = isDay ? "text-cyan-900" : "text-white";
+  const textSoft = isDay ? "text-cyan-500" : "text-orange-300";
+  const activeBtn = isDay
+    ? "bg-gradient-to-r from-cyan-500 to-teal-400 text-white shadow-sm"
+    : "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-sm";
+  const inactiveBtn = isDay ? "bg-cyan-50 text-cyan-600" : "bg-white/5 text-white/40";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
@@ -88,7 +90,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         <div className="flex gap-2">
           <button
             onClick={() => setType("one_time")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               type === "one_time" ? activeBtn : inactiveBtn
             }`}
           >
@@ -96,7 +98,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </button>
           <button
             onClick={() => setType("recurring")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               type === "recurring" ? activeBtn : inactiveBtn
             }`}
           >
@@ -110,7 +112,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           placeholder="מה צריך לעשות?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm transition-all ${inputBg}`}
+          className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm transition-all ${inputBg}`}
           autoFocus
         />
 
@@ -120,14 +122,14 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm ${inputBg}`}
+              className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm ${inputBg}`}
             />
             <div className="flex gap-2">
               <button
                 onClick={() => setPriority("normal")}
-                className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   priority === "normal"
-                    ? "bg-[#43a047] text-white"
+                    ? "bg-emerald-500 text-white shadow-sm"
                     : inactiveBtn
                 }`}
               >
@@ -135,9 +137,9 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
               </button>
               <button
                 onClick={() => setPriority("urgent")}
-                className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   priority === "urgent"
-                    ? "bg-[#e53935] text-white"
+                    ? "bg-red-500 text-white shadow-sm"
                     : inactiveBtn
                 }`}
               >
@@ -153,7 +155,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
                 <button
                   key={d.key}
                   onClick={() => toggleDay(d.key)}
-                  className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
+                  className={`w-10 h-10 rounded-full text-sm font-semibold transition-all ${
                     daysOfWeek.includes(d.key) ? activeBtn : inactiveBtn
                   }`}
                 >
@@ -168,16 +170,16 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className={`w-full px-4 py-3.5 rounded-2xl border outline-none text-sm ${inputBg}`}
+          className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm ${inputBg}`}
         />
 
         <button
           onClick={handleSave}
           disabled={saving || !description.trim()}
-          className={`w-full py-4 rounded-2xl text-white font-semibold transition-all disabled:opacity-40 ${
+          className={`w-full py-4 rounded-2xl text-white font-bold text-base transition-all disabled:opacity-30 ${
             isDay
-              ? "bg-gradient-to-l from-[#1a7fb5] to-[#47b8e0] hover:shadow-lg"
-              : "bg-gradient-to-l from-[#c2185b] to-[#e65100] hover:shadow-lg"
+              ? "bg-gradient-to-r from-cyan-500 to-teal-400 hover:shadow-lg hover:shadow-cyan-200/40"
+              : "bg-gradient-to-r from-orange-500 to-pink-500 hover:shadow-lg hover:shadow-orange-500/20"
           }`}
         >
           {saving ? "..." : "הוסיפי"}

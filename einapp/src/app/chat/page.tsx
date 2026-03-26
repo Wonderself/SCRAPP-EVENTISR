@@ -49,14 +49,14 @@ export default function ChatPage() {
       const isDay = mode === "day";
       const greetings = isDay
         ? [
-            "היי עינת, מה נשמע? מוכנה ליום?",
-            "בוקר טוב עינת! ספרי לי מה בתוכנית",
-            "שלום עינת, יאללה נתחיל את היום",
+            "היי נשמה! מה נשמע? מוכנה ליום?",
+            "בוקר טוב מאמי! ספרי לי מה בתוכנית",
+            "שלום חביבה, יאללה נתחיל את היום",
           ]
         : [
-            "ערב טוב עינת, איך היה היום?",
-            "היי עינת, ספרי לי איך עבר היום",
-            "ערב טוב! הכל בסדר?",
+            "ערב טוב נשמה, איך היה היום?",
+            "היי מאמי, ספרי לי איך עבר היום",
+            "ערב טוב חביבה! הכל בסדר?",
           ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
@@ -92,7 +92,7 @@ export default function ChatPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "בעיה בחיבור, נסי שוב", time: now },
+        { role: "assistant", content: "בעיה בחיבור נשמה, נסי שוב", time: now },
       ]);
     } finally {
       setLoading(false);
@@ -101,24 +101,31 @@ export default function ChatPage() {
 
   const isDay = mode === "day";
 
-  if (!mounted) return <div className="min-h-screen bg-[#F0F7FA]" />;
+  if (!mounted) return <div className="min-h-screen bg-[#f0f9ff]" />;
 
   return (
-    <div className={`min-h-screen flex flex-col pb-20 ${isDay ? "bg-[#F0F7FA]" : "bg-[#1a1520]"}`}>
+    <div className={`min-h-screen flex flex-col pb-20 ${isDay ? "bg-[#f0f9ff]" : "bg-[#0f0a1a]"}`}>
       {/* Header */}
       <div
-        className={`px-4 pt-12 pb-4 flex items-center gap-3 ${
+        className={`px-5 pt-12 pb-4 flex items-center gap-3 ${
           isDay
-            ? "bg-gradient-to-l from-[#1a7fb5] to-[#47b8e0]"
-            : "bg-gradient-to-l from-[#1a1025] to-[#4a1a3a]"
+            ? "bg-gradient-to-l from-[#0e7490] to-[#06b6d4]"
+            : "bg-gradient-to-l from-[#7c2d12] to-[#be185d]"
         }`}
       >
-        <button onClick={() => router.push("/dashboard")} className="text-white/70 hover:text-white">
-          <ArrowRight size={20} />
+        <button onClick={() => router.push("/dashboard")} className="text-white/60 hover:text-white transition-colors">
+          <ArrowRight size={22} />
         </button>
-        <div>
-          <h1 className="font-bold text-white">Einapp</h1>
-          <p className="text-[10px] text-white/50 tracking-widest uppercase">your assistant</p>
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+            isDay ? "bg-white/20" : "bg-white/10"
+          }`}>
+            E
+          </div>
+          <div>
+            <h1 className="font-bold text-white text-base">Einapp</h1>
+            <p className="text-[10px] text-white/40 tracking-widest uppercase">your assistant</p>
+          </div>
         </div>
       </div>
 
@@ -132,7 +139,7 @@ export default function ChatPage() {
         {loading && (
           <div className="flex justify-end">
             <div className={`px-4 py-3 rounded-2xl text-sm ${
-              isDay ? "bg-white text-[#8ab0c0]" : "bg-[#2a2035] text-[#8a6a5a]"
+              isDay ? "bg-white text-cyan-300" : "bg-white/5 text-orange-300/40"
             }`}>
               <span className="inline-flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -146,8 +153,8 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className={`fixed bottom-20 left-0 right-0 px-4 py-3 ${
-        isDay ? "bg-[#F0F7FA]/90 backdrop-blur-md" : "bg-[#1a1520]/90 backdrop-blur-md"
+      <div className={`fixed bottom-[68px] left-0 right-0 px-4 py-3 ${
+        isDay ? "bg-[#f0f9ff]/90 backdrop-blur-xl" : "bg-[#0f0a1a]/90 backdrop-blur-xl"
       }`}>
         <div className="flex gap-2 max-w-lg mx-auto">
           <input
@@ -156,20 +163,20 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="כתבי הודעה..."
-            className={`flex-1 px-5 py-3.5 rounded-2xl border outline-none text-sm transition-all ${
+            className={`flex-1 px-5 py-3.5 rounded-2xl border-2 outline-none text-sm transition-all ${
               isDay
-                ? "bg-white border-[#d8eef5] focus:border-[#2196c8] text-[#1a3a4a] placeholder-[#8ab0c0]"
-                : "bg-[#2a2035] border-[#3a2540] focus:border-[#e65100] text-[#f5e6d8] placeholder-[#8a6a5a]"
+                ? "bg-white border-cyan-100 focus:border-cyan-400 text-cyan-900 placeholder-cyan-300"
+                : "bg-white/5 border-white/10 focus:border-orange-400 text-white placeholder-white/20"
             }`}
             disabled={loading}
           />
           <button
             onClick={sendMessage}
             disabled={loading || !input.trim()}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all disabled:opacity-30 ${
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all disabled:opacity-20 ${
               isDay
-                ? "bg-[#2196c8] text-white hover:bg-[#1a7fb5]"
-                : "bg-[#e65100] text-white hover:bg-[#c2185b]"
+                ? "bg-gradient-to-br from-cyan-500 to-teal-400 text-white shadow-md shadow-cyan-200/50"
+                : "bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-md shadow-orange-500/20"
             }`}
           >
             <Send size={18} />
