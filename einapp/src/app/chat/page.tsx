@@ -86,17 +86,23 @@ export default function ChatPage() {
   if (!mounted) return <div className="h-[100dvh] bg-sky-100" />;
 
   return (
-    <div className={`h-[100dvh] flex flex-col overflow-hidden ${isDay ? "bg-sky-50" : "bg-[#0d0820]"}`}>
+    <div className={`h-[100dvh] flex flex-col overflow-hidden ${
+      isDay
+        ? "bg-gradient-to-b from-sky-50 via-cyan-50/50 to-white"
+        : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
+    }`}>
       {/* Header */}
       <div className={`shrink-0 px-4 pt-10 pb-3 lg:pt-12 lg:pb-4 flex items-center gap-3 ${
-        isDay ? "bg-gradient-to-l from-sky-400 to-cyan-400" : "bg-gradient-to-l from-orange-500 to-pink-500"
+        isDay
+          ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
+          : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <button onClick={() => router.push("/dashboard")} className="cartoon-btn text-white/70 hover:text-white">
+        <button onClick={() => router.push("/dashboard")} className="text-white/70 hover:text-white transition-colors">
           <ArrowRight size={20} strokeWidth={3} />
         </button>
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 lg:w-11 lg:h-11 rounded-xl flex items-center justify-center text-white font-black text-base lg:text-xl ${
-            isDay ? "bg-white/20 shadow-[0_2px_0_rgba(255,255,255,0.1)]" : "bg-white/10 shadow-[0_2px_0_rgba(255,255,255,0.05)]"
+            isDay ? "bg-white/20" : "bg-white/10"
           }`}>
             E
           </div>
@@ -110,17 +116,21 @@ export default function ChatPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 lg:px-8 py-3 space-y-1 max-w-3xl mx-auto w-full">
         {messages.map((msg, i) => (
-          <div key={i} className="animate-fade-up no-color-transition" style={{ animationDelay: `${Math.min(i * 30, 300)}ms` }}>
+          <div key={i}>
             <ChatBubble role={msg.role} content={msg.content} time={msg.time} isDay={isDay} />
           </div>
         ))}
         {loading && (
           <div className="flex justify-end">
-            <div className={`px-4 py-2.5 rounded-2xl ${isDay ? "cartoon-card-day" : "cartoon-card-sunset"}`}>
+            <div className={`px-4 py-2.5 rounded-2xl ${
+              isDay
+                ? "bg-white border border-sky-100"
+                : "bg-white/[0.06] border border-white/[0.08]"
+            }`}>
               <span className="inline-flex gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "300ms" }} />
+                <span className={`w-2 h-2 rounded-full animate-bounce ${isDay ? "bg-sky-300" : "bg-fuchsia-400"}`} style={{ animationDelay: "0ms" }} />
+                <span className={`w-2 h-2 rounded-full animate-bounce ${isDay ? "bg-sky-300" : "bg-fuchsia-400"}`} style={{ animationDelay: "150ms" }} />
+                <span className={`w-2 h-2 rounded-full animate-bounce ${isDay ? "bg-sky-300" : "bg-fuchsia-400"}`} style={{ animationDelay: "300ms" }} />
               </span>
             </div>
           </div>
@@ -128,9 +138,11 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input — inside flex, not fixed */}
+      {/* Input */}
       <div className={`shrink-0 px-3 lg:px-8 py-2 ${
-        isDay ? "bg-sky-50 border-t border-sky-100" : "bg-[#0d0820] border-t border-white/5"
+        isDay
+          ? "bg-white/95 backdrop-blur-xl border-t border-sky-100/50"
+          : "bg-[#0a0514]/95 backdrop-blur-xl border-t border-white/[0.05]"
       }`}>
         <div className="flex gap-2 max-w-3xl mx-auto">
           <input
@@ -139,20 +151,20 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="כתבי הודעה..."
-            className={`flex-1 px-4 py-3 lg:py-4 rounded-2xl border-3 outline-none text-sm lg:text-base font-bold transition-all ${
+            className={`flex-1 px-4 py-3 lg:py-4 rounded-2xl border outline-none text-sm lg:text-base font-bold transition-all ${
               isDay
-                ? "bg-white border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
-                : "bg-[#1e1330] border-white/10 focus:border-orange-400 text-white placeholder-white/20"
+                ? "bg-sky-50/80 border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
+                : "bg-white/[0.06] border-white/[0.08] focus:border-fuchsia-400 text-white placeholder-white/20"
             }`}
             disabled={loading}
           />
           <button
             onClick={sendMessage}
             disabled={loading || !input.trim()}
-            className={`cartoon-btn w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center transition-all disabled:opacity-20 ${
+            className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center transition-all disabled:opacity-20 ${
               isDay
-                ? "bg-gradient-to-br from-sky-400 to-cyan-500 text-white shadow-[0_3px_0_#0891b2]"
-                : "bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-[0_3px_0_#c2410c]"
+                ? "bg-gradient-to-br from-sky-400 to-cyan-500 text-white shadow-lg shadow-sky-400/20"
+                : "bg-gradient-to-br from-fuchsia-500 to-violet-600 text-white shadow-lg shadow-fuchsia-500/20"
             }`}
           >
             <Send size={18} />

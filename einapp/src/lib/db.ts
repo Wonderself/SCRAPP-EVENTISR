@@ -26,7 +26,7 @@ export function getDb(): Database.Database {
     CREATE TABLE IF NOT EXISTS tasks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       description TEXT NOT NULL,
-      type TEXT NOT NULL CHECK (type IN ('recurring', 'one_time')),
+      type TEXT NOT NULL CHECK (type IN ('recurring', 'one-time', 'one_time')),
       priority TEXT DEFAULT 'normal' CHECK (priority IN ('normal', 'urgent')),
       date DATE,
       time TIME,
@@ -60,7 +60,41 @@ export function getDb(): Database.Database {
     );
   `);
 
+  // Add indexes for performance
+  _db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_tasks_type_active ON tasks(type, is_active);
+    CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);
+    CREATE INDEX IF NOT EXISTS idx_task_completions_date ON task_completions(completed_date);
+    CREATE INDEX IF NOT EXISTS idx_task_completions_task ON task_completions(task_id, completed_date);
+    CREATE INDEX IF NOT EXISTS idx_conversations_created ON conversations(created_at);
+    CREATE INDEX IF NOT EXISTS idx_app_state_key ON app_state(key);
+  `);
+
   return _db;
+}
+
+// Session validation
+export function isValidSession(token: string): boolean {
+  const db = getDb();
+  const row = db.prepare(`SELECT value FROM app_state WHERE key = ?`).get(`session:${token}`) as any;
+  if (!row?.value) return false;
+  const expiresAt = new Date(row.value);
+  if (expiresAt < new Date()) {
+    db.prepare(`DELETE FROM app_state WHERE key = ?`).run(`session:${token}`);
+    return false;
+  }
+  return true;
+}
+
+export function cleanExpiredSessions(): void {
+  const db = getDb();
+  const now = new Date().toISOString();
+  const sessions = db.prepare(`SELECT key, value FROM app_state WHERE key LIKE 'session:%'`).all() as any[];
+  for (const s of sessions) {
+    if (new Date(s.value) < new Date(now)) {
+      db.prepare(`DELETE FROM app_state WHERE key = ?`).run(s.key);
+    }
+  }
 }
 
 // Task helpers
@@ -68,7 +102,7 @@ export function getTasksForDate(dateStr: string, dayKey: string) {
   const db = getDb();
   const oneTime = db
     .prepare(
-      `SELECT * FROM tasks WHERE type = 'one_time' AND date = ? AND is_active = 1`
+      `SELECT * FROM tasks WHERE type IN ('one_time', 'one-time') AND date = ? AND is_active = 1`
     )
     .all(dateStr);
   const recurring = db
@@ -118,7 +152,7 @@ export function toggleTaskCompletion(taskId: number, dateStr: string) {
 
 export function createTask(task: {
   description: string;
-  type: "recurring" | "one_time";
+  type: "recurring" | "one-time" | "one_time";
   priority?: string;
   date?: string;
   time?: string;
@@ -211,7 +245,7 @@ export function deleteTask(id: number) {
 export function getAllRecurringTasks() {
   const db = getDb();
   return db
-    .prepare(`SELECT * FROM tasks WHERE type = 'recurring' AND is_active = 1 ORDER BY created_at DESC`)
+    .prepare(`SELECT * FROM tasks WHERE type = 'recurring' ORDER BY is_active DESC, created_at DESC`)
     .all()
     .map((t: any) => ({
       ...t,
@@ -239,6 +273,11 @@ export function getRecentConversations(limit = 20) {
     )
     .all(limit)
     .reverse();
+}
+
+export function cleanOldConversations(keepDays = 90): void {
+  const db = getDb();
+  db.prepare(`DELETE FROM conversations WHERE created_at < datetime('now', '-' || ? || ' days')`).run(keepDays);
 }
 
 export function getAppState(key: string): string | null {

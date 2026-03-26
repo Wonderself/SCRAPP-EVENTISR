@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const secret = searchParams.get("secret");
 
   // Simple auth for cron endpoint
-  if (secret !== (process.env.CRON_SECRET || "einapp_cron")) {
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
