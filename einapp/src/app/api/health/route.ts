@@ -8,7 +8,8 @@ export async function GET() {
       CHAT_MODEL: process.env.CHAT_MODEL || "claude-sonnet-4-20250514 (default)",
       GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY ? "set" : "not set",
       WEATHER: "Open-Meteo (free, no key needed)",
-      WHATSAPP_TOKEN: process.env.WHATSAPP_TOKEN ? "set" : "not set (optional)",
+      WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN ? "set" : "not set (optional)",
+      WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID ? "set" : "not set (optional)",
       APP_PASSWORD: process.env.APP_PASSWORD ? "set" : "MISSING",
     },
   });
