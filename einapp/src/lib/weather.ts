@@ -34,69 +34,75 @@ const DAY_NAMES_HE: Record<number, string> = {
   6: "שבת",
 };
 
+// WMO Weather interpretation codes → Hebrew descriptions
+function wmoToDescription(code: number): string {
+  if (code === 0) return "שמים בהירים";
+  if (code === 1) return "בעיקר בהיר";
+  if (code === 2) return "מעונן חלקית";
+  if (code === 3) return "מעונן";
+  if (code >= 45 && code <= 48) return "ערפל";
+  if (code >= 51 && code <= 55) return "טפטוף";
+  if (code >= 56 && code <= 57) return "טפטוף קפוא";
+  if (code >= 61 && code <= 65) return "גשם";
+  if (code >= 66 && code <= 67) return "גשם קפוא";
+  if (code >= 71 && code <= 77) return "שלג";
+  if (code >= 80 && code <= 82) return "ממטרים";
+  if (code >= 85 && code <= 86) return "ממטרי שלג";
+  if (code >= 95 && code <= 99) return "סופת רעמים";
+  return "לא ידוע";
+}
+
+function isRainCode(code: number): boolean {
+  return code >= 51 && code <= 67 || code >= 80 && code <= 82 || code >= 95 && code <= 99;
+}
+
 export async function getWeather(): Promise<WeatherData | null> {
-  const apiKey = process.env.OPENWEATHER_API_KEY;
-  if (!apiKey) return null;
-
   try {
-    // Current weather
+    // Current weather from Open-Meteo (free, no API key)
     const currentRes = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${apiKey}&units=metric&lang=he`,
-      { next: { revalidate: 1800 } } // cache 30min
+      `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia/Jerusalem&forecast_days=6`,
+      { next: { revalidate: 1800 } }
     );
-    const current = await currentRes.json();
 
-    // 5-day forecast
-    const forecastRes = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${apiKey}&units=metric&lang=he`,
-      { next: { revalidate: 3600 } }
-    );
-    const forecastData = await forecastRes.json();
-
-    // Process forecast by day
-    const dailyMap = new Map<string, { temps: number[]; descs: string[]; rain: boolean }>();
-
-    for (const item of forecastData.list || []) {
-      const date = item.dt_txt.split(" ")[0];
-      if (!dailyMap.has(date)) {
-        dailyMap.set(date, { temps: [], descs: [], rain: false });
-      }
-      const day = dailyMap.get(date)!;
-      day.temps.push(item.main.temp);
-      day.descs.push(item.weather[0].description);
-      if (item.rain || item.weather[0].main === "Rain") {
-        day.rain = true;
-      }
+    if (!currentRes.ok) {
+      console.error("[Weather] Open-Meteo error:", currentRes.status);
+      return null;
     }
 
+    const data = await currentRes.json();
+    const current = data.current;
+    const daily = data.daily;
+
+    // Process forecast
     const forecast: DayForecast[] = [];
     const rainDays: string[] = [];
 
-    for (const [date, data] of dailyMap) {
+    for (let i = 1; i < daily.time.length; i++) {
+      const date = daily.time[i];
       const d = new Date(date + "T12:00:00");
+      const rain = isRainCode(daily.weather_code[i]) || (daily.precipitation_sum[i] > 0.5);
       const dayForecast: DayForecast = {
         date,
         dayName: DAY_NAMES_HE[d.getDay()] || "",
-        tempMin: Math.round(Math.min(...data.temps)),
-        tempMax: Math.round(Math.max(...data.temps)),
-        description: data.descs[Math.floor(data.descs.length / 2)],
-        rain: data.rain,
+        tempMin: Math.round(daily.temperature_2m_min[i]),
+        tempMax: Math.round(daily.temperature_2m_max[i]),
+        description: wmoToDescription(daily.weather_code[i]),
+        rain,
       };
       forecast.push(dayForecast);
-      if (data.rain) rainDays.push(DAY_NAMES_HE[d.getDay()] || date);
+      if (rain) rainDays.push(DAY_NAMES_HE[d.getDay()] || date);
     }
 
-    const todayStr = new Date().toISOString().split("T")[0];
-    const todayForecast = dailyMap.get(todayStr);
+    const todayRain = isRainCode(daily.weather_code[0]) || (daily.precipitation_sum[0] > 0.5);
 
     return {
-      temp: Math.round(current.main.temp),
-      feelsLike: Math.round(current.main.feels_like),
-      description: current.weather[0].description,
-      icon: current.weather[0].icon,
-      humidity: current.main.humidity,
-      windSpeed: Math.round(current.wind.speed * 3.6), // m/s to km/h
-      rainToday: todayForecast?.rain || false,
+      temp: Math.round(current.temperature_2m),
+      feelsLike: Math.round(current.apparent_temperature),
+      description: wmoToDescription(current.weather_code),
+      icon: current.weather_code <= 2 ? "01d" : "04d",
+      humidity: current.relative_humidity_2m,
+      windSpeed: Math.round(current.wind_speed_10m),
+      rainToday: todayRain,
       rainUpcoming: rainDays.length > 0,
       rainDays,
       forecast: forecast.slice(0, 5),
