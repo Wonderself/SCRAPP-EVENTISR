@@ -43,24 +43,27 @@ export default function WeekView({ isDay, refreshKey }: Props) {
 
   if (loading) {
     return (
-      <div className={`text-center py-12 text-sm ${isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"}`}>
-        loading...
+      <div className={`text-center py-4 text-base font-black ${isDay ? "text-sky-300" : "text-white/15"}`}>
+        ...
       </div>
     );
   }
 
   const completedThisWeek = week.reduce(
-    (sum, day) => sum + day.tasks.filter((t) => t.completed).length,
-    0
+    (sum, day) => sum + day.tasks.filter((t) => t.completed).length, 0
   );
   const totalThisWeek = week.reduce((sum, day) => sum + day.tasks.length, 0);
 
   return (
     <div>
-      {/* Mobile: vertical stack. Desktop: grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+      {/* Horizontal scroll mobile, grid desktop */}
+      <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 lg:grid lg:grid-cols-7 lg:gap-4 lg:overflow-visible">
         {week.map((day, i) => (
-          <div key={day.date} className="animate-fade-up no-color-transition" style={{ animationDelay: `${i * 50}ms` }}>
+          <div
+            key={day.date}
+            className="flex-shrink-0 lg:flex-shrink animate-fade-up no-color-transition"
+            style={{ animationDelay: `${i * 40}ms` }}
+          >
             <DayColumn
               date={day.date}
               dayIndex={day.dayIndex}
@@ -73,23 +76,25 @@ export default function WeekView({ isDay, refreshKey }: Props) {
         ))}
       </div>
 
-      {/* Progress bar */}
+      {/* Weekly progress */}
       {totalThisWeek > 0 && (
-        <div className={`mt-4 rounded-2xl p-4 ${isDay ? "bg-white/60" : "bg-[#2a2035]/60"}`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-xs font-medium ${isDay ? "text-[#4a7a8a]" : "text-[#c8a88a]"}`}>
+        <div className={`mt-2.5 lg:mt-4 rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
+          isDay ? "cartoon-card-day" : "cartoon-card-sunset"
+        }`}>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
               {completedThisWeek} / {totalThisWeek}
             </span>
-            <span className={`text-xs ${isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-orange-400"}`}>
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
-          <div className={`h-1.5 rounded-full overflow-hidden ${isDay ? "bg-[#d8eef5]" : "bg-[#3a2540]"}`}>
+          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/5"}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay
-                  ? "bg-gradient-to-l from-[#2196c8] to-[#47b8e0]"
-                  : "bg-gradient-to-l from-[#c2185b] to-[#e65100]"
+                  ? "bg-gradient-to-r from-sky-400 to-teal-400"
+                  : "bg-gradient-to-r from-orange-400 to-pink-500"
               }`}
               style={{ width: `${(completedThisWeek / totalThisWeek) * 100}%` }}
             />
