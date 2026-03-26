@@ -38,213 +38,149 @@ export default function DashboardPage() {
   }, []);
 
   const isDay = mode === "day";
-
-  if (!mounted) return <div className="min-h-screen bg-sky-100" />;
+  if (!mounted) return <div className="h-[100dvh] bg-sky-100" />;
 
   return (
-    <div className={`min-h-screen pb-28 ${isDay ? "bg-sky-100" : "bg-[#0d0820]"}`}>
+    <div className={`h-[100dvh] flex flex-col overflow-hidden ${isDay ? "bg-sky-50" : "bg-[#0d0820]"}`}>
 
-      {/* ===== HERO ===== */}
+      {/* ===== COMPACT HERO — minimal height ===== */}
       <div
-        className={`relative overflow-hidden ${
+        className={`relative overflow-hidden shrink-0 ${
           isDay
             ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
             : "bg-gradient-to-br from-orange-500 via-pink-500 to-purple-700 animate-gradient"
         }`}
       >
-        {/* BIG cartoon sun / moon */}
-        <div className="absolute top-4 left-4 lg:top-6 lg:left-8 no-color-transition">
+        {/* Small sun/moon — top-left */}
+        <div className="absolute top-2 left-3 no-color-transition">
           {isDay ? (
             <div className="relative animate-float no-color-transition">
               <div
-                className="w-24 h-24 lg:w-32 lg:h-32 rounded-full"
+                className="w-10 h-10 lg:w-16 lg:h-16 rounded-full"
                 style={{
                   background: "radial-gradient(circle at 40% 40%, #fff7b0, #fbbf24, #f59e0b)",
-                  boxShadow: "0 0 40px rgba(251,191,36,0.6), 0 0 80px rgba(251,191,36,0.3), inset -8px -8px 0 rgba(245,158,11,0.3)",
+                  boxShadow: "0 0 20px rgba(251,191,36,0.5), inset -4px -4px 0 rgba(245,158,11,0.3)",
                 }}
               />
-              {/* Cartoon sun rays */}
-              {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+              {[0, 60, 120, 180, 240, 300].map((deg) => (
                 <div
                   key={deg}
-                  className="absolute top-1/2 left-1/2 w-2 lg:w-3 h-6 lg:h-8 bg-yellow-300/50 rounded-full no-color-transition"
-                  style={{
-                    transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-52px)`,
-                  }}
+                  className="absolute top-1/2 left-1/2 w-1 h-2.5 lg:w-1.5 lg:h-4 bg-yellow-300/40 rounded-full no-color-transition"
+                  style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-24px)` }}
                 />
               ))}
             </div>
           ) : (
             <div className="relative animate-float no-color-transition">
               <div
-                className="w-20 h-20 lg:w-28 lg:h-28 rounded-full"
+                className="w-9 h-9 lg:w-14 lg:h-14 rounded-full"
                 style={{
                   background: "radial-gradient(circle at 35% 35%, #fef9c3, #fde68a, #fbbf24)",
-                  boxShadow: "0 0 40px rgba(253,230,138,0.4), 0 0 80px rgba(253,230,138,0.15), inset -6px -6px 0 rgba(251,191,36,0.2)",
+                  boxShadow: "0 0 20px rgba(253,230,138,0.35), inset -4px -4px 0 rgba(251,191,36,0.2)",
                 }}
               />
-              {/* Crescent shadow */}
               <div
-                className="absolute top-1 right-1 w-14 h-14 lg:w-20 lg:h-20 rounded-full no-color-transition"
+                className="absolute top-0 right-0 w-6 h-6 lg:w-9 lg:h-9 rounded-full no-color-transition"
                 style={{ background: "radial-gradient(circle, rgba(168,85,247,0.7), transparent)" }}
               />
             </div>
           )}
         </div>
 
-        {/* Cartoon clouds + sparkles (day) / stars + sparkles (night) */}
-        {isDay ? (
-          <>
-            <div className="absolute top-8 right-6 no-color-transition animate-wave-bob" style={{ animationDelay: "0s" }}>
-              <svg width="80" height="40" viewBox="0 0 80 40"><ellipse cx="40" cy="25" rx="35" ry="14" fill="white" opacity="0.35"/><ellipse cx="28" cy="18" rx="18" ry="12" fill="white" opacity="0.35"/><ellipse cx="52" cy="20" rx="15" ry="10" fill="white" opacity="0.35"/></svg>
-            </div>
-            <div className="absolute top-20 right-28 lg:right-48 no-color-transition animate-wave-bob" style={{ animationDelay: "1s" }}>
-              <svg width="60" height="30" viewBox="0 0 60 30"><ellipse cx="30" cy="18" rx="28" ry="11" fill="white" opacity="0.25"/><ellipse cx="20" cy="13" rx="14" ry="9" fill="white" opacity="0.25"/></svg>
-            </div>
-            {/* Sparkles */}
-            <div className="absolute top-16 right-16 animate-sparkle no-color-transition" style={{ animationDelay: "0s" }}>
-              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.5"/></svg>
-            </div>
-            <div className="absolute top-32 right-40 animate-sparkle no-color-transition" style={{ animationDelay: "1.5s" }}>
-              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.4"/></svg>
-            </div>
-            <div className="absolute top-12 left-[55%] animate-sparkle no-color-transition" style={{ animationDelay: "0.8s" }}>
-              <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.35"/></svg>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="absolute top-6 right-8 w-2 h-2 rounded-full bg-white/50 animate-pulse-glow no-color-transition" />
-            <div className="absolute top-14 right-20 w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse-glow no-color-transition" style={{ animationDelay: "1s" }} />
-            <div className="absolute top-10 right-36 w-2.5 h-2.5 rounded-full bg-yellow-200/30 animate-pulse-glow no-color-transition" style={{ animationDelay: "0.5s" }} />
-            <div className="absolute top-24 right-12 w-1 h-1 rounded-full bg-white/30 no-color-transition" />
-            <div className="absolute top-4 right-52 w-1.5 h-1.5 rounded-full bg-white/25 animate-pulse-glow no-color-transition" style={{ animationDelay: "2s" }} />
-            {/* Sparkles sunset */}
-            <div className="absolute top-20 right-24 animate-sparkle no-color-transition" style={{ animationDelay: "0.3s" }}>
-              <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#fbbf24" opacity="0.4"/></svg>
-            </div>
-            <div className="absolute top-8 right-44 animate-sparkle no-color-transition" style={{ animationDelay: "1.8s" }}>
-              <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#fbbf24" opacity="0.3"/></svg>
-            </div>
-            <div className="absolute top-28 left-[40%] animate-sparkle no-color-transition" style={{ animationDelay: "1s" }}>
-              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.25"/></svg>
-            </div>
-          </>
+        {/* Sparkles */}
+        <div className="absolute top-3 right-8 animate-sparkle no-color-transition">
+          <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.4"/></svg>
+        </div>
+        <div className="absolute top-8 right-20 animate-sparkle no-color-transition" style={{ animationDelay: "1.2s" }}>
+          <svg width="8" height="8" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "white" : "#fbbf24"} opacity="0.3"/></svg>
+        </div>
+
+        {/* Cloud (day only) */}
+        {isDay && (
+          <div className="absolute top-2 right-3 animate-wave-bob no-color-transition">
+            <svg width="40" height="20" viewBox="0 0 56 28"><ellipse cx="28" cy="18" rx="24" ry="9" fill="white" opacity="0.3"/><ellipse cx="20" cy="13" rx="12" ry="8" fill="white" opacity="0.3"/></svg>
+          </div>
         )}
 
-        {/* Greeting content */}
-        <div className="relative z-10 px-6 pt-20 pb-24 lg:pt-24 lg:pb-28">
-          <p className="text-white/60 text-xs lg:text-sm font-medium tracking-wider mb-2 animate-fade-up no-color-transition">
-            {formatHebrewDate(today)}
-          </p>
-          <h1 className="text-white text-4xl lg:text-7xl font-black leading-tight animate-bounce-in no-color-transition">
-            {getGreeting()}
-          </h1>
-          <p className="text-white/40 text-xs lg:text-base mt-3 tracking-[0.25em] uppercase font-bold">
-            Sea Vibes Vacation
-          </p>
+        {/* Content — very compact */}
+        <div className="relative z-10 px-4 pt-3 pb-5 lg:px-8 lg:pt-4 lg:pb-6">
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="text-white text-lg lg:text-3xl font-black leading-none animate-bounce-in no-color-transition">
+                {getGreeting()}
+              </h1>
+              <p className="text-white/40 text-[8px] lg:text-xs mt-0.5 tracking-[0.2em] uppercase font-bold">
+                Sea Vibes Vacation
+              </p>
+            </div>
+            <p className="text-white/50 text-[8px] lg:text-xs font-bold">
+              {formatHebrewDate(today)}
+            </p>
+          </div>
         </div>
 
-        {/* Cartoon wave bottom */}
+        {/* Wave separator */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-12 lg:h-16 block">
-            <path
-              fill={isDay ? "#e0f2fe" : "#0d0820"}
-              d="M0,50 C180,90 360,20 540,50 C720,80 900,30 1080,55 C1260,80 1380,35 1440,50 L1440,100 L0,100 Z"
-            />
-          </svg>
-        </div>
-
-        {/* Cartoon dolphin */}
-        <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-12 animate-wiggle no-color-transition">
-          <svg width="48" height="48" viewBox="0 0 100 100" className="lg:w-16 lg:h-16">
-            <path
-              d="M75 35c-5-15-20-20-35-15-10 3-18 12-20 22-1 5 0 10 3 14 4 5 10 8 17 8 3 0 6-1 9-2l12 8-3-10c8-6 13-15 12-20 0-2-1-3-2-5h7z"
-              fill="white" opacity="0.4"
-            />
-            <circle cx="52" cy="38" r="3" fill="white" opacity="0.6" />
+          <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full h-3 lg:h-4 block">
+            <path fill={isDay ? "#f0f9ff" : "#0d0820"} d="M0,20C360,35,720,8,1080,20C1260,28,1380,12,1440,20L1440,40L0,40Z" />
           </svg>
         </div>
       </div>
 
-      {/* ===== CONTENT ===== */}
-      <div className="px-3 lg:px-12 max-w-4xl mx-auto -mt-8 space-y-3 lg:space-y-6 relative z-10">
+      {/* ===== SCROLLABLE CONTENT ===== */}
+      <div className="flex-1 overflow-y-auto px-3 lg:px-8 py-2 lg:py-3 max-w-4xl mx-auto w-full space-y-2 lg:space-y-3">
 
         {/* Weather */}
-        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.1s" }}>
-          <WeatherWidget isDay={isDay} />
-        </div>
+        <WeatherWidget isDay={isDay} />
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-2.5 lg:gap-4">
+        <div className="grid grid-cols-2 gap-2 lg:gap-3">
           <button
             onClick={() => router.push("/chat")}
-            className={`cartoon-btn rounded-3xl p-3 lg:p-6 flex flex-col items-center gap-1.5 lg:gap-3 animate-slide-right no-color-transition ${
-              isDay
-                ? "cartoon-card-day hover:translate-y-[-4px]"
-                : "cartoon-card-sunset hover:translate-y-[-4px]"
+            className={`cartoon-btn rounded-2xl p-2.5 lg:p-5 flex flex-col items-center gap-1 lg:gap-2 animate-slide-right no-color-transition ${
+              isDay ? "cartoon-card-day" : "cartoon-card-sunset"
             }`}
-            style={{ animationDelay: "0.15s" }}
+            style={{ animationDelay: "0.1s" }}
           >
-            <div className="relative">
-              <div
-                className={`w-10 h-10 lg:w-16 lg:h-16 rounded-2xl lg:rounded-3xl flex items-center justify-center animate-heartbeat no-color-transition ${
-                  isDay
-                    ? "bg-gradient-to-br from-cyan-400 to-sky-500"
-                    : "bg-gradient-to-br from-orange-400 to-pink-500"
-                }`}
-                style={{ boxShadow: isDay ? "0 2px 0 #0891b2" : "0 2px 0 #c2410c" }}
-              >
-                <MessageCircle size={18} className="text-white lg:hidden" strokeWidth={2.5} />
-                <MessageCircle size={28} className="text-white hidden lg:block" strokeWidth={2.5} />
-              </div>
-              {/* Sparkle on icon */}
-              <div className="absolute -top-1 -right-1 animate-sparkle no-color-transition" style={{ animationDelay: "0.5s" }}>
-                <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "#0ea5e9" : "#fb923c"} opacity="0.6"/></svg>
-              </div>
+            <div
+              className={`w-9 h-9 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center ${
+                isDay ? "bg-gradient-to-br from-cyan-400 to-sky-500" : "bg-gradient-to-br from-orange-400 to-pink-500"
+              }`}
+              style={{ boxShadow: isDay ? "0 2px 0 #0891b2" : "0 2px 0 #c2410c" }}
+            >
+              <MessageCircle size={16} className="text-white lg:hidden" strokeWidth={2.5} />
+              <MessageCircle size={24} className="text-white hidden lg:block" strokeWidth={2.5} />
             </div>
-            <span className={`text-xs lg:text-lg font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
+            <span className={`text-[11px] lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
               דברי עם Einapp
             </span>
           </button>
 
           <button
             onClick={() => setShowAddTask(true)}
-            className={`cartoon-btn rounded-3xl p-3 lg:p-6 flex flex-col items-center gap-1.5 lg:gap-3 animate-slide-left no-color-transition ${
-              isDay
-                ? "cartoon-card-day hover:translate-y-[-4px]"
-                : "cartoon-card-sunset hover:translate-y-[-4px]"
+            className={`cartoon-btn rounded-2xl p-2.5 lg:p-5 flex flex-col items-center gap-1 lg:gap-2 animate-slide-left no-color-transition ${
+              isDay ? "cartoon-card-day" : "cartoon-card-sunset"
             }`}
-            style={{ animationDelay: "0.2s" }}
+            style={{ animationDelay: "0.15s" }}
           >
-            <div className="relative">
-              <div
-                className={`w-10 h-10 lg:w-16 lg:h-16 rounded-2xl lg:rounded-3xl flex items-center justify-center animate-swing no-color-transition ${
-                  isDay
-                    ? "bg-gradient-to-br from-emerald-400 to-teal-500"
-                    : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
-                }`}
-                style={{ boxShadow: isDay ? "0 2px 0 #0d9488" : "0 2px 0 #7e22ce" }}
-              >
-                <Plus size={20} className="text-white lg:hidden" strokeWidth={3} />
-                <Plus size={30} className="text-white hidden lg:block" strokeWidth={3} />
-              </div>
-              <div className="absolute -top-1 -left-1 animate-sparkle no-color-transition" style={{ animationDelay: "1.2s" }}>
-                <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "#14b8a6" : "#c084fc"} opacity="0.6"/></svg>
-              </div>
+            <div
+              className={`w-9 h-9 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center ${
+                isDay ? "bg-gradient-to-br from-emerald-400 to-teal-500" : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
+              }`}
+              style={{ boxShadow: isDay ? "0 2px 0 #0d9488" : "0 2px 0 #7e22ce" }}
+            >
+              <Plus size={18} className="text-white lg:hidden" strokeWidth={3} />
+              <Plus size={26} className="text-white hidden lg:block" strokeWidth={3} />
             </div>
-            <span className={`text-xs lg:text-lg font-black ${isDay ? "text-teal-700" : "text-fuchsia-200"}`}>
+            <span className={`text-[11px] lg:text-base font-black ${isDay ? "text-teal-700" : "text-fuchsia-200"}`}>
               משימה חדשה
             </span>
           </button>
         </div>
 
         {/* Week view */}
-        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.3s" }}>
-          <h2 className={`text-sm lg:text-xl font-black mb-1.5 lg:mb-3 flex items-center gap-2 ${isDay ? "text-sky-800" : "text-orange-200"}`}>
-            <span className="animate-wave-bob no-color-transition inline-block">
-              {isDay ? "🌊" : "🌙"}
-            </span>
+        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.2s" }}>
+          <h2 className={`text-xs lg:text-lg font-black mb-1 lg:mb-2 ${isDay ? "text-sky-800" : "text-orange-200"}`}>
             השבוע שלך
           </h2>
           <WeekView isDay={isDay} refreshKey={refreshKey} />
