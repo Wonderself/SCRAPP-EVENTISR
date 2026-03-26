@@ -20,10 +20,10 @@ export default function BottomTabs({ isDay }: Props) {
 
   return (
     <nav
-      className={`shrink-0 z-40 ${
+      className={`shrink-0 z-40 backdrop-blur-xl ${
         isDay
-          ? "bg-white border-t-3 border-sky-200"
-          : "bg-[#0d0820] border-t-3 border-orange-500/10"
+          ? "bg-white/90 border-t-2 border-sky-200"
+          : "bg-[#0d0820]/90 border-t-2 border-white/10"
       }`}
     >
       <div className="flex justify-around items-center h-[60px] lg:h-[72px] max-w-xl mx-auto px-2">
@@ -34,14 +34,14 @@ export default function BottomTabs({ isDay }: Props) {
             <button
               key={tab.path}
               onClick={() => router.push(tab.path)}
-              className="cartoon-btn flex flex-col items-center gap-0.5 px-3 py-1 min-w-[56px] lg:min-w-[72px]"
+              className="flex flex-col items-center gap-0.5 px-3 py-1 min-w-[56px] lg:min-w-[72px] active:scale-95 transition-transform"
             >
               <div
                 className={`w-9 h-9 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${
                   active
                     ? isDay
-                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_2px_0_#0891b2]"
-                      : "bg-gradient-to-br from-orange-400 to-pink-500 shadow-[0_2px_0_#c2410c]"
+                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-lg shadow-sky-400/25"
+                      : "bg-gradient-to-br from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/25"
                     : "bg-transparent"
                 }`}
               >
@@ -53,15 +53,15 @@ export default function BottomTabs({ isDay }: Props) {
                       ? "text-white"
                       : isDay
                       ? "text-sky-300"
-                      : "text-white/20"
+                      : "text-white/40"
                   }`}
                 />
               </div>
               <span
                 className={`text-[10px] lg:text-xs font-black ${
                   active
-                    ? isDay ? "text-sky-600" : "text-orange-300"
-                    : isDay ? "text-sky-300" : "text-white/15"
+                    ? isDay ? "text-sky-600" : "text-fuchsia-300"
+                    : isDay ? "text-sky-300" : "text-white/35"
                 }`}
               >
                 {tab.label}

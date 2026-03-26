@@ -21,14 +21,14 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
         task.completed
           ? isDay
             ? "bg-sky-50/50 opacity-60"
-            : "bg-white/[0.02] opacity-50"
+            : "bg-white/[0.03] opacity-50"
           : isUrgent
           ? isDay
             ? "bg-red-50/80 border border-red-200/40"
-            : "bg-red-500/[0.06] border border-red-500/10"
+            : "bg-red-500/[0.08] border border-red-500/15"
           : isDay
           ? "bg-sky-50/60 border border-sky-100/60"
-          : "bg-white/[0.04] border border-white/[0.06]"
+          : "bg-white/[0.06] border border-white/10"
       }`}
     >
       {/* Checkbox */}
@@ -38,7 +38,7 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
             ? isDay ? "bg-emerald-400" : "bg-emerald-500"
             : isDay
             ? "border-2 border-sky-200"
-            : "border-2 border-white/10"
+            : "border-2 border-white/20"
         }`}
       >
         {task.completed && <Check size={12} strokeWidth={3} className="text-white" />}
@@ -49,7 +49,7 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
         <p
           className={`text-xs lg:text-sm leading-snug font-semibold ${
             task.completed
-              ? "line-through " + (isDay ? "text-sky-300" : "text-white/20")
+              ? "line-through " + (isDay ? "text-sky-300" : "text-white/35")
               : isDay
               ? "text-sky-800"
               : "text-white/80"
@@ -58,7 +58,7 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
           {task.description}
         </p>
         {task.time && (
-          <p className={`text-[10px] lg:text-xs mt-0.5 font-bold ${isDay ? "text-sky-400" : "text-white/20"}`}>
+          <p className={`text-[10px] lg:text-xs mt-0.5 font-bold ${isDay ? "text-sky-400" : "text-white/40"}`}>
             {task.time}
           </p>
         )}
@@ -69,7 +69,7 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
         <AlertCircle size={14} className="text-red-400 shrink-0" />
       )}
       {isRecurring && !isUrgent && (
-        <RefreshCw size={12} className={`shrink-0 ${isDay ? "text-sky-300" : "text-white/15"}`} />
+        <RefreshCw size={12} className={`shrink-0 ${isDay ? "text-sky-300" : "text-white/30"}`} />
       )}
     </button>
   );
