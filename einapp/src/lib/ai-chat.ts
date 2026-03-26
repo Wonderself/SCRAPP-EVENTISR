@@ -104,7 +104,7 @@ ${tasksText}`;
 
   try {
     const response = await client.messages.create({
-      model: process.env.CHAT_MODEL || "claude-sonnet-4-20250514",
+      model: process.env.CHAT_MODEL || "claude-sonnet-4-6",
       max_tokens: 1024,
       system: systemPrompt,
       messages,
@@ -123,6 +123,7 @@ ${tasksText}`;
     if (error?.status === 529 || error?.status === 503) {
       return "שירות Claude עמוס כרגע 😅 תנסי שוב עוד רגע נשמה";
     }
-    return "אוי, משהו קרה 😅 תנסי שוב עוד רגע!";
+    const detail = error?.message || String(error);
+    return `אוי, משהו קרה 😅 (${detail.slice(0, 100)})`;
   }
 }
