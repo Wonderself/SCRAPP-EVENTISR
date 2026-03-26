@@ -40,7 +40,6 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
   async function handleSave() {
     if (!description.trim()) return;
     setSaving(true);
-
     await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -54,7 +53,6 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         days_of_week: type === "recurring" ? daysOfWeek : null,
       }),
     });
-
     setDescription("");
     setDate("");
     setTime("");
@@ -65,32 +63,37 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
     onClose();
   }
 
-  const cardBg = isDay ? "bg-white" : "bg-[#1a1228]";
-  const inputBg = isDay
-    ? "bg-cyan-50 border-cyan-100 focus:border-cyan-400 text-cyan-900 placeholder-cyan-300"
-    : "bg-white/5 border-white/10 focus:border-orange-400 text-white placeholder-white/20";
-  const textPrimary = isDay ? "text-cyan-900" : "text-white";
-  const textSoft = isDay ? "text-cyan-500" : "text-orange-300";
+  const inputCls = isDay
+    ? "bg-sky-50 border-3 border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
+    : "bg-white/5 border-3 border-white/10 focus:border-orange-400 text-white placeholder-white/20";
+
   const activeBtn = isDay
-    ? "bg-gradient-to-r from-cyan-500 to-teal-400 text-white shadow-sm"
-    : "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-sm";
-  const inactiveBtn = isDay ? "bg-cyan-50 text-cyan-600" : "bg-white/5 text-white/40";
+    ? "bg-gradient-to-r from-sky-400 to-cyan-500 text-white shadow-[0_3px_0_#0891b2]"
+    : "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-[0_3px_0_#c2410c]";
+
+  const inactiveBtn = isDay
+    ? "bg-sky-50 text-sky-500 border-2 border-sky-200"
+    : "bg-white/5 text-white/30 border-2 border-white/5";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-      <div className={`${cardBg} rounded-3xl w-full max-w-md p-6 space-y-5 max-h-[85vh] overflow-y-auto shadow-2xl`}>
+      <div className={`w-full max-w-md p-6 lg:p-8 space-y-5 max-h-[85vh] overflow-y-auto rounded-[32px] ${
+        isDay
+          ? "bg-white border-4 border-sky-200 shadow-[0_8px_0_#bae6fd]"
+          : "bg-[#1e1330] border-4 border-orange-500/15 shadow-[0_8px_0_rgba(251,146,60,0.08)]"
+      }`}>
         <div className="flex items-center justify-between">
-          <h2 className={`text-xl font-bold ${textPrimary}`}>משימה חדשה</h2>
-          <button onClick={onClose} className={textSoft}>
-            <X size={22} />
+          <h2 className={`text-2xl lg:text-3xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>משימה חדשה</h2>
+          <button onClick={onClose} className={`cartoon-btn p-2 rounded-xl ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/30 hover:bg-white/5"}`}>
+            <X size={24} strokeWidth={3} />
           </button>
         </div>
 
         {/* Type toggle */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => setType("one_time")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
               type === "one_time" ? activeBtn : inactiveBtn
             }`}
           >
@@ -98,7 +101,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </button>
           <button
             onClick={() => setType("recurring")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
               type === "recurring" ? activeBtn : inactiveBtn
             }`}
           >
@@ -106,13 +109,12 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </button>
         </div>
 
-        {/* Description */}
         <input
           type="text"
           placeholder="מה צריך לעשות?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm transition-all ${inputBg}`}
+          className={`w-full px-5 py-4 rounded-2xl outline-none text-base lg:text-lg font-bold ${inputCls}`}
           autoFocus
         />
 
@@ -122,25 +124,21 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm ${inputBg}`}
+              className={`w-full px-5 py-4 rounded-2xl outline-none text-sm lg:text-base font-bold ${inputCls}`}
             />
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setPriority("normal")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  priority === "normal"
-                    ? "bg-emerald-500 text-white shadow-sm"
-                    : inactiveBtn
+                className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+                  priority === "normal" ? "bg-emerald-400 text-white shadow-[0_3px_0_#16a34a]" : inactiveBtn
                 }`}
               >
                 רגיל
               </button>
               <button
                 onClick={() => setPriority("urgent")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  priority === "urgent"
-                    ? "bg-red-500 text-white shadow-sm"
-                    : inactiveBtn
+                className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+                  priority === "urgent" ? "bg-red-400 text-white shadow-[0_3px_0_#dc2626]" : inactiveBtn
                 }`}
               >
                 דחוף
@@ -149,13 +147,13 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </>
         ) : (
           <div>
-            <p className={`text-sm mb-3 ${textSoft}`}>באילו ימים?</p>
-            <div className="flex gap-1.5">
+            <p className={`text-sm lg:text-base mb-3 font-black ${isDay ? "text-sky-500" : "text-orange-300"}`}>באילו ימים?</p>
+            <div className="flex gap-2">
               {DAYS.map((d) => (
                 <button
                   key={d.key}
                   onClick={() => toggleDay(d.key)}
-                  className={`w-10 h-10 rounded-full text-sm font-semibold transition-all ${
+                  className={`cartoon-btn w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-sm lg:text-base font-black transition-all ${
                     daysOfWeek.includes(d.key) ? activeBtn : inactiveBtn
                   }`}
                 >
@@ -170,16 +168,16 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className={`w-full px-4 py-3.5 rounded-2xl border-2 outline-none text-sm ${inputBg}`}
+          className={`w-full px-5 py-4 rounded-2xl outline-none text-sm lg:text-base font-bold ${inputCls}`}
         />
 
         <button
           onClick={handleSave}
           disabled={saving || !description.trim()}
-          className={`w-full py-4 rounded-2xl text-white font-bold text-base transition-all disabled:opacity-30 ${
+          className={`cartoon-btn w-full py-5 rounded-2xl text-white text-lg lg:text-xl font-black transition-all disabled:opacity-30 ${
             isDay
-              ? "bg-gradient-to-r from-cyan-500 to-teal-400 hover:shadow-lg hover:shadow-cyan-200/40"
-              : "bg-gradient-to-r from-orange-500 to-pink-500 hover:shadow-lg hover:shadow-orange-500/20"
+              ? "bg-gradient-to-r from-sky-400 to-cyan-500 shadow-[0_5px_0_#0891b2]"
+              : "bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_5px_0_#c2410c]"
           }`}
         >
           {saving ? "..." : "הוסיפי"}

@@ -17,62 +17,53 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
   return (
     <button
       onClick={() => onToggle(task.id, date)}
-      className={`w-full flex items-center gap-2 p-2.5 rounded-xl transition-all active:scale-[0.97] text-right ${
+      className={`cartoon-btn w-full flex items-center gap-2 p-2.5 rounded-xl transition-all text-right ${
         task.completed
           ? isDay
-            ? "bg-cyan-50/50 opacity-50"
+            ? "bg-sky-50 opacity-50"
             : "bg-white/[0.02] opacity-40"
           : isUrgent
           ? isDay
-            ? "bg-red-50 border border-red-200"
-            : "bg-red-500/5 border border-red-500/15"
+            ? "bg-red-50 border-2 border-red-200"
+            : "bg-red-500/5 border-2 border-red-500/15"
           : isDay
-          ? "bg-white/80 border border-cyan-50"
-          : "bg-white/[0.04] border border-white/5"
+          ? "bg-sky-50 border-2 border-sky-100"
+          : "bg-white/[0.03] border-2 border-white/5"
       }`}
     >
       {/* Checkbox */}
       <div
-        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+        className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
           task.completed
-            ? "bg-emerald-500 text-white"
+            ? "bg-emerald-400 text-white shadow-[0_2px_0_#16a34a]"
             : isUrgent
-            ? "border-2 border-red-300"
+            ? "border-3 border-red-300"
             : isDay
-            ? "border-2 border-cyan-200"
-            : "border-2 border-white/15"
+            ? "border-3 border-sky-200"
+            : "border-3 border-white/15"
         }`}
       >
-        {task.completed && <Check size={11} strokeWidth={3} />}
+        {task.completed && <Check size={13} strokeWidth={3.5} />}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p
-          className={`text-xs leading-snug truncate ${
-            task.completed
-              ? "line-through " + (isDay ? "text-cyan-300" : "text-white/20")
-              : isDay
-              ? "text-cyan-900"
-              : "text-white/80"
-          }`}
-        >
+        <p className={`text-xs lg:text-sm font-bold leading-snug truncate ${
+          task.completed
+            ? "line-through " + (isDay ? "text-sky-300" : "text-white/20")
+            : isDay ? "text-sky-800" : "text-white/80"
+        }`}>
           {task.description}
         </p>
         {task.time && (
-          <p className={`text-[10px] mt-0.5 ${isDay ? "text-cyan-300" : "text-white/20"}`}>
+          <p className={`text-[10px] lg:text-xs mt-0.5 font-bold ${isDay ? "text-sky-300" : "text-white/15"}`}>
             {task.time}
           </p>
         )}
       </div>
 
-      {/* Icons */}
-      {isUrgent && !task.completed && (
-        <AlertCircle size={13} className="text-red-400 shrink-0" />
-      )}
-      {isRecurring && !isUrgent && (
-        <RefreshCw size={11} className={`shrink-0 ${isDay ? "text-cyan-200" : "text-white/15"}`} />
-      )}
+      {isUrgent && !task.completed && <AlertCircle size={14} className="text-red-400 shrink-0" />}
+      {isRecurring && !isUrgent && <RefreshCw size={12} className={`shrink-0 ${isDay ? "text-sky-200" : "text-white/10"}`} />}
     </button>
   );
 }

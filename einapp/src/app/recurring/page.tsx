@@ -54,61 +54,57 @@ export default function RecurringPage() {
   }
 
   const isDay = mode === "day";
-  if (!mounted) return <div className="min-h-screen bg-[#f0f9ff]" />;
+  if (!mounted) return <div className="min-h-screen bg-sky-100" />;
 
   return (
-    <div className={`min-h-screen pb-24 ${isDay ? "bg-gradient-to-b from-[#f0f9ff] to-white" : "bg-gradient-to-b from-[#0f0a1a] to-[#1a1228]"}`}>
-      <div className={`px-5 pt-12 pb-8 ${
-        isDay ? "bg-gradient-to-l from-[#0e7490] to-[#06b6d4]" : "bg-gradient-to-l from-[#7c2d12] to-[#be185d]"
+    <div className={`min-h-screen pb-28 ${isDay ? "bg-sky-100" : "bg-[#0d0820]"}`}>
+      <div className={`px-5 pt-12 pb-10 lg:pt-14 lg:pb-12 ${
+        isDay ? "bg-gradient-to-l from-sky-400 to-cyan-400" : "bg-gradient-to-l from-orange-500 to-pink-500"
       }`}>
-        <h1 className="text-2xl font-bold text-white">משימות קבועות</h1>
-        <p className="text-white/40 text-xs mt-1 tracking-widest uppercase font-light">recurring tasks</p>
+        <h1 className="text-3xl lg:text-5xl font-black text-white">משימות קבועות</h1>
+        <p className="text-white/40 text-xs lg:text-sm mt-1 tracking-widest uppercase font-bold">recurring tasks</p>
       </div>
 
-      <div className="p-4 space-y-3 -mt-4 max-w-2xl mx-auto">
+      <div className="p-5 lg:px-12 space-y-4 -mt-5 max-w-3xl mx-auto">
         {loading && (
-          <p className={`text-center py-12 text-sm ${isDay ? "text-cyan-300" : "text-white/20"}`}>...</p>
+          <p className={`text-center py-12 text-base font-black ${isDay ? "text-sky-300" : "text-white/15"}`}>...</p>
         )}
         {!loading && tasks.length === 0 && (
-          <div className={`text-center py-16 ${isDay ? "text-cyan-400" : "text-white/25"}`}>
-            <p className="text-sm">אין משימות קבועות עדיין</p>
-            <p className="text-xs mt-1">הוסיפי מהדשבורד</p>
+          <div className={`text-center py-16 ${isDay ? "text-sky-400" : "text-white/20"}`}>
+            <p className="text-lg lg:text-2xl font-black">אין משימות קבועות עדיין</p>
+            <p className="text-sm lg:text-base font-bold mt-1">הוסיפי מהדשבורד</p>
           </div>
         )}
         {tasks.map((task, i) => (
           <div
             key={task.id}
-            className={`rounded-2xl p-4 transition-all animate-fade-up no-color-transition ${
+            className={`rounded-3xl p-5 lg:p-6 transition-all animate-fade-up no-color-transition ${
               !task.is_active ? "opacity-40" : ""
-            } ${isDay ? "glass-day shadow-sm" : "glass-sunset"}`}
+            } ${isDay ? "cartoon-card-day" : "cartoon-card-sunset"}`}
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
-                <p className={`font-semibold ${isDay ? "text-cyan-900" : "text-white/90"}`}>{task.description}</p>
-                <div className="flex gap-1.5 mt-2">
+                <p className={`font-black text-base lg:text-xl ${isDay ? "text-sky-800" : "text-white/90"}`}>{task.description}</p>
+                <div className="flex gap-2 mt-2">
                   {task.days_of_week?.map((day) => (
-                    <span key={day} className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                      isDay ? "bg-cyan-100 text-cyan-600" : "bg-orange-500/10 text-orange-300"
+                    <span key={day} className={`text-xs lg:text-sm px-2.5 py-1 rounded-xl font-black ${
+                      isDay ? "bg-sky-100 text-sky-500" : "bg-orange-500/10 text-orange-300"
                     }`}>
                       {DAY_LABELS[day] || day}
                     </span>
                   ))}
                 </div>
                 {task.time && (
-                  <p className={`text-xs mt-1.5 ${isDay ? "text-cyan-400" : "text-white/25"}`}>{task.time}</p>
+                  <p className={`text-xs lg:text-sm mt-2 font-bold ${isDay ? "text-sky-400" : "text-white/20"}`}>{task.time}</p>
                 )}
               </div>
-              <div className="flex gap-1">
-                <button onClick={() => toggleActive(task)} className={`p-2 rounded-xl transition-colors ${isDay ? "hover:bg-cyan-50" : "hover:bg-white/5"}`}>
-                  {task.is_active ? (
-                    <Pause size={15} className={isDay ? "text-cyan-400" : "text-white/30"} />
-                  ) : (
-                    <Play size={15} className="text-emerald-500" />
-                  )}
+              <div className="flex gap-2">
+                <button onClick={() => toggleActive(task)} className={`cartoon-btn p-2.5 rounded-xl ${isDay ? "hover:bg-sky-50" : "hover:bg-white/5"}`}>
+                  {task.is_active ? <Pause size={18} className={isDay ? "text-sky-400" : "text-white/25"} /> : <Play size={18} className="text-emerald-500" />}
                 </button>
-                <button onClick={() => handleDelete(task.id)} className={`p-2 rounded-xl transition-colors ${isDay ? "hover:bg-red-50" : "hover:bg-red-500/10"}`}>
-                  <Trash2 size={15} className="text-red-400" />
+                <button onClick={() => handleDelete(task.id)} className={`cartoon-btn p-2.5 rounded-xl ${isDay ? "hover:bg-red-50" : "hover:bg-red-500/5"}`}>
+                  <Trash2 size={18} className="text-red-400" />
                 </button>
               </div>
             </div>

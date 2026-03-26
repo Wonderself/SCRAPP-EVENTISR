@@ -18,8 +18,6 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
   const sorted = [...tasks].sort((a, b) => {
     if (a.priority === "urgent" && b.priority !== "urgent") return -1;
     if (b.priority === "urgent" && a.priority !== "urgent") return 1;
-    if (a.type === "one_time" && b.type === "recurring") return -1;
-    if (b.type === "one_time" && a.type === "recurring") return 1;
     return 0;
   });
 
@@ -28,49 +26,43 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
 
   return (
     <div
-      className={`rounded-2xl p-3 min-w-[110px] transition-all ${
+      className={`rounded-3xl p-3 lg:p-4 min-w-[120px] lg:min-w-0 transition-all ${
         isToday
           ? isDay
-            ? "bg-gradient-to-b from-cyan-50 to-white border-2 border-cyan-300 shadow-md shadow-cyan-100/50"
-            : "bg-gradient-to-b from-orange-500/10 to-transparent border-2 border-orange-400/30 shadow-md shadow-orange-500/10"
+            ? "bg-sky-50 border-3 border-sky-300 shadow-[0_4px_0_#bae6fd]"
+            : "bg-orange-500/5 border-3 border-orange-400/30 shadow-[0_4px_0_rgba(251,146,60,0.1)]"
           : isDay
-          ? "bg-white/50 border border-cyan-100"
-          : "bg-white/[0.03] border border-white/5"
+          ? "bg-white border-3 border-sky-100 shadow-[0_3px_0_#e0f2fe]"
+          : "bg-[#1e1330] border-3 border-white/5 shadow-[0_3px_0_rgba(255,255,255,0.02)]"
       }`}
     >
       {/* Day header */}
       <div className="text-center mb-2.5">
-        <div
-          className={`text-[11px] font-bold uppercase tracking-wider ${
-            isToday
-              ? isDay ? "text-cyan-500" : "text-orange-400"
-              : isDay ? "text-cyan-300" : "text-white/25"
-          }`}
-        >
+        <div className={`text-xs lg:text-sm font-black uppercase ${
+          isToday
+            ? isDay ? "text-sky-500" : "text-orange-400"
+            : isDay ? "text-sky-300" : "text-white/20"
+        }`}>
           {getDayShort(dayIndex)}
         </div>
-        <div
-          className={`text-2xl font-extrabold mt-0.5 ${
-            isToday
-              ? isDay ? "text-cyan-700" : "text-orange-300"
-              : isDay ? "text-cyan-900" : "text-white/70"
-          }`}
-        >
+        <div className={`text-2xl lg:text-4xl font-black mt-0.5 ${
+          isToday
+            ? isDay ? "text-sky-600" : "text-orange-300"
+            : isDay ? "text-sky-800" : "text-white/60"
+        }`}>
           {dayNum}
         </div>
         {isToday && (
-          <div
-            className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
-              isDay ? "bg-cyan-500" : "bg-orange-400"
-            }`}
-          />
+          <div className={`w-2 h-2 rounded-full mx-auto mt-1 ${
+            isDay ? "bg-sky-400" : "bg-orange-400"
+          }`} />
         )}
       </div>
 
       {/* Tasks */}
       <div className="space-y-1.5">
         {sorted.length === 0 && (
-          <p className={`text-[10px] text-center py-2 ${isDay ? "text-cyan-200" : "text-white/10"}`}>
+          <p className={`text-xs text-center py-2 font-bold ${isDay ? "text-sky-200" : "text-white/10"}`}>
             ---
           </p>
         )}
@@ -82,9 +74,7 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
       {/* Mini progress */}
       {total > 0 && (
         <div className="mt-2 flex justify-center">
-          <span className={`text-[10px] font-semibold ${
-            isDay ? "text-cyan-400" : "text-orange-400/50"
-          }`}>
+          <span className={`text-xs lg:text-sm font-black ${isDay ? "text-sky-400" : "text-orange-400/40"}`}>
             {completed}/{total}
           </span>
         </div>

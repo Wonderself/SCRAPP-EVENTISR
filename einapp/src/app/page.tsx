@@ -48,90 +48,95 @@ export default function LoginPage() {
     <div
       className={`min-h-screen flex flex-col items-center justify-center relative overflow-hidden ${
         isDay
-          ? "bg-gradient-to-b from-[#0e7490] via-[#0891b2] to-[#67e8f9]"
-          : "bg-gradient-to-b from-[#7c2d12] via-[#be185d] to-[#581c87] animate-gradient"
+          ? "bg-gradient-to-b from-sky-400 via-cyan-300 to-teal-200"
+          : "bg-gradient-to-b from-orange-500 via-pink-600 to-purple-800 animate-gradient"
       }`}
     >
-      {/* Sun / Moon */}
-      <div className="absolute top-14 left-1/2 -translate-x-1/2 no-color-transition">
+      {/* Cartoon sun/moon */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 no-color-transition">
         {isDay ? (
-          <div
-            className="w-28 h-28 rounded-full animate-pulse-glow no-color-transition"
-            style={{
-              background: "radial-gradient(circle, #fef3c7, #fbbf24, #f59e0b)",
-              boxShadow: "0 0 60px rgba(251,191,36,0.5), 0 0 120px rgba(251,191,36,0.2)",
-            }}
-          />
+          <div className="relative animate-float no-color-transition">
+            <div
+              className="w-32 h-32 lg:w-40 lg:h-40 rounded-full"
+              style={{
+                background: "radial-gradient(circle at 40% 40%, #fff7b0, #fbbf24, #f59e0b)",
+                boxShadow: "0 0 50px rgba(251,191,36,0.5), 0 0 100px rgba(251,191,36,0.2), inset -10px -10px 0 rgba(245,158,11,0.3)",
+              }}
+            />
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+              <div
+                key={deg}
+                className="absolute top-1/2 left-1/2 w-2.5 h-7 bg-yellow-300/50 rounded-full no-color-transition"
+                style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-60px)` }}
+              />
+            ))}
+          </div>
         ) : (
-          <div
-            className="w-24 h-24 rounded-full animate-pulse-glow no-color-transition"
-            style={{
-              background: "radial-gradient(circle at 35% 35%, #fef3c7, #fde68a, #fbbf24)",
-              boxShadow: "0 0 50px rgba(253,230,138,0.3), 0 0 100px rgba(253,230,138,0.15)",
-            }}
-          />
+          <div className="relative animate-float no-color-transition">
+            <div
+              className="w-28 h-28 lg:w-36 lg:h-36 rounded-full"
+              style={{
+                background: "radial-gradient(circle at 35% 35%, #fef9c3, #fde68a, #fbbf24)",
+                boxShadow: "0 0 50px rgba(253,230,138,0.4), inset -8px -8px 0 rgba(251,191,36,0.2)",
+              }}
+            />
+            <div
+              className="absolute top-1 right-1 w-20 h-20 lg:w-24 lg:h-24 rounded-full no-color-transition"
+              style={{ background: "radial-gradient(circle, rgba(168,85,247,0.6), transparent)" }}
+            />
+          </div>
         )}
       </div>
 
-      {/* Stars (sunset only) */}
-      {!isDay && (
+      {/* Clouds / stars */}
+      {isDay ? (
         <>
-          <div className="absolute top-20 left-12 w-1 h-1 rounded-full bg-white/30" />
-          <div className="absolute top-32 right-16 w-1.5 h-1.5 rounded-full bg-white/20" />
-          <div className="absolute top-16 right-32 w-1 h-1 rounded-full bg-white/25" />
-          <div className="absolute bottom-40 left-20 w-1 h-1 rounded-full bg-white/15" />
+          <div className="absolute top-24 left-6 animate-wave-bob no-color-transition">
+            <svg width="70" height="35" viewBox="0 0 70 35"><ellipse cx="35" cy="22" rx="30" ry="12" fill="white" opacity="0.4"/><ellipse cx="24" cy="16" rx="16" ry="10" fill="white" opacity="0.4"/></svg>
+          </div>
+          <div className="absolute top-16 right-8 animate-wave-bob no-color-transition" style={{ animationDelay: "1.5s" }}>
+            <svg width="50" height="25" viewBox="0 0 50 25"><ellipse cx="25" cy="16" rx="22" ry="9" fill="white" opacity="0.3"/><ellipse cx="18" cy="12" rx="12" ry="7" fill="white" opacity="0.3"/></svg>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="absolute top-20 left-12 w-2 h-2 rounded-full bg-white/40 animate-pulse-glow no-color-transition" />
+          <div className="absolute top-32 right-16 w-1.5 h-1.5 rounded-full bg-white/30 animate-pulse-glow no-color-transition" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-14 right-36 w-2 h-2 rounded-full bg-yellow-200/25 animate-pulse-glow no-color-transition" style={{ animationDelay: "0.5s" }} />
+          <div className="absolute bottom-32 left-20 w-1.5 h-1.5 rounded-full bg-white/20 no-color-transition" />
         </>
       )}
 
       {/* Waves */}
-      <div className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none">
-        <svg viewBox="0 0 1440 200" className="w-full" preserveAspectRatio="none">
-          <path
-            fill={isDay ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)"}
-            d="M0,120L60,130C120,140,240,160,360,150C480,140,600,100,720,90C840,80,960,100,1080,115C1200,130,1320,140,1380,145L1440,150L1440,200L0,200Z"
-          />
-          <path
-            fill={isDay ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)"}
-            d="M0,160L60,155C120,150,240,140,360,145C480,150,600,170,720,175C840,180,960,170,1080,160C1200,150,1320,140,1380,135L1440,130L1440,200L0,200Z"
-          />
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+        <svg viewBox="0 0 1440 120" className="w-full h-16" preserveAspectRatio="none">
+          <path fill={isDay ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)"} d="M0,60C240,90,480,20,720,60C960,100,1200,30,1440,60L1440,120L0,120Z" />
+          <path fill={isDay ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)"} d="M0,80C360,50,720,100,1080,70C1300,55,1400,80,1440,75L1440,120L0,120Z" />
         </svg>
       </div>
 
       {/* Dolphin */}
-      <div className={`mb-6 mt-28 animate-float no-color-transition ${mounted ? "animate-fade-up" : "opacity-0"}`}>
-        <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
-          <path
-            d="M75 35c-5-15-20-20-35-15-10 3-18 12-20 22-1 5 0 10 3 14 4 5 10 8 17 8 3 0 6-1 9-2l12 8-3-10c8-6 13-15 12-20 0-2-1-3-2-5h7z"
-            fill="white"
-            opacity="0.25"
-          />
-          <circle cx="52" cy="38" r="2.5" fill="white" opacity="0.4" />
+      <div className={`mb-4 mt-32 lg:mt-40 animate-wiggle no-color-transition ${mounted ? "" : "opacity-0"}`}>
+        <svg width="70" height="70" viewBox="0 0 100 100" className="lg:w-24 lg:h-24">
+          <path d="M75 35c-5-15-20-20-35-15-10 3-18 12-20 22-1 5 0 10 3 14 4 5 10 8 17 8 3 0 6-1 9-2l12 8-3-10c8-6 13-15 12-20 0-2-1-3-2-5h7z" fill="white" opacity="0.35" />
+          <circle cx="52" cy="38" r="3" fill="white" opacity="0.5" />
         </svg>
       </div>
 
       {/* Card */}
       <div
-        className={`w-full max-w-sm mx-6 rounded-3xl p-8 text-center shadow-2xl ${
-          mounted ? "animate-fade-up" : "opacity-0"
+        className={`w-full max-w-sm lg:max-w-md mx-6 rounded-[32px] p-8 lg:p-12 text-center ${
+          mounted ? "animate-bounce-in" : "opacity-0"
         } ${
           isDay
-            ? "bg-white/80 backdrop-blur-xl shadow-cyan-900/20"
-            : "bg-black/20 backdrop-blur-xl shadow-black/30 border border-white/10"
+            ? "bg-white border-4 border-sky-200 shadow-[0_8px_0_#bae6fd,0_12px_30px_rgba(14,116,144,0.1)]"
+            : "bg-[#1e1330] border-4 border-orange-500/20 shadow-[0_8px_0_rgba(251,146,60,0.1),0_12px_30px_rgba(0,0,0,0.4)]"
         }`}
-        style={{ animationDelay: "0.15s" }}
       >
-        <h1
-          className={`text-4xl font-extrabold tracking-tight mb-1 ${
-            isDay ? "text-cyan-900" : "text-white"
-          }`}
-        >
+        <h1 className={`text-5xl lg:text-7xl font-black tracking-tight mb-1 ${isDay ? "text-sky-700" : "text-white"}`}>
           Einapp
         </h1>
-        <p
-          className={`text-sm font-light mb-8 ${
-            isDay ? "text-cyan-600" : "text-white/50"
-          }`}
-        >
+        <p className={`text-base lg:text-xl font-bold mb-8 ${isDay ? "text-sky-400" : "text-orange-300/60"}`}>
           Dolphin Village
         </p>
 
@@ -144,10 +149,10 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="----"
-                className={`w-full px-6 py-5 rounded-2xl text-center text-3xl font-light tracking-[0.5em] outline-none transition-all ${
+                className={`w-full px-6 py-5 lg:py-6 rounded-2xl text-center text-3xl lg:text-4xl font-bold tracking-[0.5em] outline-none transition-all ${
                   isDay
-                    ? "bg-cyan-50 border-2 border-cyan-100 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 text-cyan-900 placeholder-cyan-200"
-                    : "bg-white/5 border-2 border-white/10 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 text-white placeholder-white/15"
+                    ? "bg-sky-50 border-3 border-sky-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 text-sky-800 placeholder-sky-200"
+                    : "bg-white/5 border-3 border-white/10 focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 text-white placeholder-white/15"
                 }`}
                 autoFocus
                 autoComplete="off"
@@ -155,25 +160,23 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute left-4 top-1/2 -translate-y-1/2 text-xs font-medium ${
-                  isDay ? "text-cyan-300" : "text-white/30"
+                className={`absolute left-4 top-1/2 -translate-y-1/2 text-xs lg:text-sm font-bold ${
+                  isDay ? "text-sky-300" : "text-white/30"
                 }`}
               >
                 {showPassword ? "hide" : "show"}
               </button>
             </div>
 
-            {error && (
-              <p className="text-red-400 text-sm font-medium">{error}</p>
-            )}
+            {error && <p className="text-red-400 text-sm font-bold">{error}</p>}
 
             <button
               type="submit"
               disabled={loading || !password}
-              className={`w-full py-5 rounded-2xl text-white text-lg font-bold transition-all disabled:opacity-30 ${
+              className={`cartoon-btn w-full py-5 lg:py-6 rounded-2xl text-white text-xl lg:text-2xl font-black transition-all disabled:opacity-30 ${
                 isDay
-                  ? "bg-gradient-to-r from-cyan-500 to-teal-400 hover:shadow-xl hover:shadow-cyan-300/30 active:scale-[0.98]"
-                  : "bg-gradient-to-r from-orange-500 to-pink-500 hover:shadow-xl hover:shadow-orange-500/30 active:scale-[0.98]"
+                  ? "bg-gradient-to-r from-sky-500 to-cyan-400 shadow-[0_5px_0_#0891b2] hover:shadow-[0_5px_0_#0891b2,0_8px_20px_rgba(14,116,144,0.2)]"
+                  : "bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_5px_0_#c2410c] hover:shadow-[0_5px_0_#c2410c,0_8px_20px_rgba(234,88,12,0.2)]"
               }`}
             >
               {loading ? "..." : "enter"}
@@ -181,11 +184,9 @@ export default function LoginPage() {
           </form>
         )}
 
-        <p
-          className={`mt-8 text-[10px] font-light tracking-[0.3em] uppercase ${
-            isDay ? "text-cyan-300" : "text-white/20"
-          }`}
-        >
+        <p className={`mt-8 text-[10px] lg:text-xs font-bold tracking-[0.3em] uppercase ${
+          isDay ? "text-sky-300" : "text-white/15"
+        }`}>
           Sea Vibes Vacation
         </p>
       </div>
