@@ -62,10 +62,10 @@ export default function DashboardPage() {
       }`}>
         {/* Ambient glows */}
         <div className={`absolute -top-10 -left-10 w-32 h-32 rounded-full blur-3xl ${
-          isDay ? "bg-yellow-300/30" : "bg-orange-500/20"
+          isDay ? "bg-yellow-300/30" : "bg-fuchsia-500/20"
         }`} />
         <div className={`absolute -top-5 -right-10 w-24 h-24 rounded-full blur-2xl ${
-          isDay ? "bg-white/20" : "bg-pink-400/15"
+          isDay ? "bg-white/20" : "bg-violet-500/15"
         }`} />
 
         {/* Content */}

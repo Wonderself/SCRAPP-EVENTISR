@@ -54,7 +54,7 @@ export default function LoginPage() {
     >
       {/* Ambient glows */}
       <div className={`absolute -top-20 -left-20 w-60 h-60 rounded-full blur-3xl ${
-        isDay ? "bg-yellow-300/20" : "bg-orange-500/15"
+        isDay ? "bg-yellow-300/20" : "bg-fuchsia-500/15"
       }`} />
       <div className={`absolute -bottom-20 -right-20 w-60 h-60 rounded-full blur-3xl ${
         isDay ? "bg-white/20" : "bg-fuchsia-500/15"
