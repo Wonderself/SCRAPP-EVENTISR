@@ -92,7 +92,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Cartoon clouds (day) / stars (night) */}
+        {/* Cartoon clouds + sparkles (day) / stars + sparkles (night) */}
         {isDay ? (
           <>
             <div className="absolute top-8 right-6 no-color-transition animate-wave-bob" style={{ animationDelay: "0s" }}>
@@ -100,6 +100,16 @@ export default function DashboardPage() {
             </div>
             <div className="absolute top-20 right-28 lg:right-48 no-color-transition animate-wave-bob" style={{ animationDelay: "1s" }}>
               <svg width="60" height="30" viewBox="0 0 60 30"><ellipse cx="30" cy="18" rx="28" ry="11" fill="white" opacity="0.25"/><ellipse cx="20" cy="13" rx="14" ry="9" fill="white" opacity="0.25"/></svg>
+            </div>
+            {/* Sparkles */}
+            <div className="absolute top-16 right-16 animate-sparkle no-color-transition" style={{ animationDelay: "0s" }}>
+              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.5"/></svg>
+            </div>
+            <div className="absolute top-32 right-40 animate-sparkle no-color-transition" style={{ animationDelay: "1.5s" }}>
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.4"/></svg>
+            </div>
+            <div className="absolute top-12 left-[55%] animate-sparkle no-color-transition" style={{ animationDelay: "0.8s" }}>
+              <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.35"/></svg>
             </div>
           </>
         ) : (
@@ -109,6 +119,16 @@ export default function DashboardPage() {
             <div className="absolute top-10 right-36 w-2.5 h-2.5 rounded-full bg-yellow-200/30 animate-pulse-glow no-color-transition" style={{ animationDelay: "0.5s" }} />
             <div className="absolute top-24 right-12 w-1 h-1 rounded-full bg-white/30 no-color-transition" />
             <div className="absolute top-4 right-52 w-1.5 h-1.5 rounded-full bg-white/25 animate-pulse-glow no-color-transition" style={{ animationDelay: "2s" }} />
+            {/* Sparkles sunset */}
+            <div className="absolute top-20 right-24 animate-sparkle no-color-transition" style={{ animationDelay: "0.3s" }}>
+              <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#fbbf24" opacity="0.4"/></svg>
+            </div>
+            <div className="absolute top-8 right-44 animate-sparkle no-color-transition" style={{ animationDelay: "1.8s" }}>
+              <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#fbbf24" opacity="0.3"/></svg>
+            </div>
+            <div className="absolute top-28 left-[40%] animate-sparkle no-color-transition" style={{ animationDelay: "1s" }}>
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.25"/></svg>
+            </div>
           </>
         )}
 
@@ -156,25 +176,32 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-4 lg:gap-6 animate-fade-up no-color-transition" style={{ animationDelay: "0.15s" }}>
+        <div className="grid grid-cols-2 gap-4 lg:gap-6">
           <button
             onClick={() => router.push("/chat")}
-            className={`cartoon-btn rounded-3xl p-6 lg:p-10 flex flex-col items-center gap-3 lg:gap-5 ${
+            className={`cartoon-btn rounded-3xl p-6 lg:p-10 flex flex-col items-center gap-3 lg:gap-5 animate-slide-right no-color-transition ${
               isDay
-                ? "cartoon-card-day hover:translate-y-[-2px]"
-                : "cartoon-card-sunset hover:translate-y-[-2px]"
+                ? "cartoon-card-day hover:translate-y-[-4px]"
+                : "cartoon-card-sunset hover:translate-y-[-4px]"
             }`}
+            style={{ animationDelay: "0.15s" }}
           >
-            <div
-              className={`w-16 h-16 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl flex items-center justify-center ${
-                isDay
-                  ? "bg-gradient-to-br from-cyan-400 to-sky-500"
-                  : "bg-gradient-to-br from-orange-400 to-pink-500"
-              }`}
-              style={{ boxShadow: isDay ? "0 4px 0 #0891b2" : "0 4px 0 #c2410c" }}
-            >
-              <MessageCircle size={28} className="text-white lg:hidden" strokeWidth={2.5} />
-              <MessageCircle size={40} className="text-white hidden lg:block" strokeWidth={2.5} />
+            <div className="relative">
+              <div
+                className={`w-16 h-16 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl flex items-center justify-center animate-heartbeat no-color-transition ${
+                  isDay
+                    ? "bg-gradient-to-br from-cyan-400 to-sky-500"
+                    : "bg-gradient-to-br from-orange-400 to-pink-500"
+                }`}
+                style={{ boxShadow: isDay ? "0 4px 0 #0891b2" : "0 4px 0 #c2410c" }}
+              >
+                <MessageCircle size={28} className="text-white lg:hidden" strokeWidth={2.5} />
+                <MessageCircle size={40} className="text-white hidden lg:block" strokeWidth={2.5} />
+              </div>
+              {/* Sparkle on icon */}
+              <div className="absolute -top-1 -right-1 animate-sparkle no-color-transition" style={{ animationDelay: "0.5s" }}>
+                <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "#0ea5e9" : "#fb923c"} opacity="0.6"/></svg>
+              </div>
             </div>
             <span className={`text-base lg:text-2xl font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
               דברי עם Einapp
@@ -183,22 +210,28 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setShowAddTask(true)}
-            className={`cartoon-btn rounded-3xl p-6 lg:p-10 flex flex-col items-center gap-3 lg:gap-5 ${
+            className={`cartoon-btn rounded-3xl p-6 lg:p-10 flex flex-col items-center gap-3 lg:gap-5 animate-slide-left no-color-transition ${
               isDay
-                ? "cartoon-card-day hover:translate-y-[-2px]"
-                : "cartoon-card-sunset hover:translate-y-[-2px]"
+                ? "cartoon-card-day hover:translate-y-[-4px]"
+                : "cartoon-card-sunset hover:translate-y-[-4px]"
             }`}
+            style={{ animationDelay: "0.2s" }}
           >
-            <div
-              className={`w-16 h-16 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl flex items-center justify-center ${
-                isDay
-                  ? "bg-gradient-to-br from-emerald-400 to-teal-500"
-                  : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
-              }`}
-              style={{ boxShadow: isDay ? "0 4px 0 #0d9488" : "0 4px 0 #7e22ce" }}
-            >
-              <Plus size={32} className="text-white lg:hidden" strokeWidth={3} />
-              <Plus size={44} className="text-white hidden lg:block" strokeWidth={3} />
+            <div className="relative">
+              <div
+                className={`w-16 h-16 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl flex items-center justify-center animate-swing no-color-transition ${
+                  isDay
+                    ? "bg-gradient-to-br from-emerald-400 to-teal-500"
+                    : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
+                }`}
+                style={{ boxShadow: isDay ? "0 4px 0 #0d9488" : "0 4px 0 #7e22ce" }}
+              >
+                <Plus size={32} className="text-white lg:hidden" strokeWidth={3} />
+                <Plus size={44} className="text-white hidden lg:block" strokeWidth={3} />
+              </div>
+              <div className="absolute -top-1 -left-1 animate-sparkle no-color-transition" style={{ animationDelay: "1.2s" }}>
+                <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "#14b8a6" : "#c084fc"} opacity="0.6"/></svg>
+              </div>
             </div>
             <span className={`text-base lg:text-2xl font-black ${isDay ? "text-teal-700" : "text-fuchsia-200"}`}>
               משימה חדשה
@@ -207,8 +240,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Week view */}
-        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.25s" }}>
-          <h2 className={`text-lg lg:text-3xl font-black mb-3 lg:mb-5 ${isDay ? "text-sky-800" : "text-orange-200"}`}>
+        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.3s" }}>
+          <h2 className={`text-lg lg:text-3xl font-black mb-3 lg:mb-5 flex items-center gap-2 ${isDay ? "text-sky-800" : "text-orange-200"}`}>
+            <span className="animate-wave-bob no-color-transition inline-block">
+              {isDay ? "🌊" : "🌙"}
+            </span>
             השבוע שלך
           </h2>
           <WeekView isDay={isDay} refreshKey={refreshKey} />

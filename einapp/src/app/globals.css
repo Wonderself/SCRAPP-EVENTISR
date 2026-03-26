@@ -91,6 +91,79 @@ body {
 .animate-gradient { background-size: 200% 200%; animation: gradient-shift 6s ease infinite; }
 .animate-wave-bob { animation: wave-bob 3s ease-in-out infinite; }
 
+/* Extra motion animations */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 0; }
+  10%, 30% { opacity: 1; }
+  20% { opacity: 0; }
+}
+
+@keyframes swing {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(12deg); }
+  40% { transform: rotate(-8deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-3deg); }
+}
+
+@keyframes jelly {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(0.95, 1.05); }
+  50% { transform: scale(1.05, 0.95); }
+  75% { transform: scale(0.97, 1.03); }
+  100% { transform: scale(1, 1); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rainbow-bg {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+  60% { transform: scale(1); }
+}
+
+.animate-sparkle { animation: sparkle 2s ease-in-out infinite; }
+.animate-flash { animation: flash 3s ease-in-out infinite; }
+.animate-swing { animation: swing 1.5s ease-in-out infinite; }
+.animate-jelly { animation: jelly 0.8s ease-in-out; }
+.animate-slide-right { animation: slide-in-right 0.5s ease-out forwards; opacity: 0; }
+.animate-slide-left { animation: slide-in-left 0.5s ease-out forwards; opacity: 0; }
+.animate-zoom-in { animation: zoom-in 0.4s cubic-bezier(0.36, 0, 0.66, 1) forwards; opacity: 0; }
+.animate-rainbow { animation: rainbow-bg 4s linear infinite; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
+.animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
+
 /* Hide scrollbar */
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
