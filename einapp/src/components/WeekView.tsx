@@ -43,7 +43,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
 
   if (loading) {
     return (
-      <div className={`text-center py-8 text-base font-black ${isDay ? "text-sky-300" : "text-white/15"}`}>
+      <div className={`text-center py-4 text-base font-black ${isDay ? "text-sky-300" : "text-white/15"}`}>
         ...
       </div>
     );
@@ -78,18 +78,18 @@ export default function WeekView({ isDay, refreshKey }: Props) {
 
       {/* Weekly progress */}
       {totalThisWeek > 0 && (
-        <div className={`mt-4 rounded-2xl p-4 lg:p-5 ${
+        <div className={`mt-2.5 lg:mt-4 rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
           isDay ? "cartoon-card-day" : "cartoon-card-sunset"
         }`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-sm lg:text-xl font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
               {completedThisWeek} / {totalThisWeek}
             </span>
-            <span className={`text-sm lg:text-xl font-black ${isDay ? "text-sky-500" : "text-orange-400"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-orange-400"}`}>
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
-          <div className={`h-3 lg:h-4 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/5"}`}>
+          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/5"}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay

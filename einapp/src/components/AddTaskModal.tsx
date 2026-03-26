@@ -76,14 +76,14 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
     : "bg-white/5 text-white/30 border-2 border-white/5";
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-      <div className={`w-full max-w-md p-6 lg:p-8 space-y-5 max-h-[85vh] overflow-y-auto rounded-[32px] ${
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-3">
+      <div className={`w-full max-w-md p-5 lg:p-7 space-y-4 max-h-[85vh] overflow-y-auto rounded-[28px] lg:rounded-[32px] ${
         isDay
           ? "bg-white border-4 border-sky-200 shadow-[0_8px_0_#bae6fd]"
           : "bg-[#1e1330] border-4 border-orange-500/15 shadow-[0_8px_0_rgba(251,146,60,0.08)]"
       }`}>
         <div className="flex items-center justify-between">
-          <h2 className={`text-2xl lg:text-3xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>משימה חדשה</h2>
+          <h2 className={`text-xl lg:text-2xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>משימה חדשה</h2>
           <button onClick={onClose} className={`cartoon-btn p-2 rounded-xl ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/30 hover:bg-white/5"}`}>
             <X size={24} strokeWidth={3} />
           </button>
@@ -114,7 +114,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           placeholder="מה צריך לעשות?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={`w-full px-5 py-4 rounded-2xl outline-none text-base lg:text-lg font-bold ${inputCls}`}
+          className={`w-full px-4 py-3.5 rounded-2xl outline-none text-sm lg:text-base font-bold ${inputCls}`}
           autoFocus
         />
 
@@ -174,7 +174,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         <button
           onClick={handleSave}
           disabled={saving || !description.trim()}
-          className={`cartoon-btn w-full py-5 rounded-2xl text-white text-lg lg:text-xl font-black transition-all disabled:opacity-30 ${
+          className={`cartoon-btn w-full py-4 rounded-2xl text-white text-base lg:text-lg font-black transition-all disabled:opacity-30 ${
             isDay
               ? "bg-gradient-to-r from-sky-400 to-cyan-500 shadow-[0_5px_0_#0891b2]"
               : "bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_5px_0_#c2410c]"

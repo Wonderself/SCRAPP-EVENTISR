@@ -20,13 +20,13 @@ export default function BottomTabs({ isDay }: Props) {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-40 ${
+      className={`shrink-0 z-40 ${
         isDay
           ? "bg-white border-t-3 border-sky-200"
           : "bg-[#0d0820] border-t-3 border-orange-500/10"
       }`}
     >
-      <div className="flex justify-around items-center h-[76px] lg:h-[88px] max-w-xl mx-auto px-2">
+      <div className="flex justify-around items-center h-[60px] lg:h-[72px] max-w-xl mx-auto px-2">
         {TABS.map((tab) => {
           const active = pathname === tab.path;
           const Icon = tab.icon;
@@ -34,31 +34,31 @@ export default function BottomTabs({ isDay }: Props) {
             <button
               key={tab.path}
               onClick={() => router.push(tab.path)}
-              className="cartoon-btn flex flex-col items-center gap-1 px-3 py-1 min-w-[60px] lg:min-w-[80px]"
+              className="cartoon-btn flex flex-col items-center gap-0.5 px-3 py-1 min-w-[56px] lg:min-w-[72px]"
             >
               <div
-                className={`w-11 h-11 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${
                   active
                     ? isDay
-                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_3px_0_#0891b2]"
-                      : "bg-gradient-to-br from-orange-400 to-pink-500 shadow-[0_3px_0_#c2410c]"
+                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_2px_0_#0891b2]"
+                      : "bg-gradient-to-br from-orange-400 to-pink-500 shadow-[0_2px_0_#c2410c]"
                     : "bg-transparent"
                 }`}
               >
                 <Icon
-                  size={22}
+                  size={18}
                   strokeWidth={active ? 3 : 2}
-                  className={
+                  className={`lg:!w-5 lg:!h-5 ${
                     active
                       ? "text-white"
                       : isDay
                       ? "text-sky-300"
                       : "text-white/20"
-                  }
+                  }`}
                 />
               </div>
               <span
-                className={`text-[11px] lg:text-sm font-black ${
+                className={`text-[10px] lg:text-xs font-black ${
                   active
                     ? isDay ? "text-sky-600" : "text-orange-300"
                     : isDay ? "text-sky-300" : "text-white/15"
