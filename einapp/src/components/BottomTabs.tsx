@@ -51,7 +51,7 @@ export default function BottomTabs({ isDay }: Props) {
       <div className={`text-center pb-2 text-[9px] tracking-widest uppercase font-light ${
         isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
       }`}>
-        Good Vibes Only
+        Sea Vibes Vacation
       </div>
     </nav>
   );

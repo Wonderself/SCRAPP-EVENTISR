@@ -36,14 +36,14 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
       }`}
     >
       <div className="text-center mb-3">
-        <div className={`text-[10px] font-semibold uppercase tracking-wider ${
+        <div className={`text-xs lg:text-sm font-semibold uppercase tracking-wider ${
           isToday
             ? isDay ? "text-[#2196c8]" : "text-[#e65100]"
             : isDay ? "text-[#8ab0c0]" : "text-[#8a6a5a]"
         }`}>
           {getDayShort(dayIndex)}
         </div>
-        <div className={`text-lg font-bold mt-0.5 ${
+        <div className={`text-xl lg:text-2xl font-bold mt-0.5 ${
           isToday
             ? isDay ? "text-[#1a7fb5]" : "text-[#ff8f00]"
             : isDay ? "text-[#1a3a4a]" : "text-[#f5e6d8]"

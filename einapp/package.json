@@ -1,7 +1,7 @@
 {
   "name": "einapp",
   "version": "1.0.0",
-  "description": "Einapp 🐬 — Good Vibes Only",
+  "description": "Einapp — Sea Vibes Vacation",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
