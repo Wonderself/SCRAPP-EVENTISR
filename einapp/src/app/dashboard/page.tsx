@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle, Sparkles } from "lucide-react";
 import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
@@ -41,146 +41,122 @@ export default function DashboardPage() {
   if (!mounted) return <div className="h-[100dvh] bg-sky-100" />;
 
   return (
-    <div className={`h-[100dvh] flex flex-col overflow-hidden ${isDay ? "bg-sky-50" : "bg-[#0d0820]"}`}>
+    <div className={`h-[100dvh] flex flex-col overflow-hidden ${
+      isDay
+        ? "bg-gradient-to-b from-sky-50 via-cyan-50 to-white"
+        : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
+    }`}>
 
-      {/* ===== COMPACT HERO — minimal height ===== */}
-      <div
-        className={`relative overflow-hidden shrink-0 ${
-          isDay
-            ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
-            : "bg-gradient-to-br from-orange-500 via-pink-500 to-purple-700 animate-gradient"
-        }`}
-      >
-        {/* Small sun/moon — top-left */}
-        <div className="absolute top-2 left-3 no-color-transition">
-          {isDay ? (
-            <div className="relative animate-float no-color-transition">
-              <div
-                className="w-10 h-10 lg:w-16 lg:h-16 rounded-full"
-                style={{
-                  background: "radial-gradient(circle at 40% 40%, #fff7b0, #fbbf24, #f59e0b)",
-                  boxShadow: "0 0 20px rgba(251,191,36,0.5), inset -4px -4px 0 rgba(245,158,11,0.3)",
-                }}
-              />
-              {[0, 60, 120, 180, 240, 300].map((deg) => (
-                <div
-                  key={deg}
-                  className="absolute top-1/2 left-1/2 w-1 h-2.5 lg:w-1.5 lg:h-4 bg-yellow-300/40 rounded-full no-color-transition"
-                  style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-24px)` }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="relative animate-float no-color-transition">
-              <div
-                className="w-9 h-9 lg:w-14 lg:h-14 rounded-full"
-                style={{
-                  background: "radial-gradient(circle at 35% 35%, #fef9c3, #fde68a, #fbbf24)",
-                  boxShadow: "0 0 20px rgba(253,230,138,0.35), inset -4px -4px 0 rgba(251,191,36,0.2)",
-                }}
-              />
-              <div
-                className="absolute top-0 right-0 w-6 h-6 lg:w-9 lg:h-9 rounded-full no-color-transition"
-                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.7), transparent)" }}
-              />
-            </div>
-          )}
-        </div>
+      {/* ===== HERO — Glass style ===== */}
+      <div className={`relative overflow-hidden shrink-0 ${
+        isDay
+          ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
+          : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
+      }`}>
+        {/* Ambient glow circles */}
+        <div className={`absolute -top-10 -left-10 w-32 h-32 rounded-full blur-3xl ${
+          isDay ? "bg-yellow-300/30" : "bg-orange-500/20"
+        }`} />
+        <div className={`absolute -top-5 -right-10 w-24 h-24 rounded-full blur-2xl ${
+          isDay ? "bg-white/20" : "bg-pink-400/15"
+        }`} />
 
-        {/* Sparkles */}
-        <div className="absolute top-3 right-8 animate-sparkle no-color-transition">
-          <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="white" opacity="0.4"/></svg>
-        </div>
-        <div className="absolute top-8 right-20 animate-sparkle no-color-transition" style={{ animationDelay: "1.2s" }}>
-          <svg width="8" height="8" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={isDay ? "white" : "#fbbf24"} opacity="0.3"/></svg>
-        </div>
+        {/* Floating particles */}
+        <div className="absolute top-3 right-12 w-1 h-1 rounded-full bg-white/40 animate-float" />
+        <div className="absolute top-6 right-24 w-1.5 h-1.5 rounded-full bg-white/25 animate-float" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-2 left-[40%] w-1 h-1 rounded-full bg-white/30 animate-float" style={{ animationDelay: "2s" }} />
 
-        {/* Cloud (day only) */}
-        {isDay && (
-          <div className="absolute top-2 right-3 animate-wave-bob no-color-transition">
-            <svg width="40" height="20" viewBox="0 0 56 28"><ellipse cx="28" cy="18" rx="24" ry="9" fill="white" opacity="0.3"/><ellipse cx="20" cy="13" rx="12" ry="8" fill="white" opacity="0.3"/></svg>
-          </div>
-        )}
-
-        {/* Content — very compact */}
-        <div className="relative z-10 px-4 pt-3 pb-5 lg:px-8 lg:pt-4 lg:pb-6">
-          <div className="flex items-end justify-between">
+        {/* Content */}
+        <div className="relative z-10 px-5 pt-4 pb-5 lg:px-10 lg:pt-5 lg:pb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-white text-lg lg:text-3xl font-black leading-none animate-bounce-in no-color-transition">
+              <p className="text-white/50 text-[9px] lg:text-xs font-semibold tracking-wider mb-0.5">
+                {formatHebrewDate(today)}
+              </p>
+              <h1 className="text-white text-xl lg:text-3xl font-black leading-tight">
                 {getGreeting()}
               </h1>
-              <p className="text-white/40 text-[8px] lg:text-xs mt-0.5 tracking-[0.2em] uppercase font-bold">
-                Sea Vibes Vacation
-              </p>
             </div>
-            <p className="text-white/50 text-[8px] lg:text-xs font-bold">
-              {formatHebrewDate(today)}
-            </p>
+            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center backdrop-blur-md ${
+              isDay ? "bg-white/20 shadow-lg shadow-cyan-500/10" : "bg-white/10 shadow-lg shadow-fuchsia-500/10"
+            }`}>
+              <Sparkles size={18} className="text-white/80 lg:hidden" />
+              <Sparkles size={22} className="text-white/80 hidden lg:block" />
+            </div>
           </div>
         </div>
 
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full h-3 lg:h-4 block">
-            <path fill={isDay ? "#f0f9ff" : "#0d0820"} d="M0,20C360,35,720,8,1080,20C1260,28,1380,12,1440,20L1440,40L0,40Z" />
-          </svg>
-        </div>
+        {/* Smooth edge */}
+        <div className={`h-4 lg:h-5 ${
+          isDay
+            ? "bg-gradient-to-b from-transparent to-sky-50/80"
+            : "bg-gradient-to-b from-transparent to-[#1a0e2e]"
+        }`} />
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="flex-1 overflow-y-auto px-3 lg:px-8 py-2 lg:py-3 max-w-4xl mx-auto w-full space-y-2 lg:space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 lg:px-10 pb-2 max-w-4xl mx-auto w-full space-y-3 lg:space-y-4">
 
         {/* Weather */}
         <WeatherWidget isDay={isDay} />
 
-        {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-2 lg:gap-3">
+        {/* Quick actions — Glass cards */}
+        <div className="grid grid-cols-2 gap-3 lg:gap-4">
           <button
             onClick={() => router.push("/chat")}
-            className={`cartoon-btn rounded-2xl p-2.5 lg:p-5 flex flex-col items-center gap-1 lg:gap-2 animate-slide-right no-color-transition ${
-              isDay ? "cartoon-card-day" : "cartoon-card-sunset"
+            className={`group relative overflow-hidden rounded-[20px] lg:rounded-3xl p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.97] ${
+              isDay
+                ? "bg-white/80 backdrop-blur-sm border border-sky-100 shadow-[0_2px_20px_rgba(14,165,233,0.08)] hover:shadow-[0_4px_25px_rgba(14,165,233,0.15)]"
+                : "bg-white/[0.06] backdrop-blur-sm border border-white/[0.08] shadow-[0_2px_20px_rgba(168,85,247,0.06)] hover:shadow-[0_4px_25px_rgba(168,85,247,0.12)]"
             }`}
-            style={{ animationDelay: "0.1s" }}
           >
+            {/* Gradient glow behind icon */}
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full blur-2xl opacity-30 ${
+              isDay ? "bg-cyan-400" : "bg-orange-500"
+            }`} />
             <div
-              className={`w-9 h-9 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center ${
-                isDay ? "bg-gradient-to-br from-cyan-400 to-sky-500" : "bg-gradient-to-br from-orange-400 to-pink-500"
+              className={`relative w-11 h-11 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center shadow-lg ${
+                isDay
+                  ? "bg-gradient-to-br from-cyan-400 to-blue-500 shadow-cyan-500/25"
+                  : "bg-gradient-to-br from-orange-400 to-rose-500 shadow-rose-500/25"
               }`}
-              style={{ boxShadow: isDay ? "0 2px 0 #0891b2" : "0 2px 0 #c2410c" }}
             >
-              <MessageCircle size={16} className="text-white lg:hidden" strokeWidth={2.5} />
-              <MessageCircle size={24} className="text-white hidden lg:block" strokeWidth={2.5} />
+              <MessageCircle size={20} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className={`text-[11px] lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
+            <span className={`text-xs lg:text-sm font-bold ${isDay ? "text-sky-800" : "text-white/80"}`}>
               דברי עם Einapp
             </span>
           </button>
 
           <button
             onClick={() => setShowAddTask(true)}
-            className={`cartoon-btn rounded-2xl p-2.5 lg:p-5 flex flex-col items-center gap-1 lg:gap-2 animate-slide-left no-color-transition ${
-              isDay ? "cartoon-card-day" : "cartoon-card-sunset"
+            className={`group relative overflow-hidden rounded-[20px] lg:rounded-3xl p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.97] ${
+              isDay
+                ? "bg-white/80 backdrop-blur-sm border border-sky-100 shadow-[0_2px_20px_rgba(14,165,233,0.08)] hover:shadow-[0_4px_25px_rgba(14,165,233,0.15)]"
+                : "bg-white/[0.06] backdrop-blur-sm border border-white/[0.08] shadow-[0_2px_20px_rgba(168,85,247,0.06)] hover:shadow-[0_4px_25px_rgba(168,85,247,0.12)]"
             }`}
-            style={{ animationDelay: "0.15s" }}
           >
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full blur-2xl opacity-30 ${
+              isDay ? "bg-emerald-400" : "bg-violet-500"
+            }`} />
             <div
-              className={`w-9 h-9 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center ${
-                isDay ? "bg-gradient-to-br from-emerald-400 to-teal-500" : "bg-gradient-to-br from-fuchsia-500 to-purple-600"
+              className={`relative w-11 h-11 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center shadow-lg ${
+                isDay
+                  ? "bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/25"
+                  : "bg-gradient-to-br from-violet-500 to-purple-600 shadow-violet-500/25"
               }`}
-              style={{ boxShadow: isDay ? "0 2px 0 #0d9488" : "0 2px 0 #7e22ce" }}
             >
-              <Plus size={18} className="text-white lg:hidden" strokeWidth={3} />
-              <Plus size={26} className="text-white hidden lg:block" strokeWidth={3} />
+              <Plus size={22} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className={`text-[11px] lg:text-base font-black ${isDay ? "text-teal-700" : "text-fuchsia-200"}`}>
+            <span className={`text-xs lg:text-sm font-bold ${isDay ? "text-teal-800" : "text-white/80"}`}>
               משימה חדשה
             </span>
           </button>
         </div>
 
         {/* Week view */}
-        <div className="animate-fade-up no-color-transition" style={{ animationDelay: "0.2s" }}>
-          <h2 className={`text-xs lg:text-lg font-black mb-1 lg:mb-2 ${isDay ? "text-sky-800" : "text-orange-200"}`}>
+        <div>
+          <h2 className={`text-sm lg:text-base font-bold mb-2 lg:mb-3 ${isDay ? "text-sky-900/70" : "text-white/40"}`}>
             השבוע שלך
           </h2>
           <WeekView isDay={isDay} refreshKey={refreshKey} />

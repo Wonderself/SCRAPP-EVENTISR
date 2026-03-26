@@ -79,13 +79,13 @@ export default function WeekView({ isDay, refreshKey }: Props) {
       {/* Weekly progress */}
       {totalThisWeek > 0 && (
         <div className={`mt-2.5 lg:mt-4 rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
-          isDay ? "cartoon-card-day" : "cartoon-card-sunset"
+          isDay ? "bg-white/70 border border-sky-100 rounded-xl shadow-sm" : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] rounded-xl"
         }`}>
           <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-orange-200"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-white/60"}`}>
               {completedThisWeek} / {totalThisWeek}
             </span>
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-orange-400"}`}>
+            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
@@ -94,7 +94,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay
                   ? "bg-gradient-to-r from-sky-400 to-teal-400"
-                  : "bg-gradient-to-r from-orange-400 to-pink-500"
+                  : "bg-gradient-to-r from-fuchsia-400 to-violet-500"
               }`}
               style={{ width: `${(completedThisWeek / totalThisWeek) * 100}%` }}
             />

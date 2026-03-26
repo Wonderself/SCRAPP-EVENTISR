@@ -22,8 +22,8 @@ export default function BottomTabs({ isDay }: Props) {
     <nav
       className={`shrink-0 z-40 ${
         isDay
-          ? "bg-white border-t-3 border-sky-200"
-          : "bg-[#0d0820] border-t-3 border-orange-500/10"
+          ? "bg-white/90 backdrop-blur-xl border-t border-sky-200/50"
+          : "bg-[#0a0514]/90 backdrop-blur-xl border-t border-white/[0.06]"
       }`}
     >
       <div className="flex justify-around items-center h-[60px] lg:h-[72px] max-w-xl mx-auto px-2">
@@ -40,8 +40,8 @@ export default function BottomTabs({ isDay }: Props) {
                 className={`w-9 h-9 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${
                   active
                     ? isDay
-                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_2px_0_#0891b2]"
-                      : "bg-gradient-to-br from-orange-400 to-pink-500 shadow-[0_2px_0_#c2410c]"
+                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-lg shadow-cyan-500/25"
+                      : "bg-gradient-to-br from-rose-400 to-fuchsia-500 shadow-lg shadow-fuchsia-500/25"
                     : "bg-transparent"
                 }`}
               >
@@ -60,8 +60,8 @@ export default function BottomTabs({ isDay }: Props) {
               <span
                 className={`text-[10px] lg:text-xs font-black ${
                   active
-                    ? isDay ? "text-sky-600" : "text-orange-300"
-                    : isDay ? "text-sky-300" : "text-white/15"
+                    ? isDay ? "text-sky-600" : "text-fuchsia-300"
+                    : isDay ? "text-sky-300" : "text-white/20"
                 }`}
               >
                 {tab.label}
