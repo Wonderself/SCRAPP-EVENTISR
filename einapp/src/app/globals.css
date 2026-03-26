@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dolphin-ocean: #4A90B8;
+  --color-dolphin-ocean-light: #7AB5D4;
+  --color-dolphin-ocean-dark: #2D6A8F;
+  --color-dolphin-sand: #D4C5A9;
+  --color-dolphin-sand-light: #E8DFD0;
+  --color-dolphin-sand-dark: #B5A488;
+  --color-dolphin-earth: #8B6F47;
+  --color-dolphin-sea: #5B9E8F;
+  --color-dolphin-cream: #FAF6F0;
+  --color-dolphin-sunset: #E8946A;
+  --color-dolphin-sunset-light: #F5B899;
+  --color-dolphin-urgent: #E85D4A;
+
+  --font-family-hebrew: 'Heebo', sans-serif;
+  --font-family-english: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-family-hebrew);
+  background-color: var(--color-dolphin-cream);
+}

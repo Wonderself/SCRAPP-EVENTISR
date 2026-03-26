@@ -1,0 +1,13 @@
+services:
+  einapp:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - einapp-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  einapp-data:
