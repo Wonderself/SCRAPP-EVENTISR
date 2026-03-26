@@ -167,7 +167,7 @@ function ChatPageInner() {
             </div>
             <div>
               <h1 className="font-black text-white text-base lg:text-xl">Einapp</h1>
-              <p className="text-[9px] lg:text-[11px] text-white/40 tracking-widest uppercase font-bold">your assistant</p>
+              <p className="text-[9px] lg:text-[11px] text-white/50 tracking-widest uppercase font-bold">your assistant</p>
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ function ChatPageInner() {
               if (voice.isSpeaking) voice.stopSpeaking();
             }}
             className={`p-2 rounded-xl transition-colors ${
-              autoSpeak ? "bg-white/20" : "bg-white/5"
+              autoSpeak ? "bg-white/20" : "bg-white/10"
             }`}
             title={autoSpeak ? "השתק קול" : "הפעל קול"}
           >
@@ -210,7 +210,7 @@ function ChatPageInner() {
             <div className={`px-4 py-2.5 rounded-2xl ${
               isDay
                 ? "bg-white border border-sky-100"
-                : "bg-white/[0.06] border border-white/[0.08]"
+                : "bg-white/10 border border-white/15"
             }`}>
               <span className="inline-flex gap-1.5">
                 <span className={`w-2 h-2 rounded-full animate-bounce ${isDay ? "bg-sky-300" : "bg-fuchsia-400"}`} style={{ animationDelay: "0ms" }} />
@@ -247,7 +247,7 @@ function ChatPageInner() {
       <div className={`shrink-0 px-3 lg:px-8 py-2 ${
         isDay
           ? "bg-white/95 backdrop-blur-xl border-t border-sky-100/50"
-          : "bg-[#0a0514]/95 backdrop-blur-xl border-t border-white/[0.05]"
+          : "bg-[#0a0514]/95 backdrop-blur-xl border-t border-white/10"
       }`}>
         <div className="flex gap-2 max-w-3xl mx-auto">
           {/* Mic button */}
@@ -262,7 +262,7 @@ function ChatPageInner() {
                     : "bg-gradient-to-br from-fuchsia-400 to-purple-500 text-white shadow-lg shadow-fuchsia-400/30 animate-pulse"
                   : isDay
                   ? "bg-sky-50 border border-sky-200 text-sky-400"
-                  : "bg-white/[0.06] border border-white/[0.08] text-white/30"
+                  : "bg-white/10 border border-white/15 text-white/50"
               }`}
             >
               {voice.isListening ? <MicOff size={18} /> : <Mic size={18} />}
@@ -278,7 +278,7 @@ function ChatPageInner() {
             className={`flex-1 px-4 py-3 lg:py-4 rounded-2xl border outline-none text-sm lg:text-base font-bold transition-all ${
               isDay
                 ? "bg-sky-50/80 border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
-                : "bg-white/[0.06] border-white/[0.08] focus:border-fuchsia-400 text-white placeholder-white/20"
+                : "bg-white/10 border-white/15 focus:border-fuchsia-400 text-white placeholder-white/35"
             }`}
             disabled={loading}
           />

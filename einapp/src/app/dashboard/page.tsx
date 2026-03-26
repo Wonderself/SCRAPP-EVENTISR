@@ -96,7 +96,7 @@ export default function DashboardPage() {
           <div className={`rounded-[20px] p-3.5 lg:p-5 flex items-start gap-3 ${
             isDay
               ? "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60"
-              : "bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.05] border border-amber-500/10"
+              : "bg-gradient-to-r from-amber-500/10 to-orange-500/[0.06] border border-amber-500/15"
           }`}>
             <div className={`w-9 h-9 lg:w-11 lg:h-11 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 ${
               isDay
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className={`text-[10px] lg:text-xs font-bold mb-0.5 ${
-                isDay ? "text-amber-600/70" : "text-amber-400/60"
+                isDay ? "text-amber-600/70" : "text-amber-400/80"
               }`}>
                 טיפ יומי לשיפור המלון
               </p>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
               isDay
                 ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/[0.06] border border-white/[0.08] shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
             }`}
           >
             <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
               isDay
                 ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/[0.06] border border-white/[0.08] shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
             }`}
           >
             <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${
@@ -173,7 +173,7 @@ export default function DashboardPage() {
             className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
               isDay
                 ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/[0.06] border border-white/[0.08] shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
             }`}
           >
             <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${

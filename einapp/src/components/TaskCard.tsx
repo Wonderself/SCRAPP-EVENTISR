@@ -21,14 +21,14 @@ export default function TaskCard({ task, date, isDay, onToggle }: Props) {
         task.completed
           ? isDay
             ? "bg-sky-50/50 opacity-60"
-            : "bg-white/[0.03] opacity-50"
+            : "bg-white/[0.06] opacity-60"
           : isUrgent
           ? isDay
             ? "bg-red-50/80 border border-red-200/40"
-            : "bg-red-500/[0.08] border border-red-500/15"
+            : "bg-red-500/10 border border-red-500/20"
           : isDay
           ? "bg-sky-50/60 border border-sky-100/60"
-          : "bg-white/[0.06] border border-white/10"
+          : "bg-white/10 border border-white/15"
       }`}
     >
       {/* Checkbox */}

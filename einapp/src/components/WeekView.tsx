@@ -81,7 +81,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
         <div className={`mt-2.5 lg:mt-4 rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
           isDay
             ? "bg-white border-2 border-sky-100 shadow-sm"
-            : "bg-white/[0.06] backdrop-blur-sm border-2 border-white/10"
+            : "bg-white/10 backdrop-blur-sm border-2 border-white/15"
         }`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-white/80"}`}>
@@ -91,7 +91,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
-          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/10"}`}>
+          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/15"}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay

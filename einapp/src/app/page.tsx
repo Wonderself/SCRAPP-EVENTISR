@@ -57,7 +57,7 @@ export default function LoginPage() {
         isDay ? "bg-yellow-300/20" : "bg-orange-500/15"
       }`} />
       <div className={`absolute -bottom-20 -right-20 w-60 h-60 rounded-full blur-3xl ${
-        isDay ? "bg-white/20" : "bg-pink-400/10"
+        isDay ? "bg-white/20" : "bg-fuchsia-500/15"
       }`} />
 
       {/* Card */}
@@ -67,13 +67,13 @@ export default function LoginPage() {
         } ${
           isDay
             ? "bg-white/90 backdrop-blur-xl border border-sky-200/60 shadow-2xl shadow-sky-500/10"
-            : "bg-[#1a0e2e]/90 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-fuchsia-500/10"
+            : "bg-[#1a0e2e]/90 backdrop-blur-xl border border-white/15 shadow-2xl shadow-fuchsia-500/10"
         }`}
       >
         <h1 className={`text-4xl lg:text-6xl font-black tracking-tight mb-0.5 ${isDay ? "text-sky-700" : "text-white"}`}>
           Einapp
         </h1>
-        <p className={`text-sm lg:text-lg font-bold mb-6 ${isDay ? "text-sky-400" : "text-fuchsia-300/60"}`}>
+        <p className={`text-sm lg:text-lg font-bold mb-6 ${isDay ? "text-sky-400" : "text-fuchsia-300/80"}`}>
           Dolphin Village
         </p>
 
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 className={`w-full px-6 py-4 lg:py-5 rounded-2xl text-center text-2xl lg:text-3xl font-bold tracking-[0.5em] outline-none transition-all ${
                   isDay
                     ? "bg-sky-50/80 border border-sky-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 text-sky-800 placeholder-sky-200"
-                    : "bg-white/[0.06] border border-white/[0.08] focus:border-fuchsia-400 focus:ring-4 focus:ring-fuchsia-400/10 text-white placeholder-white/15"
+                    : "bg-white/10 border border-white/15 focus:border-fuchsia-400 focus:ring-4 focus:ring-fuchsia-400/10 text-white placeholder-white/30"
                 }`}
                 autoFocus
                 autoComplete="off"
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className={`absolute left-4 top-1/2 -translate-y-1/2 text-xs lg:text-sm font-bold ${
-                  isDay ? "text-sky-300" : "text-white/30"
+                  isDay ? "text-sky-300" : "text-white/50"
                 }`}
               >
                 {showPassword ? "hide" : "show"}
@@ -122,7 +122,7 @@ export default function LoginPage() {
         )}
 
         <p className={`mt-5 text-[10px] lg:text-xs font-bold tracking-[0.3em] uppercase ${
-          isDay ? "text-sky-300" : "text-white/15"
+          isDay ? "text-sky-300" : "text-white/40"
         }`}>
           Sea Vibes Vacation
         </p>

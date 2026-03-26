@@ -23,7 +23,7 @@ export default function BottomTabs({ isDay }: Props) {
       className={`shrink-0 z-40 backdrop-blur-xl ${
         isDay
           ? "bg-white/90 border-t-2 border-sky-200"
-          : "bg-[#0d0820]/90 border-t-2 border-white/10"
+          : "bg-[#0d0820]/90 border-t-2 border-white/15"
       }`}
     >
       <div className="flex justify-around items-center h-[60px] lg:h-[72px] max-w-xl mx-auto px-2">

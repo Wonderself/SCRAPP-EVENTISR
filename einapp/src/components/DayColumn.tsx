@@ -33,7 +33,7 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
             : "bg-fuchsia-500/10 border-2 border-fuchsia-400/30 shadow-lg shadow-fuchsia-500/10"
           : isDay
           ? "bg-white border-2 border-sky-100 shadow-sm"
-          : "bg-white/[0.06] backdrop-blur-sm border-2 border-white/10"
+          : "bg-white/10 backdrop-blur-sm border-2 border-white/15"
       }`}
     >
       {/* Day header */}

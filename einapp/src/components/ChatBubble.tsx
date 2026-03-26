@@ -23,7 +23,7 @@ export default function ChatBubble({ role, content, time, isDay, onSpeak }: Prop
               : "bg-gradient-to-br from-fuchsia-500 to-violet-600 text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px] shadow-lg shadow-fuchsia-500/15"
             : isDay
             ? "bg-white border border-sky-100 text-sky-800 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm"
-            : "bg-white/[0.08] border border-white/10 text-white/90 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
+            : "bg-white/10 border border-white/15 text-white/90 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
         }`}
       >
         {content}
