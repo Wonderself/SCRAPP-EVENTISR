@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { sendWhatsAppMessage } from "@/lib/whatsapp";
+import { sendWhatsAppMessage, sendWhatsAppVoiceNote, getMediaUrl, downloadMedia } from "@/lib/whatsapp";
 import { chatWithClaude } from "@/lib/ai-chat";
 import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate } from "@/lib/db";
 import { saveRawConversation } from "@/lib/memory";
 import { toDateString, getDayKey, getDayName, getWeekDates } from "@/lib/hebrew";
+import { transcribeAudio, isSTTConfigured } from "@/lib/google-stt";
+import { synthesizeSpeech, isTTSConfigured } from "@/lib/google-tts";
 
 const EINAT_PHONE = process.env.EINAT_PHONE_NUMBER || "";
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
 const APP_SECRET = process.env.WHATSAPP_APP_SECRET;
+// Send voice replies when Einat sends voice notes
+const VOICE_REPLY_ENABLED = process.env.WHATSAPP_VOICE_REPLY !== "false";
 
 function verifySignature(body: string, signature: string | null): boolean {
-  if (!APP_SECRET || !signature) return !APP_SECRET; // Skip if no secret configured
+  if (!APP_SECRET || !signature) return !APP_SECRET;
   const expected = "sha256=" + crypto.createHmac("sha256", APP_SECRET).update(body).digest("hex");
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
 }
@@ -67,38 +71,101 @@ export async function POST(req: NextRequest) {
   }
 
   const dateStr = toDateString(new Date());
-
-  // Update last message timestamp
   setAppState("last_user_message_at", new Date().toISOString());
 
+  // Handle text messages
   if (message.type === "text") {
     const text = message.text.body.trim();
+    await handleTextMessage(from, text, dateStr, false);
+  }
 
-    // Quick commands
-    const quickReply = handleQuickCommand(text);
-    if (quickReply) {
-      await sendWhatsAppMessage(from, quickReply);
-      return NextResponse.json({ ok: true });
-    }
-
-    // Save user message
-    saveConversation("whatsapp", "user", text);
-
-    // Chat with Claude
-    const reply = await chatWithClaude(text, "whatsapp");
-
-    // Save assistant message
-    saveConversation("whatsapp", "assistant", reply);
-
-    // Save raw conversation
-    const time = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
-    saveRawConversation(dateStr, `[${time}] עינת (WA): ${text}\n[${time}] Einapp: ${reply}`);
-
-    // Send reply
-    await sendWhatsAppMessage(from, reply);
+  // Handle audio/voice messages
+  if (message.type === "audio") {
+    await handleVoiceMessage(from, message.audio, dateStr);
   }
 
   return NextResponse.json({ ok: true });
+}
+
+async function handleTextMessage(from: string, text: string, dateStr: string, isFromVoice: boolean) {
+  // Quick commands
+  const quickReply = handleQuickCommand(text);
+  if (quickReply) {
+    if (isFromVoice && VOICE_REPLY_ENABLED && isTTSConfigured()) {
+      await sendVoiceReply(from, quickReply);
+    } else {
+      await sendWhatsAppMessage(from, quickReply);
+    }
+    return;
+  }
+
+  // Save user message
+  saveConversation("whatsapp", "user", text);
+
+  // Chat with Claude
+  const reply = await chatWithClaude(text, "whatsapp");
+
+  // Save assistant message
+  saveConversation("whatsapp", "assistant", reply);
+
+  // Save raw conversation
+  const time = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+  saveRawConversation(dateStr, `[${time}] עינת (WA): ${text}\n[${time}] Einapp: ${reply}`);
+
+  // Reply: voice note if message was voice + TTS enabled, else text
+  if (isFromVoice && VOICE_REPLY_ENABLED && isTTSConfigured()) {
+    const sent = await sendVoiceReply(from, reply);
+    // Also send text as fallback
+    if (!sent) {
+      await sendWhatsAppMessage(from, reply);
+    }
+  } else {
+    await sendWhatsAppMessage(from, reply);
+  }
+}
+
+async function handleVoiceMessage(from: string, audio: any, dateStr: string) {
+  const mediaId = audio.id;
+
+  if (!isSTTConfigured()) {
+    // Can't transcribe - ask to send text
+    await sendWhatsAppMessage(from, "קיבלתי הודעה קולית אבל אין לי אפשרות לתמלל כרגע. תכתבי לי בטקסט נשמה?");
+    return;
+  }
+
+  try {
+    // Download the voice note
+    const mediaUrl = await getMediaUrl(mediaId);
+    const audioBuffer = await downloadMedia(mediaUrl);
+
+    // Transcribe with Google STT
+    const transcript = await transcribeAudio(audioBuffer, "OGG_OPUS", 16000);
+
+    if (!transcript) {
+      await sendWhatsAppMessage(from, "לא הצלחתי לשמוע מה אמרת נשמה, תנסי שוב?");
+      return;
+    }
+
+    console.log(`[WhatsApp] Voice transcription: "${transcript}"`);
+
+    // Process like a text message, but flag as voice
+    await handleTextMessage(from, transcript, dateStr, true);
+  } catch (error) {
+    console.error("[WhatsApp] Voice message error:", error);
+    await sendWhatsAppMessage(from, "הייתה בעיה עם ההודעה הקולית, תנסי שוב?");
+  }
+}
+
+async function sendVoiceReply(to: string, text: string): Promise<boolean> {
+  try {
+    const audioBuffer = await synthesizeSpeech(text, "OGG_OPUS");
+    if (!audioBuffer) return false;
+
+    return await sendWhatsAppVoiceNote(to, audioBuffer);
+  } catch (error) {
+    console.error("[WhatsApp] Voice reply error:", error);
+    return false;
+  }
 }
 
 function handleQuickCommand(text: string): string | null {

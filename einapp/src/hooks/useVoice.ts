@@ -11,6 +11,7 @@ interface UseVoiceReturn {
   speak: (text: string) => void;
   stopSpeaking: () => void;
   isSupported: boolean;
+  ttsMode: "google" | "browser" | "none";
 }
 
 export function useVoice(): UseVoiceReturn {
@@ -18,13 +19,30 @@ export function useVoice(): UseVoiceReturn {
   const [transcript, setTranscript] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [ttsMode, setTtsMode] = useState<"google" | "browser" | "none">("none");
   const recognitionRef = useRef<any>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    setIsSupported(!!SpeechRecognition && !!window.speechSynthesis);
+    const hasSpeech = !!SpeechRecognition;
+    const hasSynthesis = !!window.speechSynthesis;
+    setIsSupported(hasSpeech || hasSynthesis);
+
+    // Check if Google TTS is available
+    fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "test" }) })
+      .then((r) => {
+        if (r.ok || r.status === 400) {
+          // API exists - check if configured (503 = not configured)
+          setTtsMode(r.status === 503 ? (hasSynthesis ? "browser" : "none") : "google");
+        } else if (r.status === 503) {
+          setTtsMode(hasSynthesis ? "browser" : "none");
+        } else {
+          setTtsMode(hasSynthesis ? "browser" : "none");
+        }
+      })
+      .catch(() => setTtsMode(hasSynthesis ? "browser" : "none"));
 
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
@@ -47,20 +65,15 @@ export function useVoice(): UseVoiceReturn {
         setTranscript(final || interim);
       };
 
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.log("[Voice] Recognition error:", event.error);
-        setIsListening(false);
-      };
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
 
       recognitionRef.current = recognition;
     }
 
     return () => {
       recognitionRef.current?.abort();
+      audioRef.current?.pause();
       window.speechSynthesis?.cancel();
     };
   }, []);
@@ -71,9 +84,8 @@ export function useVoice(): UseVoiceReturn {
     try {
       recognitionRef.current.start();
       setIsListening(true);
-    } catch (e) {
+    } catch {
       // Already started
-      console.log("[Voice] Already listening");
     }
   }, []);
 
@@ -81,41 +93,78 @@ export function useVoice(): UseVoiceReturn {
     if (!recognitionRef.current) return;
     try {
       recognitionRef.current.stop();
-    } catch (e) {
+    } catch {
       // Not started
     }
     setIsListening(false);
   }, []);
 
-  const speak = useCallback((text: string) => {
+  const speakWithGoogle = useCallback(async (text: string) => {
+    setIsSpeaking(true);
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) throw new Error("TTS failed");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+
+      audioRef.current = audio;
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(url);
+      };
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(url);
+      };
+
+      await audio.play();
+    } catch {
+      setIsSpeaking(false);
+      // Fallback to browser TTS
+      speakWithBrowser(text);
+    }
+  }, []);
+
+  const speakWithBrowser = useCallback((text: string) => {
     if (!window.speechSynthesis) return;
 
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "he-IL";
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
-    // Try to find a Hebrew voice
     const voices = window.speechSynthesis.getVoices();
     const hebrewVoice = voices.find(
       (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
     );
-    if (hebrewVoice) {
-      utterance.voice = hebrewVoice;
-    }
+    if (hebrewVoice) utterance.voice = hebrewVoice;
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
 
-    utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, []);
 
+  const speak = useCallback((text: string) => {
+    if (ttsMode === "google") {
+      speakWithGoogle(text);
+    } else if (ttsMode === "browser") {
+      speakWithBrowser(text);
+    }
+  }, [ttsMode, speakWithGoogle, speakWithBrowser]);
+
   const stopSpeaking = useCallback(() => {
+    audioRef.current?.pause();
+    audioRef.current = null;
     window.speechSynthesis?.cancel();
     setIsSpeaking(false);
   }, []);
@@ -129,5 +178,6 @@ export function useVoice(): UseVoiceReturn {
     speak,
     stopSpeaking,
     isSupported,
+    ttsMode,
   };
 }
