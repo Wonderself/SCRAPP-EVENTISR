@@ -65,7 +65,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
 
   const inputCls = isDay
     ? "bg-sky-50/80 border border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
-    : "bg-white/[0.06] border border-white/[0.08] focus:border-fuchsia-400 text-white placeholder-white/20";
+    : "bg-white/10 border border-white/15 focus:border-fuchsia-400 text-white placeholder-white/35";
 
   const activeBtn = isDay
     ? "bg-gradient-to-r from-sky-400 to-cyan-500 text-white shadow-lg shadow-sky-400/20"
@@ -73,18 +73,18 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
 
   const inactiveBtn = isDay
     ? "bg-sky-50 text-sky-500 border border-sky-200"
-    : "bg-white/[0.06] text-white/30 border border-white/[0.08]";
+    : "bg-white/10 text-white/50 border border-white/15";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-3">
       <div className={`w-full max-w-md p-5 lg:p-7 space-y-4 max-h-[85vh] overflow-y-auto rounded-[28px] ${
         isDay
           ? "bg-white/95 backdrop-blur-xl border border-sky-100 shadow-2xl"
-          : "bg-[#1a0e2e]/95 backdrop-blur-xl border border-white/[0.08] shadow-2xl"
+          : "bg-[#1a0e2e]/95 backdrop-blur-xl border border-white/15 shadow-2xl"
       }`}>
         <div className="flex items-center justify-between">
           <h2 className={`text-xl lg:text-2xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>משימה חדשה</h2>
-          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/30 hover:bg-white/5"}`}>
+          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/50 hover:bg-white/10"}`}>
             <X size={24} strokeWidth={3} />
           </button>
         </div>

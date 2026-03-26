@@ -40,8 +40,8 @@ export async function synthesizeSpeech(
           input: { text: truncated },
           voice: {
             languageCode: "he-IL",
-            name: "he-IL-Wavenet-D", // Female Hebrew WaveNet voice
-            ssmlGender: "FEMALE",
+            name: "he-IL-Wavenet-B", // Male Hebrew WaveNet voice
+            ssmlGender: "MALE",
           },
           audioConfig: {
             audioEncoding: format,

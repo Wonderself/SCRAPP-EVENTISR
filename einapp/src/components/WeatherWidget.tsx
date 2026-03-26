@@ -36,7 +36,7 @@ export default function WeatherWidget({ isDay }: Props) {
     <div className={`overflow-hidden rounded-2xl lg:rounded-3xl ${
       isDay
         ? "bg-white border-2 border-sky-100 shadow-sm"
-        : "bg-white/[0.06] backdrop-blur-sm border-2 border-white/10"
+        : "bg-white/10 backdrop-blur-sm border-2 border-white/15"
     }`}>
       {/* Main row */}
       <div className="p-3 lg:p-5 flex items-center justify-between">
@@ -82,12 +82,12 @@ export default function WeatherWidget({ isDay }: Props) {
       </div>
 
       {/* Forecast */}
-      <div className={`hidden lg:flex border-t-2 ${isDay ? "border-sky-100" : "border-white/10"}`}>
+      <div className={`hidden lg:flex border-t-2 ${isDay ? "border-sky-100" : "border-white/15"}`}>
         {weather.forecast.slice(0, 4).map((day, i) => (
           <div
             key={day.dayName}
             className={`flex-1 text-center py-3 ${
-              i < 3 ? (isDay ? "border-r-2 border-sky-100" : "border-r-2 border-white/10") : ""
+              i < 3 ? (isDay ? "border-r-2 border-sky-100" : "border-r-2 border-white/15") : ""
             }`}
           >
             <p className={`text-[10px] lg:text-sm font-black mb-0.5 ${isDay ? "text-sky-400" : "text-fuchsia-300/70"}`}>

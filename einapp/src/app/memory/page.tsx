@@ -114,7 +114,7 @@ export default function MemoryPage() {
               className={`w-full rounded-[20px] p-4 lg:p-5 flex items-center gap-3 text-right transition-all active:scale-[0.98] ${
                 isDay
                   ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                  : "bg-white/[0.06] border border-white/[0.08] shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                  : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
               }`}
             >
               <div
@@ -130,7 +130,7 @@ export default function MemoryPage() {
                 <p className={`font-black text-sm lg:text-lg ${isDay ? "text-sky-800" : "text-white/90"}`}>
                   {FILE_LABELS[file.name] || file.name}
                 </p>
-                <p className={`text-[10px] lg:text-xs mt-0.5 font-bold ${isDay ? "text-sky-400" : "text-white/20"}`}>
+                <p className={`text-[10px] lg:text-xs mt-0.5 font-bold ${isDay ? "text-sky-400" : "text-white/40"}`}>
                   {(file.size / 1024).toFixed(1)} kb
                 </p>
               </div>
@@ -140,7 +140,7 @@ export default function MemoryPage() {
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden p-4 lg:px-10 max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-2 mb-3 shrink-0">
-            <button onClick={() => { setSelectedFile(null); setError(null); }} className={`p-2 rounded-xl transition-colors ${isDay ? "hover:bg-sky-50" : "hover:bg-white/5"}`}>
+            <button onClick={() => { setSelectedFile(null); setError(null); }} className={`p-2 rounded-xl transition-colors ${isDay ? "hover:bg-sky-50" : "hover:bg-white/10"}`}>
               <ArrowRight size={18} className={isDay ? "text-sky-500" : "text-fuchsia-400"} strokeWidth={3} />
             </button>
             <h2 className={`font-black text-base lg:text-xl flex-1 ${isDay ? "text-sky-800" : "text-white"}`}>
@@ -167,7 +167,7 @@ export default function MemoryPage() {
             className={`w-full flex-1 p-4 rounded-[20px] border outline-none text-sm lg:text-base font-medium resize-none leading-relaxed transition-all ${
               isDay
                 ? "bg-white border-sky-100 focus:border-sky-400 text-sky-800"
-                : "bg-white/[0.04] border-white/[0.08] focus:border-fuchsia-400 text-white/80"
+                : "bg-white/[0.06] border-white/15 focus:border-fuchsia-400 text-white/85"
             }`}
             dir="rtl"
           />
