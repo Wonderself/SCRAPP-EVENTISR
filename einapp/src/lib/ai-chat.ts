@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { getRecentConversations } from "./db";
 import { readMemoryContext } from "./memory";
 import { getTasksForDate } from "./db";
@@ -40,26 +39,24 @@ const SYSTEM_PROMPT = `את Einapp — נשמה, את החברה הכי טובה
 - נותנת רעיונות לשיפור
 - מזהה משימות בשיחה ומציעה להוסיף אותן
 - מדי פעם מציעה פיצ'רים חדשים: "נשמה, הייתי יכולה לעזור גם עם X — נגיד לעמנואל שיוסיף? 😄"
-- שואלת על עינת — "מאמי איך היה הסופ\"ש?", "אכלת משהו טוב היום?" — כי באמת אכפת לך`;
+- שואלת על עינת — "מאמי איך היה הסופ\\"ש?", "אכלת משהו טוב היום?" — כי באמת אכפת לך`;
 
-export async function chatWithClaude(
-  userMessage: string,
-  source: "web" | "whatsapp" = "web"
-): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error("[Chat] ANTHROPIC_API_KEY not set");
-    return "אוי, יש בעיה עם החיבור שלי 😅 תגידי לעמנואל לבדוק את ה-API key!";
-  }
+function buildContext(memoryContext: string, tasksText: string, dayName: string, dateStr: string): string {
+  return `${SYSTEM_PROMPT}
 
-  const client = new Anthropic({ apiKey });
+## מידע על דולפין וילג':
+${memoryContext}
 
-  // Build context (with fallback if memory fails)
+## משימות היום (${dayName}, ${dateStr}):
+${tasksText}`;
+}
+
+async function getContextData() {
   let memoryContext = "";
   try {
     memoryContext = await readMemoryContext();
   } catch (e) {
-    console.error("[Chat] Memory read error (continuing without memory):", e);
+    console.error("[Chat] Memory read error:", e);
   }
 
   const today = new Date();
@@ -70,7 +67,7 @@ export async function chatWithClaude(
   try {
     todayTasks = getTasksForDate(dateStr, dayKey);
   } catch (e) {
-    console.error("[Chat] Tasks read error (continuing without tasks):", e);
+    console.error("[Chat] Tasks read error:", e);
   }
 
   let recentConvos: any[] = [];
@@ -84,46 +81,78 @@ export async function chatWithClaude(
     ? todayTasks.map((t: any) => `- ${t.priority === "urgent" ? "🔴 " : ""}${t.description}`).join("\n")
     : "אין משימות מיוחדות להיום";
 
-  const historyMessages = recentConvos.map((c: any) => ({
-    role: c.role as "user" | "assistant",
-    content: c.content,
-  }));
+  return { memoryContext, tasksText, recentConvos, dayName: getDayName(today.getDay()), dateStr };
+}
 
-  const systemPrompt = `${SYSTEM_PROMPT}
+// Google Gemini API (free tier: 1500 req/day)
+async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): Promise<string> {
+  const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+  if (!apiKey) {
+    return "אוי, GOOGLE_CLOUD_API_KEY לא מוגדר 😅 תגידי לעמנואל!";
+  }
 
-## מידע על דולפין וילג':
-${memoryContext}
+  const { memoryContext, tasksText, recentConvos, dayName, dateStr } = await getContextData();
+  const systemPrompt = buildContext(memoryContext, tasksText, dayName, dateStr);
 
-## משימות היום (${getDayName(today.getDay())}, ${dateStr}):
-${tasksText}`;
+  // Build Gemini message history
+  const contents: any[] = [];
+  for (const c of recentConvos) {
+    contents.push({
+      role: c.role === "assistant" ? "model" : "user",
+      parts: [{ text: c.content }],
+    });
+  }
+  contents.push({ role: "user", parts: [{ text: userMessage }] });
 
-  const messages = [
-    ...historyMessages,
-    { role: "user" as const, content: userMessage },
-  ];
+  const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
 
   try {
-    const response = await client.messages.create({
-      model: process.env.CHAT_MODEL || "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages,
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          generationConfig: {
+            maxOutputTokens: 1024,
+            temperature: 0.8,
+          },
+        }),
+      }
+    );
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "";
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("[Chat] Gemini API error:", res.status, errText);
+      if (res.status === 403) {
+        return "צריך להפעיל את Generative Language API בגוגל קלאוד 🔑 תגידי לעמנואל!";
+      }
+      if (res.status === 429) {
+        return "יותר מדי הודעות ברגע 😅 חכי שניה ותנסי שוב נשמה";
+      }
+      return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
+    }
+
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
+      return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
+    }
+
     return text;
   } catch (error: any) {
-    console.error("[Chat] Claude API error:", error?.message || error);
-    if (error?.status === 401) {
-      return "בעיה עם ה-API key — תגידי לעמנואל לבדוק את ANTHROPIC_API_KEY 🔑";
-    }
-    if (error?.status === 429) {
-      return "יותר מדי הודעות ברגע 😅 חכי שניה ותנסי שוב נשמה";
-    }
-    if (error?.status === 529 || error?.status === 503) {
-      return "שירות Claude עמוס כרגע 😅 תנסי שוב עוד רגע נשמה";
-    }
-    const detail = error?.message || String(error);
-    return `אוי, משהו קרה 😅 (${detail.slice(0, 100)})`;
+    console.error("[Chat] Gemini error:", error?.message || error);
+    return `אוי, משהו קרה 😅 (${(error?.message || "").slice(0, 80)})`;
   }
+}
+
+export async function chatWithClaude(
+  userMessage: string,
+  source: "web" | "whatsapp" = "web"
+): Promise<string> {
+  // Use Gemini (free) by default, Claude only if explicitly configured
+  return chatWithGemini(userMessage, source);
 }
