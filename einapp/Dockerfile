@@ -1,5 +1,8 @@
 FROM node:20-alpine AS base
 
+# Install build tools for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 
 # Install deps
@@ -22,7 +25,11 @@ COPY --from=base /app/public ./public
 COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
 
-RUN mkdir -p data/memory && chown -R nextjs:nodejs data
+# Create data directories with correct permissions
+RUN mkdir -p data/memory data/memory/chat-summaries data/memory/raw-conversations && \
+    chown -R nextjs:nodejs data
+
+VOLUME ["/app/data"]
 
 USER nextjs
 EXPOSE 3000

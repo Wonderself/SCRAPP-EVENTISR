@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/api/auth", "/api/cron", "/api/whatsapp/webhook", "/api/whatsapp/test"];
+const PUBLIC_PATHS = ["/", "/api/auth", "/api/cron", "/api/health", "/api/whatsapp/webhook", "/api/whatsapp/test"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
