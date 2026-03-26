@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Send, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect, useRef, useCallback } from "react";
+import { Send, ArrowRight, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ChatBubble from "@/components/ChatBubble";
 import BottomTabs from "@/components/BottomTabs";
+import { useVoice } from "@/hooks/useVoice";
 
 function getTimeMode(): "day" | "sunset" {
   const now = new Date();
@@ -19,18 +20,36 @@ interface Message {
 }
 
 export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="h-[100dvh] bg-sky-100" />}>
+      <ChatPageInner />
+    </Suspense>
+  );
+}
+
+function ChatPageInner() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [greeted, setGreeted] = useState(false);
   const [mode, setMode] = useState<"day" | "sunset">("day");
   const [mounted, setMounted] = useState(false);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const voice = useVoice();
+  const prevTranscriptRef = useRef("");
 
   useEffect(() => {
     setMounted(true);
     setMode(getTimeMode());
+    // If ?voice=1, enable voice mode
+    if (searchParams.get("voice") === "1") {
+      setVoiceMode(true);
+      setAutoSpeak(true);
+    }
     fetch("/api/chat/history")
       .then((r) => r.json())
       .then((data) => {
@@ -40,7 +59,7 @@ export default function ChatPage() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!greeted && mounted && messages.length === 0) {
@@ -52,16 +71,36 @@ export default function ChatPage() {
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
       setMessages([{ role: "assistant", content: greeting, time: now }]);
+      if (autoSpeak && voice.isSupported) {
+        setTimeout(() => voice.speak(greeting), 500);
+      }
     }
-  }, [greeted, mounted, messages.length, mode]);
+  }, [greeted, mounted, messages.length, mode, autoSpeak, voice]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function sendMessage() {
-    if (!input.trim() || loading) return;
-    const text = input.trim();
+  // When voice transcript changes and listening stops, send the message
+  useEffect(() => {
+    if (voice.transcript && voice.transcript !== prevTranscriptRef.current) {
+      setInput(voice.transcript);
+      prevTranscriptRef.current = voice.transcript;
+    }
+  }, [voice.transcript]);
+
+  // Auto-send when listening stops and we have a transcript
+  useEffect(() => {
+    if (!voice.isListening && voice.transcript && voiceMode) {
+      const text = voice.transcript.trim();
+      if (text) {
+        sendMessageText(text);
+      }
+    }
+  }, [voice.isListening]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const sendMessageText = useCallback(async (text: string) => {
+    if (!text.trim() || loading) return;
     setInput("");
     const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
     setMessages((prev) => [...prev, { role: "user", content: text, time: now }]);
@@ -74,11 +113,30 @@ export default function ChatPage() {
       });
       const data = await res.json();
       const replyTime = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply, time: replyTime }]);
+      const reply = data.reply;
+      setMessages((prev) => [...prev, { role: "assistant", content: reply, time: replyTime }]);
+      // Auto-speak response in voice mode
+      if (autoSpeak && voice.isSupported) {
+        voice.speak(reply);
+      }
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "בעיה בחיבור נשמה, נסי שוב", time: now }]);
     } finally {
       setLoading(false);
+    }
+  }, [loading, autoSpeak, voice]);
+
+  async function sendMessage() {
+    sendMessageText(input.trim());
+  }
+
+  function toggleVoiceMode() {
+    if (voice.isListening) {
+      voice.stopListening();
+    } else {
+      setVoiceMode(true);
+      setAutoSpeak(true);
+      voice.startListening();
     }
   }
 
@@ -92,32 +150,59 @@ export default function ChatPage() {
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
       {/* Header */}
-      <div className={`shrink-0 px-4 pt-10 pb-3 lg:pt-12 lg:pb-4 flex items-center gap-3 ${
+      <div className={`shrink-0 px-4 pt-10 pb-3 lg:pt-12 lg:pb-4 flex items-center justify-between ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <button onClick={() => router.push("/dashboard")} className="text-white/70 hover:text-white transition-colors">
-          <ArrowRight size={20} strokeWidth={3} />
-        </button>
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 lg:w-11 lg:h-11 rounded-xl flex items-center justify-center text-white font-black text-base lg:text-xl ${
-            isDay ? "bg-white/20" : "bg-white/10"
-          }`}>
-            E
-          </div>
-          <div>
-            <h1 className="font-black text-white text-base lg:text-xl">Einapp</h1>
-            <p className="text-[9px] lg:text-[11px] text-white/40 tracking-widest uppercase font-bold">your assistant</p>
+          <button onClick={() => router.push("/dashboard")} className="text-white/70 hover:text-white transition-colors">
+            <ArrowRight size={20} strokeWidth={3} />
+          </button>
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 lg:w-11 lg:h-11 rounded-xl flex items-center justify-center text-white font-black text-base lg:text-xl ${
+              isDay ? "bg-white/20" : "bg-white/10"
+            }`}>
+              E
+            </div>
+            <div>
+              <h1 className="font-black text-white text-base lg:text-xl">Einapp</h1>
+              <p className="text-[9px] lg:text-[11px] text-white/40 tracking-widest uppercase font-bold">your assistant</p>
+            </div>
           </div>
         </div>
+        {/* Auto-speak toggle */}
+        {voice.isSupported && (
+          <button
+            onClick={() => {
+              setAutoSpeak(!autoSpeak);
+              if (voice.isSpeaking) voice.stopSpeaking();
+            }}
+            className={`p-2 rounded-xl transition-colors ${
+              autoSpeak ? "bg-white/20" : "bg-white/5"
+            }`}
+            title={autoSpeak ? "השתק קול" : "הפעל קול"}
+          >
+            {autoSpeak ? (
+              <Volume2 size={18} className="text-white" />
+            ) : (
+              <VolumeX size={18} className="text-white/40" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 lg:px-8 py-3 space-y-1 max-w-3xl mx-auto w-full">
         {messages.map((msg, i) => (
           <div key={i}>
-            <ChatBubble role={msg.role} content={msg.content} time={msg.time} isDay={isDay} />
+            <ChatBubble
+              role={msg.role}
+              content={msg.content}
+              time={msg.time}
+              isDay={isDay}
+              onSpeak={voice.isSupported ? () => voice.speak(msg.content) : undefined}
+            />
           </div>
         ))}
         {loading && (
@@ -138,6 +223,26 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Voice listening indicator */}
+      {voice.isListening && (
+        <div className={`shrink-0 px-4 py-2 text-center ${
+          isDay ? "bg-rose-50 border-t border-rose-100" : "bg-fuchsia-500/10 border-t border-fuchsia-500/10"
+        }`}>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex gap-1">
+              <span className={`w-1.5 h-4 rounded-full animate-pulse ${isDay ? "bg-rose-400" : "bg-fuchsia-400"}`} style={{ animationDelay: "0ms" }} />
+              <span className={`w-1.5 h-6 rounded-full animate-pulse ${isDay ? "bg-rose-500" : "bg-fuchsia-500"}`} style={{ animationDelay: "150ms" }} />
+              <span className={`w-1.5 h-3 rounded-full animate-pulse ${isDay ? "bg-rose-400" : "bg-fuchsia-400"}`} style={{ animationDelay: "300ms" }} />
+              <span className={`w-1.5 h-5 rounded-full animate-pulse ${isDay ? "bg-rose-500" : "bg-fuchsia-500"}`} style={{ animationDelay: "100ms" }} />
+              <span className={`w-1.5 h-4 rounded-full animate-pulse ${isDay ? "bg-rose-400" : "bg-fuchsia-400"}`} style={{ animationDelay: "250ms" }} />
+            </div>
+            <span className={`text-xs font-bold ${isDay ? "text-rose-500" : "text-fuchsia-300"}`}>
+              {voice.transcript || "מקשיבה..."}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className={`shrink-0 px-3 lg:px-8 py-2 ${
         isDay
@@ -145,6 +250,25 @@ export default function ChatPage() {
           : "bg-[#0a0514]/95 backdrop-blur-xl border-t border-white/[0.05]"
       }`}>
         <div className="flex gap-2 max-w-3xl mx-auto">
+          {/* Mic button */}
+          {voice.isSupported && (
+            <button
+              onClick={toggleVoiceMode}
+              disabled={loading}
+              className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center transition-all disabled:opacity-20 ${
+                voice.isListening
+                  ? isDay
+                    ? "bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-lg shadow-rose-400/30 animate-pulse"
+                    : "bg-gradient-to-br from-fuchsia-400 to-purple-500 text-white shadow-lg shadow-fuchsia-400/30 animate-pulse"
+                  : isDay
+                  ? "bg-sky-50 border border-sky-200 text-sky-400"
+                  : "bg-white/[0.06] border border-white/[0.08] text-white/30"
+              }`}
+            >
+              {voice.isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            </button>
+          )}
+
           <input
             type="text"
             value={input}

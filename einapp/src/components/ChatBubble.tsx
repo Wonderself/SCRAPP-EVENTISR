@@ -1,13 +1,16 @@
 "use client";
 
+import { Volume2 } from "lucide-react";
+
 interface Props {
   role: "user" | "assistant";
   content: string;
   time?: string;
   isDay: boolean;
+  onSpeak?: () => void;
 }
 
-export default function ChatBubble({ role, content, time, isDay }: Props) {
+export default function ChatBubble({ role, content, time, isDay, onSpeak }: Props) {
   const isUser = role === "user";
 
   return (
@@ -24,13 +27,26 @@ export default function ChatBubble({ role, content, time, isDay }: Props) {
         }`}
       >
         {content}
-        {time && (
-          <p className={`text-[10px] mt-1.5 ${
-            isUser ? "text-white/50" : isDay ? "text-sky-400" : "text-white/25"
-          }`}>
-            {time}
-          </p>
-        )}
+        <div className="flex items-center justify-between mt-1.5">
+          {time && (
+            <p className={`text-[10px] ${
+              isUser ? "text-white/50" : isDay ? "text-sky-400" : "text-white/25"
+            }`}>
+              {time}
+            </p>
+          )}
+          {!isUser && onSpeak && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onSpeak(); }}
+              className={`p-1 rounded-lg transition-colors ${
+                isDay ? "hover:bg-sky-50 text-sky-300" : "hover:bg-white/5 text-white/20"
+              }`}
+              title="השמע"
+            >
+              <Volume2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
