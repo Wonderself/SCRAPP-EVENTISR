@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MessageCircle, Mic } from "lucide-react";
+import { Plus, MessageCircle, Mic, Lightbulb } from "lucide-react";
 import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [mode, setMode] = useState<"day" | "sunset">("day");
   const [mounted, setMounted] = useState(false);
+  const [dailyTip, setDailyTip] = useState<string | null>(null);
   const router = useRouter();
   const today = new Date();
 
@@ -34,6 +35,12 @@ export default function DashboardPage() {
     setMounted(true);
     setMode(getTimeMode());
     const interval = setInterval(() => setMode(getTimeMode()), 60000);
+
+    fetch("/api/daily-tip")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setDailyTip(d.tip))
+      .catch(() => null);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -83,6 +90,36 @@ export default function DashboardPage() {
 
         {/* Weather */}
         <WeatherWidget isDay={isDay} />
+
+        {/* Daily tip */}
+        {dailyTip && (
+          <div className={`rounded-[20px] p-3.5 lg:p-5 flex items-start gap-3 ${
+            isDay
+              ? "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60"
+              : "bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.05] border border-amber-500/10"
+          }`}>
+            <div className={`w-9 h-9 lg:w-11 lg:h-11 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 ${
+              isDay
+                ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-400/20"
+                : "bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/15"
+            }`}>
+              <Lightbulb size={18} className="text-white lg:hidden" />
+              <Lightbulb size={22} className="text-white hidden lg:block" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-[10px] lg:text-xs font-bold mb-0.5 ${
+                isDay ? "text-amber-600/70" : "text-amber-400/60"
+              }`}>
+                טיפ יומי לשיפור המלון
+              </p>
+              <p className={`text-xs lg:text-sm font-semibold leading-relaxed ${
+                isDay ? "text-amber-800" : "text-amber-200/90"
+              }`} dir="rtl">
+                {dailyTip}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 3 Action buttons */}
         <div className="grid grid-cols-3 gap-2.5 lg:gap-4">

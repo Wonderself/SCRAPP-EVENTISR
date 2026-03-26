@@ -64,27 +64,27 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
   }
 
   const inputCls = isDay
-    ? "bg-sky-50 border-3 border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
-    : "bg-white/5 border-3 border-white/10 focus:border-orange-400 text-white placeholder-white/20";
+    ? "bg-sky-50/80 border border-sky-200 focus:border-sky-400 text-sky-800 placeholder-sky-300"
+    : "bg-white/[0.06] border border-white/[0.08] focus:border-fuchsia-400 text-white placeholder-white/20";
 
   const activeBtn = isDay
-    ? "bg-gradient-to-r from-sky-400 to-cyan-500 text-white shadow-[0_3px_0_#0891b2]"
-    : "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-[0_3px_0_#c2410c]";
+    ? "bg-gradient-to-r from-sky-400 to-cyan-500 text-white shadow-lg shadow-sky-400/20"
+    : "bg-gradient-to-r from-fuchsia-500 to-violet-600 text-white shadow-lg shadow-fuchsia-500/20";
 
   const inactiveBtn = isDay
-    ? "bg-sky-50 text-sky-500 border-2 border-sky-200"
-    : "bg-white/5 text-white/30 border-2 border-white/5";
+    ? "bg-sky-50 text-sky-500 border border-sky-200"
+    : "bg-white/[0.06] text-white/30 border border-white/[0.08]";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-3">
-      <div className={`w-full max-w-md p-5 lg:p-7 space-y-4 max-h-[85vh] overflow-y-auto rounded-[28px] lg:rounded-[32px] ${
+      <div className={`w-full max-w-md p-5 lg:p-7 space-y-4 max-h-[85vh] overflow-y-auto rounded-[28px] ${
         isDay
-          ? "bg-white border-4 border-sky-200 shadow-[0_8px_0_#bae6fd]"
-          : "bg-[#1e1330] border-4 border-orange-500/15 shadow-[0_8px_0_rgba(251,146,60,0.08)]"
+          ? "bg-white/95 backdrop-blur-xl border border-sky-100 shadow-2xl"
+          : "bg-[#1a0e2e]/95 backdrop-blur-xl border border-white/[0.08] shadow-2xl"
       }`}>
         <div className="flex items-center justify-between">
           <h2 className={`text-xl lg:text-2xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>משימה חדשה</h2>
-          <button onClick={onClose} className={`cartoon-btn p-2 rounded-xl ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/30 hover:bg-white/5"}`}>
+          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDay ? "text-sky-400 hover:bg-sky-50" : "text-white/30 hover:bg-white/5"}`}>
             <X size={24} strokeWidth={3} />
           </button>
         </div>
@@ -93,7 +93,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         <div className="flex gap-3">
           <button
             onClick={() => setType("one_time")}
-            className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+            className={`flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
               type === "one_time" ? activeBtn : inactiveBtn
             }`}
           >
@@ -101,7 +101,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </button>
           <button
             onClick={() => setType("recurring")}
-            className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+            className={`flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
               type === "recurring" ? activeBtn : inactiveBtn
             }`}
           >
@@ -129,16 +129,16 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
             <div className="flex gap-3">
               <button
                 onClick={() => setPriority("normal")}
-                className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
-                  priority === "normal" ? "bg-emerald-400 text-white shadow-[0_3px_0_#16a34a]" : inactiveBtn
+                className={`flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+                  priority === "normal" ? "bg-emerald-400 text-white shadow-lg shadow-emerald-400/20" : inactiveBtn
                 }`}
               >
                 רגיל
               </button>
               <button
                 onClick={() => setPriority("urgent")}
-                className={`cartoon-btn flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
-                  priority === "urgent" ? "bg-red-400 text-white shadow-[0_3px_0_#dc2626]" : inactiveBtn
+                className={`flex-1 py-3 rounded-2xl text-sm lg:text-base font-black transition-all ${
+                  priority === "urgent" ? "bg-red-400 text-white shadow-lg shadow-red-400/20" : inactiveBtn
                 }`}
               >
                 דחוף
@@ -147,13 +147,13 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
           </>
         ) : (
           <div>
-            <p className={`text-sm lg:text-base mb-3 font-black ${isDay ? "text-sky-500" : "text-orange-300"}`}>באילו ימים?</p>
+            <p className={`text-sm lg:text-base mb-3 font-black ${isDay ? "text-sky-500" : "text-fuchsia-300"}`}>באילו ימים?</p>
             <div className="flex gap-2">
               {DAYS.map((d) => (
                 <button
                   key={d.key}
                   onClick={() => toggleDay(d.key)}
-                  className={`cartoon-btn w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-sm lg:text-base font-black transition-all ${
+                  className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-sm lg:text-base font-black transition-all ${
                     daysOfWeek.includes(d.key) ? activeBtn : inactiveBtn
                   }`}
                 >
@@ -174,10 +174,10 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         <button
           onClick={handleSave}
           disabled={saving || !description.trim()}
-          className={`cartoon-btn w-full py-4 rounded-2xl text-white text-base lg:text-lg font-black transition-all disabled:opacity-30 ${
+          className={`w-full py-4 rounded-2xl text-white text-base lg:text-lg font-black transition-all disabled:opacity-30 ${
             isDay
-              ? "bg-gradient-to-r from-sky-400 to-cyan-500 shadow-[0_5px_0_#0891b2]"
-              : "bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_5px_0_#c2410c]"
+              ? "bg-gradient-to-r from-sky-400 to-cyan-500 shadow-lg shadow-sky-400/25"
+              : "bg-gradient-to-r from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/25"
           }`}
         >
           {saving ? "..." : "הוסיפי"}

@@ -15,14 +15,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check session cookie
+  // Check session cookie exists (token validated server-side on API calls)
   const session = req.cookies.get("einapp_session");
-  if (!session?.value) {
-    // API routes return 401
+  if (!session?.value || session.value.length < 32) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
-    // Pages redirect to login
     return NextResponse.redirect(new URL("/", req.url));
   }
 

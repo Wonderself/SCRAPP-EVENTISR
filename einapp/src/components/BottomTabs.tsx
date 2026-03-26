@@ -4,10 +4,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { Home, MessageCircle, RefreshCw, Brain } from "lucide-react";
 
 const TABS = [
-  { path: "/dashboard", label: "בית", icon: Home, dayColor: "from-sky-400 to-cyan-500", nightColor: "from-rose-400 to-fuchsia-500" },
-  { path: "/chat", label: "שיחה", icon: MessageCircle, dayColor: "from-blue-400 to-indigo-500", nightColor: "from-orange-400 to-rose-500" },
-  { path: "/recurring", label: "קבועות", icon: RefreshCw, dayColor: "from-emerald-400 to-teal-500", nightColor: "from-violet-400 to-purple-500" },
-  { path: "/memory", label: "זיכרון", icon: Brain, dayColor: "from-amber-400 to-orange-500", nightColor: "from-pink-400 to-fuchsia-500" },
+  { path: "/dashboard", label: "בית", icon: Home },
+  { path: "/chat", label: "שיחה", icon: MessageCircle },
+  { path: "/recurring", label: "קבועות", icon: RefreshCw },
+  { path: "/memory", label: "זיכרון", icon: Brain },
 ];
 
 interface Props {
@@ -20,13 +20,13 @@ export default function BottomTabs({ isDay }: Props) {
 
   return (
     <nav
-      className={`shrink-0 z-40 px-3 pb-1 pt-1.5 ${
+      className={`shrink-0 z-40 ${
         isDay
-          ? "bg-white/95 backdrop-blur-xl border-t border-sky-100/50"
-          : "bg-[#0a0514]/95 backdrop-blur-xl border-t border-white/[0.05]"
+          ? "bg-white border-t-3 border-sky-200"
+          : "bg-[#0d0820] border-t-3 border-orange-500/10"
       }`}
     >
-      <div className="flex justify-around items-center max-w-xl mx-auto">
+      <div className="flex justify-around items-center h-[60px] lg:h-[72px] max-w-xl mx-auto px-2">
         {TABS.map((tab) => {
           const active = pathname === tab.path;
           const Icon = tab.icon;
@@ -34,36 +34,34 @@ export default function BottomTabs({ isDay }: Props) {
             <button
               key={tab.path}
               onClick={() => router.push(tab.path)}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 min-w-[64px] lg:min-w-[80px] transition-all active:scale-95"
+              className="cartoon-btn flex flex-col items-center gap-0.5 px-3 py-1 min-w-[56px] lg:min-w-[72px]"
             >
               <div
-                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${
                   active
-                    ? `bg-gradient-to-br ${isDay ? tab.dayColor : tab.nightColor} shadow-lg ${
-                        isDay ? "shadow-sky-400/20" : "shadow-fuchsia-500/20"
-                      }`
-                    : isDay
-                    ? "bg-sky-50"
-                    : "bg-white/[0.05]"
+                    ? isDay
+                      ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_2px_0_#0891b2]"
+                      : "bg-gradient-to-br from-orange-400 to-pink-500 shadow-[0_2px_0_#c2410c]"
+                    : "bg-transparent"
                 }`}
               >
                 <Icon
-                  size={20}
-                  strokeWidth={active ? 2.5 : 2}
-                  className={`lg:!w-6 lg:!h-6 ${
+                  size={18}
+                  strokeWidth={active ? 3 : 2}
+                  className={`lg:!w-5 lg:!h-5 ${
                     active
                       ? "text-white"
                       : isDay
-                      ? "text-sky-400"
-                      : "text-white/25"
+                      ? "text-sky-300"
+                      : "text-white/20"
                   }`}
                 />
               </div>
               <span
-                className={`text-[10px] lg:text-xs font-bold ${
+                className={`text-[10px] lg:text-xs font-black ${
                   active
-                    ? isDay ? "text-sky-700" : "text-fuchsia-300"
-                    : isDay ? "text-sky-400" : "text-white/25"
+                    ? isDay ? "text-sky-600" : "text-orange-300"
+                    : isDay ? "text-sky-300" : "text-white/15"
                 }`}
               >
                 {tab.label}

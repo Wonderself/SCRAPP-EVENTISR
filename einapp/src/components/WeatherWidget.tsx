@@ -33,10 +33,7 @@ export default function WeatherWidget({ isDay }: Props) {
   const WeatherIcon = weather.rainToday ? CloudRain : Sun;
 
   return (
-    <div className={isDay
-      ? "bg-white/80 backdrop-blur-sm border border-sky-100 rounded-[20px] shadow-[0_2px_20px_rgba(14,165,233,0.06)] overflow-hidden"
-      : "bg-white/[0.06] backdrop-blur-sm border border-white/[0.08] rounded-[20px] shadow-[0_2px_20px_rgba(168,85,247,0.05)] overflow-hidden"
-    }>
+    <div className={isDay ? "cartoon-card-day overflow-hidden" : "cartoon-card-sunset overflow-hidden"}>
       {/* Main row */}
       <div className="p-3 lg:p-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5 lg:gap-4">
@@ -55,14 +52,14 @@ export default function WeatherWidget({ isDay }: Props) {
             <span className={`text-2xl lg:text-4xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>
               {weather.temp}°
             </span>
-            <p className={`text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-500" : "text-white/70"}`}>
+            <p className={`text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-500" : "text-orange-200"}`}>
               {weather.description}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className={`flex gap-3 text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-400" : "text-white/30"}`}>
+          <div className={`flex gap-3 text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-400" : "text-orange-200/50"}`}>
             <span className="flex items-center gap-1">
               <Wind size={12} /> {weather.windSpeed}
             </span>

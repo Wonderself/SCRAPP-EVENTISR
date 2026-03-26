@@ -1,5 +1,6 @@
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+const API_BASE = `https://graph.facebook.com/v21.0`;
 
 export async function sendWhatsAppMessage(to: string, text: string) {
   if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) {
@@ -7,30 +8,103 @@ export async function sendWhatsAppMessage(to: string, text: string) {
     return;
   }
 
-  const res = await fetch(
-    `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "text",
-        text: { body: text },
-      }),
-    }
-  );
+  const res = await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to,
+      type: "text",
+      text: { body: text },
+    }),
+  });
 
   if (!res.ok) {
     console.error("[WhatsApp] Send error:", await res.text());
   }
 }
 
+/**
+ * Upload media to WhatsApp and get media_id.
+ */
+export async function uploadMedia(
+  buffer: Buffer,
+  mimeType: string,
+  filename: string
+): Promise<string | null> {
+  if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) return null;
+
+  const formData = new FormData();
+  formData.append("messaging_product", "whatsapp");
+  formData.append("type", mimeType);
+  formData.append("file", new Blob([new Uint8Array(buffer)], { type: mimeType }), filename);
+
+  try {
+    const res = await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/media`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      console.error("[WhatsApp] Upload media error:", await res.text());
+      return null;
+    }
+
+    const data = await res.json();
+    return data.id;
+  } catch (error) {
+    console.error("[WhatsApp] Upload media error:", error);
+    return null;
+  }
+}
+
+/**
+ * Send a voice note (audio message) on WhatsApp.
+ */
+export async function sendWhatsAppVoiceNote(to: string, audioBuffer: Buffer): Promise<boolean> {
+  if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) {
+    console.log("[WhatsApp] Not configured for voice notes");
+    return false;
+  }
+
+  // Upload the audio file first
+  const mediaId = await uploadMedia(audioBuffer, "audio/ogg; codecs=opus", "voice.ogg");
+  if (!mediaId) {
+    console.error("[WhatsApp] Failed to upload voice note");
+    return false;
+  }
+
+  // Send as audio message
+  const res = await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to,
+      type: "audio",
+      audio: { id: mediaId },
+    }),
+  });
+
+  if (!res.ok) {
+    console.error("[WhatsApp] Send voice note error:", await res.text());
+    return false;
+  }
+
+  return true;
+}
+
 export async function getMediaUrl(mediaId: string): Promise<string> {
-  const res = await fetch(`https://graph.facebook.com/v18.0/${mediaId}`, {
+  const res = await fetch(`${API_BASE}/${mediaId}`, {
     headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
   });
   const data = await res.json();
@@ -43,4 +117,8 @@ export async function downloadMedia(url: string): Promise<Buffer> {
   });
   const arrayBuffer = await res.arrayBuffer();
   return Buffer.from(arrayBuffer);
+}
+
+export function isWhatsAppConfigured(): boolean {
+  return !!(PHONE_NUMBER_ID && ACCESS_TOKEN);
 }

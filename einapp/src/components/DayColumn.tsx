@@ -29,25 +29,25 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
       className={`rounded-2xl lg:rounded-3xl p-2.5 lg:p-4 min-w-[100px] lg:min-w-0 transition-all ${
         isToday
           ? isDay
-            ? "bg-white border-2 border-sky-200 shadow-[0_4px_20px_rgba(14,165,233,0.12)]"
-            : "bg-white/[0.08] backdrop-blur-sm border-2 border-fuchsia-400/20 shadow-[0_4px_20px_rgba(217,70,239,0.1)]"
+            ? "bg-sky-50 border-3 border-sky-300 shadow-[0_3px_0_#bae6fd]"
+            : "bg-orange-500/5 border-3 border-orange-400/30 shadow-[0_3px_0_rgba(251,146,60,0.1)]"
           : isDay
-          ? "bg-white/70 border border-sky-100 shadow-sm"
-          : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06]"
+          ? "bg-white border-3 border-sky-100 shadow-[0_2px_0_#e0f2fe]"
+          : "bg-[#1e1330] border-3 border-white/5 shadow-[0_2px_0_rgba(255,255,255,0.02)]"
       }`}
     >
       {/* Day header */}
       <div className="text-center mb-1.5 lg:mb-2.5">
         <div className={`text-[10px] lg:text-sm font-black uppercase ${
           isToday
-            ? isDay ? "text-sky-500" : "text-fuchsia-400"
+            ? isDay ? "text-sky-500" : "text-orange-400"
             : isDay ? "text-sky-300" : "text-white/20"
         }`}>
           {getDayShort(dayIndex)}
         </div>
         <div className={`text-xl lg:text-3xl font-black mt-0.5 ${
           isToday
-            ? isDay ? "text-sky-600" : "text-fuchsia-300"
+            ? isDay ? "text-sky-600" : "text-orange-300"
             : isDay ? "text-sky-800" : "text-white/60"
         }`}>
           {dayNum}
