@@ -182,6 +182,10 @@ export function listMemoryFiles(): { name: string; size: number; path: string }[
   });
 }
 
+export function isValidMemoryFile(filename: string): boolean {
+  return MEMORY_FILES.includes(filename);
+}
+
 export function readMemoryFile(filename: string): string {
   ensureMemoryDir();
   const fp = path.join(MEMORY_DIR, filename);

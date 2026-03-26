@@ -63,10 +63,15 @@ export async function POST(req: NextRequest) {
   const { action } = body;
 
   if (action === "create") {
+    if (!body.description?.trim()) {
+      return NextResponse.json({ error: "description required" }, { status: 400 });
+    }
+    const validTypes = ["one-time", "recurring"];
+    const validPriorities = ["normal", "urgent"];
     const id = createTask({
-      description: body.description,
-      type: body.type,
-      priority: body.priority,
+      description: body.description.trim(),
+      type: validTypes.includes(body.type) ? body.type : "one-time",
+      priority: validPriorities.includes(body.priority) ? body.priority : "normal",
       date: body.date,
       time: body.time,
       days_of_week: body.days_of_week,

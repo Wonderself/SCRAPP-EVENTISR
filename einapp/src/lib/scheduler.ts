@@ -6,6 +6,10 @@ import { getWeather, formatWeatherForMessage } from "./weather";
 
 const EINAT_PHONE = process.env.EINAT_PHONE_NUMBER || "";
 
+function isWhatsAppConfigured(): boolean {
+  return !!(EINAT_PHONE && process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN);
+}
+
 export async function sendMorningMessage() {
   const today = new Date();
   const dateStr = toDateString(today);
@@ -32,6 +36,10 @@ export async function sendMorningMessage() {
   );
 
   const message = await generateMorningMessage(tasksJson, dayName, dateStr, weatherText);
+  if (!isWhatsAppConfigured()) {
+    console.log("[Scheduler] WhatsApp not configured, skipping morning message");
+    return;
+  }
   await sendWhatsAppMessage(EINAT_PHONE, message);
   setAppState("last_morning_message_date", dateStr);
 }
@@ -70,6 +78,10 @@ export async function sendEveningMessage() {
     JSON.stringify(tomorrowTasks.map((t: any) => t.description))
   );
 
+  if (!isWhatsAppConfigured()) {
+    console.log("[Scheduler] WhatsApp not configured, skipping evening message");
+    return;
+  }
   await sendWhatsAppMessage(EINAT_PHONE, message);
   setAppState("last_evening_message_date", dateStr);
 }
@@ -88,6 +100,10 @@ export async function checkMissingYou() {
       if (sinceMissing < threshold) return;
     }
 
+    if (!isWhatsAppConfigured()) {
+      console.log("[Scheduler] WhatsApp not configured, skipping missing-you message");
+      return;
+    }
     await sendWhatsAppMessage(
       EINAT_PHONE,
       "היי עינת, נעלמת לי! הכל בסדר?\nאני פה אם צריך משהו"

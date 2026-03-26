@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Einapp",
-  description: "Dolphin Village — Good Vibes Only",
+  description: "Dolphin Village — Sea Vibes Vacation",
 };
 
 export default function RootLayout({

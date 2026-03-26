@@ -22,7 +22,10 @@ COPY --from=base /app/public ./public
 COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
 
-RUN mkdir -p data/memory && chown -R nextjs:nodejs data
+RUN mkdir -p data/memory data/memory/chat-summaries data/memory/raw-conversations && \
+    chown -R nextjs:nodejs data
+
+VOLUME ["/app/data"]
 
 USER nextjs
 EXPOSE 3000
