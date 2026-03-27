@@ -25,6 +25,28 @@ export async function sendWhatsAppMessage(to: string, text: string) {
   if (!res.ok) {
     console.error("[WhatsApp] Send error:", await res.text());
   }
+
+  // Send copy to developer if configured
+  const devPhone = process.env.DEV_PHONE_NUMBER;
+  if (devPhone && devPhone !== to) {
+    try {
+      await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/messages`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: devPhone,
+          type: "text",
+          text: { body: `[COPY → ${to}]\n${text}` },
+        }),
+      });
+    } catch (e) {
+      console.error("[WhatsApp] Dev copy error:", e);
+    }
+  }
 }
 
 /**
