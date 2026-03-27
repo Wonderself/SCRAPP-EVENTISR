@@ -195,7 +195,7 @@ function ChatPageInner() {
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
       {/* Header */}
-      <div className={`shrink-0 px-4 pt-10 pb-3 lg:pt-12 lg:pb-4 flex items-center justify-between ${
+      <div className={`shrink-0 px-4 pt-[env(safe-area-inset-top,8px)] pb-2 sm:pb-3 lg:pt-12 lg:pb-4 flex items-center justify-between ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"

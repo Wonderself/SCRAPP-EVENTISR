@@ -31,6 +31,7 @@ export default function MemoryPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingFiles, setLoadingFiles] = useState(true);
   const [mode, setMode] = useState<"day" | "sunset">("day");
   const [mounted, setMounted] = useState(false);
 
@@ -38,9 +39,21 @@ export default function MemoryPage() {
     setMounted(true);
     setMode(getTimeMode());
     fetch("/api/memory")
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((d) => setFiles(d.files || []))
-      .catch(() => setError("שגיאה בטעינת קבצים"));
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((d) => {
+        if (d.files && d.files.length > 0) {
+          setFiles(d.files);
+        } else if (d.error) {
+          setError(d.error);
+        } else {
+          setFiles([]);
+        }
+        setLoadingFiles(false);
+      })
+      .catch((e) => { setError(`שגיאה בטעינת קבצים: ${e.message}`); setLoadingFiles(false); });
   }, []);
 
   async function loadFile(filename: string) {
@@ -52,8 +65,8 @@ export default function MemoryPage() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setContent(data.content || "");
-    } catch {
-      setError("שגיאה בטעינת הקובץ");
+    } catch (e: any) {
+      setError(`שגיאה בטעינת הקובץ: ${e.message}`);
     }
   }
 
@@ -88,12 +101,12 @@ export default function MemoryPage() {
         ? "bg-gradient-to-b from-sky-50 via-cyan-50/50 to-white"
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
-      <div className={`shrink-0 px-5 pt-10 pb-4 lg:pt-12 lg:pb-5 ${
+      <div className={`shrink-0 px-4 pt-[env(safe-area-inset-top,8px)] pb-3 sm:px-5 sm:pb-4 lg:pt-12 lg:pb-5 ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <h1 className="text-2xl lg:text-4xl font-black text-white">זיכרון 🧠</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-white">זיכרון 🧠</h1>
         <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 font-bold">
           מה שאני זוכרת על דולפין וילג'
         </p>
@@ -106,7 +119,17 @@ export default function MemoryPage() {
       )}
 
       {!selectedFile ? (
-        <div className="flex-1 overflow-y-auto p-4 lg:px-10 space-y-2.5 max-w-3xl mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:px-10 space-y-2 sm:space-y-2.5 max-w-3xl mx-auto w-full">
+          {loadingFiles && (
+            <p className={`text-center py-8 text-sm font-bold ${isDay ? "text-sky-300" : "text-white/30"}`}>
+              טוען...
+            </p>
+          )}
+          {!loadingFiles && files.length === 0 && !error && (
+            <p className={`text-center py-8 text-sm font-bold ${isDay ? "text-sky-300" : "text-white/30"}`}>
+              אין קבצי זיכרון
+            </p>
+          )}
           {files.map((file) => (
             <button
               key={file.name}

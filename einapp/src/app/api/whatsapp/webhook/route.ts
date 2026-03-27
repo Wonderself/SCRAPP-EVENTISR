@@ -64,20 +64,43 @@ export async function POST(req: NextRequest) {
   const message = value?.messages?.[0];
 
   if (!message) {
+    // Log statuses (delivery receipts etc.) at debug level
+    const statuses = value?.statuses;
+    if (statuses) {
+      console.log(`[WhatsApp] Status update: ${statuses[0]?.status} for ${statuses[0]?.recipient_id}`);
+    }
     return NextResponse.json({ ok: true });
   }
+
+  console.log(`[WhatsApp] Incoming ${message.type} from ${message.from}`);
 
   const from = message.from;
   const DEV_PHONE = process.env.DEV_PHONE_NUMBER || "";
 
   // Only accept messages from Einat or Dev
   const normalFrom = normalizePhone(from);
-  const isEinat = EINAT_PHONE && normalFrom === normalizePhone(EINAT_PHONE);
-  const isDev = DEV_PHONE && normalFrom === normalizePhone(DEV_PHONE);
+  const normalEinat = EINAT_PHONE ? normalizePhone(EINAT_PHONE) : "";
+  const normalDev = DEV_PHONE ? normalizePhone(DEV_PHONE) : "";
+  const isEinat = normalEinat && normalFrom === normalEinat;
+  const isDev = normalDev && normalFrom === normalDev;
 
-  if (!isEinat && !isDev) {
-    console.log(`[WhatsApp] Ignoring message from unknown sender: ${from}`);
+  // Also try suffix matching (last 9-10 digits) in case of country code differences
+  const suffixMatch = (a: string, b: string) => {
+    if (!a || !b) return false;
+    const minLen = Math.min(a.length, b.length, 10);
+    return a.slice(-minLen) === b.slice(-minLen);
+  };
+  const isEinatSuffix = !isEinat && normalEinat && suffixMatch(normalFrom, normalEinat);
+  const isDevSuffix = !isDev && normalDev && suffixMatch(normalFrom, normalDev);
+
+  if (!isEinat && !isDev && !isEinatSuffix && !isDevSuffix) {
+    console.log(`[WhatsApp] Ignoring unknown sender: ${from} (normalized: ${normalFrom})`);
+    console.log(`[WhatsApp] Expected Einat: ${normalEinat}, Dev: ${normalDev}`);
     return NextResponse.json({ ok: true });
+  }
+
+  if (isEinatSuffix || isDevSuffix) {
+    console.log(`[WhatsApp] Matched by suffix: from=${normalFrom}, einat=${normalEinat}, dev=${normalDev}`);
   }
 
   const dateStr = toDateString(new Date());
@@ -148,8 +171,8 @@ async function handleTextMessage(from: string, text: string, dateStr: string, is
       const hint = done.descriptionHint.toLowerCase();
       const match = todayTasks.find((t: any) =>
         !completedIds.has(t.id) &&
-        t.description.toLowerCase().includes(hint) ||
-        hint.includes(t.description.toLowerCase().substring(0, 10))
+        (t.description.toLowerCase().includes(hint) ||
+        hint.includes(t.description.toLowerCase().substring(0, 10)))
       );
 
       if (match) {

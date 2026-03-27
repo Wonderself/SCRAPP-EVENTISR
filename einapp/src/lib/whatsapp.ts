@@ -23,7 +23,14 @@ export async function sendWhatsAppMessage(to: string, text: string) {
   });
 
   if (!res.ok) {
-    console.error("[WhatsApp] Send error:", await res.text());
+    const errText = await res.text();
+    console.error(`[WhatsApp] Send error (${res.status}):`, errText);
+    // Common: 190 = expired token, 131030 = recipient not in sandbox
+    if (res.status === 401 || errText.includes("190")) {
+      console.error("[WhatsApp] ACCESS TOKEN EXPIRED — regenerate in Meta Business Settings");
+    }
+  } else {
+    console.log(`[WhatsApp] Message sent to ${to} OK`);
   }
 
   // Send copy to developer if configured

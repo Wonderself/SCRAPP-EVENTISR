@@ -36,11 +36,19 @@ body {
   font-family: var(--font-family-hebrew);
 }
 
-/* Smooth transitions between themes */
-* {
+/* Smooth theme transitions only on main containers, not all elements */
+.theme-transition {
   transition-property: background-color, border-color, color;
   transition-duration: 500ms;
   transition-timing-function: ease;
+}
+
+/* Ensure proper mobile sizing */
+html, body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Scrollbar styling */

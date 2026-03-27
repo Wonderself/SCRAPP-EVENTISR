@@ -39,42 +39,43 @@ export default function WeatherWidget({ isDay }: Props) {
         : "bg-white/10 backdrop-blur-sm border-2 border-white/15"
     }`}>
       {/* Main row */}
-      <div className="p-3 lg:p-5 flex items-center justify-between">
-        <div className="flex items-center gap-2.5 lg:gap-4">
+      <div className="p-2.5 sm:p-3 lg:p-5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-2.5 lg:gap-4 min-w-0">
           <div
-            className={`w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 ${
               isDay
                 ? "bg-gradient-to-br from-amber-300 to-orange-400 shadow-lg shadow-amber-300/25"
                 : "bg-gradient-to-br from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/25"
             }`}
           >
-            <WeatherIcon size={18} className="text-white lg:hidden" />
+            <WeatherIcon size={16} className="text-white sm:hidden" />
+            <WeatherIcon size={18} className="text-white hidden sm:block lg:hidden" />
             <WeatherIcon size={24} className="text-white hidden lg:block" />
           </div>
-          <div>
-            <span className={`text-2xl lg:text-4xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>
+          <div className="min-w-0">
+            <span className={`text-xl sm:text-2xl lg:text-4xl font-black ${isDay ? "text-sky-800" : "text-white"}`}>
               {weather.temp}°
             </span>
-            <p className={`text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-500" : "text-fuchsia-300"}`}>
+            <p className={`text-[10px] sm:text-[11px] lg:text-sm font-bold truncate ${isDay ? "text-sky-500" : "text-fuchsia-300"}`}>
               {weather.description}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className={`flex gap-3 text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-400" : "text-white/50"}`}>
-            <span className="flex items-center gap-1">
-              <Wind size={12} /> {weather.windSpeed}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className={`flex gap-2 sm:gap-3 text-[10px] lg:text-sm font-bold ${isDay ? "text-sky-400" : "text-white/50"}`}>
+            <span className="flex items-center gap-0.5 sm:gap-1">
+              <Wind size={11} /> {weather.windSpeed}
             </span>
-            <span className="flex items-center gap-1">
-              <Droplets size={12} /> {weather.humidity}%
+            <span className="flex items-center gap-0.5 sm:gap-1">
+              <Droplets size={11} /> {weather.humidity}%
             </span>
           </div>
           {weather.rainUpcoming && weather.rainDays.length > 0 && (
-            <div className={`px-2.5 py-1 rounded-xl flex items-center gap-1 text-[10px] lg:text-xs font-bold ${
-              isDay ? "bg-amber-50 text-amber-600 border-2 border-amber-200" : "bg-fuchsia-500/10 text-fuchsia-300 border-2 border-fuchsia-500/20"
+            <div className={`hidden sm:flex px-2 py-1 rounded-xl items-center gap-1 text-[10px] lg:text-xs font-bold ${
+              isDay ? "bg-amber-50 text-amber-600 border border-amber-200" : "bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20"
             }`}>
-              <CloudRain size={12} />
+              <CloudRain size={11} />
               <span>{weather.rainToday ? "גשם היום" : `גשם ${weather.rainDays[0]}`}</span>
             </div>
           )}

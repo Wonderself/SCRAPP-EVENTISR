@@ -23,7 +23,11 @@ async function sendTestMessage() {
 יאאאללה מלכההה, ספרי לי מה נשמע!
 אני מחכה לך פה תמיד 🌊🐬💛`;
 
-  await sendWhatsAppMessage(phone, message);
+  try {
+    await sendWhatsAppMessage(phone, message);
+  } catch (e: any) {
+    return NextResponse.json({ error: "send failed", details: e.message }, { status: 500 });
+  }
 
   // Also send directly to dev phone if configured
   const devPhone = process.env.DEV_PHONE_NUMBER;
@@ -52,7 +56,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { secret } = await req.json();
+  let secret: string;
+  try {
+    const body = await req.json();
+    secret = body.secret;
+  } catch {
+    return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
+  }
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

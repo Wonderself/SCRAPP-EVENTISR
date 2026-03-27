@@ -6,7 +6,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "TTS not configured" }, { status: 503 });
   }
 
-  const { text } = await req.json();
+  let text: string;
+  try {
+    const body = await req.json();
+    text = body.text;
+  } catch {
+    return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
+  }
   if (!text?.trim()) {
     return NextResponse.json({ error: "text required" }, { status: 400 });
   }

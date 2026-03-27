@@ -69,7 +69,7 @@ export default function BottomTabs({ isDay }: Props) {
             : "bg-[#0d0820]/90 border-t-2 border-white/15"
         }`}
       >
-        <div className="flex justify-around items-center h-[64px] lg:h-[72px] max-w-md mx-auto px-4">
+        <div className="flex justify-around items-center h-[56px] sm:h-[64px] lg:h-[72px] max-w-md mx-auto px-2 sm:px-4 pb-[env(safe-area-inset-bottom,0px)]">
           {mainTabs.map((tab) => {
             const active = pathname === tab.path;
             const Icon = tab.icon;
@@ -77,10 +77,10 @@ export default function BottomTabs({ isDay }: Props) {
               <button
                 key={tab.path}
                 onClick={() => router.push(tab.path)}
-                className="flex flex-col items-center gap-0.5 px-5 py-1 min-w-[72px] lg:min-w-[88px] active:scale-95 transition-transform"
+                className="flex flex-col items-center gap-0.5 px-3 sm:px-5 py-1 min-w-[60px] sm:min-w-[72px] lg:min-w-[88px] active:scale-95 transition-transform"
               >
                 <div
-                  className={`w-11 h-11 lg:w-13 lg:h-13 rounded-2xl flex items-center justify-center transition-all ${
+                  className={`w-9 h-9 sm:w-11 sm:h-11 lg:w-13 lg:h-13 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all ${
                     active
                       ? isDay
                         ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-lg shadow-sky-400/30"
@@ -118,10 +118,10 @@ export default function BottomTabs({ isDay }: Props) {
           {/* More button */}
           <button
             onClick={() => setShowMore(!showMore)}
-            className="flex flex-col items-center gap-0.5 px-5 py-1 min-w-[72px] lg:min-w-[88px] active:scale-95 transition-transform"
+            className="flex flex-col items-center gap-0.5 px-3 sm:px-5 py-1 min-w-[60px] sm:min-w-[72px] lg:min-w-[88px] active:scale-95 transition-transform"
           >
             <div
-              className={`w-11 h-11 lg:w-13 lg:h-13 rounded-2xl flex items-center justify-center transition-all ${
+              className={`w-9 h-9 sm:w-11 sm:h-11 lg:w-13 lg:h-13 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all ${
                 isMoreActive
                   ? isDay
                     ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-lg shadow-sky-400/30"

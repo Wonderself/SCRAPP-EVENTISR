@@ -78,12 +78,12 @@ export default function RecurringPage() {
         ? "bg-gradient-to-b from-sky-50 via-cyan-50/50 to-white"
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
-      <div className={`shrink-0 px-5 pt-10 pb-4 lg:pt-12 lg:pb-5 ${
+      <div className={`shrink-0 px-4 pt-[env(safe-area-inset-top,8px)] pb-3 sm:px-5 sm:pb-4 lg:pt-12 lg:pb-5 ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <h1 className="text-2xl lg:text-4xl font-black text-white">משימות קבועות 🔄</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-white">משימות קבועות 🔄</h1>
         <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 font-bold">המשימות שחוזרות כל שבוע</p>
       </div>
 

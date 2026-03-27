@@ -3,7 +3,13 @@ import crypto from "crypto";
 import { setAppState } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
+  let password: string;
+  try {
+    const body = await req.json();
+    password = body.password;
+  } catch {
+    return NextResponse.json({ error: "invalid request" }, { status: 400 });
+  }
   const expected = process.env.APP_PASSWORD;
 
   if (!expected) {

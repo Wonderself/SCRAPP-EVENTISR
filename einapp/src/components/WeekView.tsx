@@ -143,24 +143,24 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
   const todayTotal = todayData ? todayData.tasks.length : 0;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {/* TODAY — BIG SECTION */}
       {todayData && (
-        <div className={`rounded-[20px] lg:rounded-[28px] p-4 lg:p-6 ${
+        <div className={`rounded-2xl sm:rounded-[20px] lg:rounded-[28px] p-3 sm:p-4 lg:p-6 ${
           isDay
             ? "bg-gradient-to-br from-sky-50 to-cyan-50 border-2 border-sky-300 shadow-lg shadow-sky-200/40"
             : "bg-gradient-to-br from-fuchsia-500/10 to-violet-500/10 border-2 border-fuchsia-400/30 shadow-lg shadow-fuchsia-500/10"
         }`}>
           {/* Today header */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full animate-pulse ${isDay ? "bg-sky-400" : "bg-fuchsia-400"}`} />
-              <h3 className={`text-lg lg:text-xl font-black ${isDay ? "text-sky-700" : "text-fuchsia-300"}`}>
+              <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full animate-pulse ${isDay ? "bg-sky-400" : "bg-fuchsia-400"}`} />
+              <h3 className={`text-base sm:text-lg lg:text-xl font-black ${isDay ? "text-sky-700" : "text-fuchsia-300"}`}>
                 היום — {getDayName(todayData.dayIndex)}
               </h3>
             </div>
             {todayTotal > 0 && (
-              <span className={`text-sm lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
+              <span className={`text-xs sm:text-sm lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
                 {todayCompleted}/{todayTotal}
               </span>
             )}
@@ -168,7 +168,7 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
 
           {/* Today progress bar */}
           {todayTotal > 0 && (
-            <div className={`h-2 rounded-full overflow-hidden mb-3 ${isDay ? "bg-sky-100" : "bg-white/10"}`}>
+            <div className={`h-1.5 sm:h-2 rounded-full overflow-hidden mb-2 sm:mb-3 ${isDay ? "bg-sky-100" : "bg-white/10"}`}>
               <div
                 className={`h-full rounded-full transition-all duration-700 ${
                   isDay
@@ -181,9 +181,9 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
           )}
 
           {/* Today tasks — full size */}
-          <div className="space-y-1.5">
+          <div className="space-y-1 sm:space-y-1.5">
             {todayData.tasks.length === 0 ? (
-              <p className={`text-center py-4 text-sm font-bold ${isDay ? "text-sky-300" : "text-white/30"}`}>
+              <p className={`text-center py-3 text-xs sm:text-sm font-bold ${isDay ? "text-sky-300" : "text-white/30"}`}>
                 אין משימות להיום! 🎉 יום חופשי מאמי
               </p>
             ) : (
@@ -215,14 +215,14 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
 
       {/* OTHER DAYS — compact horizontal scroll */}
       <div>
-        <h3 className={`text-xs lg:text-sm font-bold mb-2 ${isDay ? "text-sky-900/50" : "text-white/30"}`}>
+        <h3 className={`text-[11px] sm:text-xs lg:text-sm font-bold mb-1.5 sm:mb-2 ${isDay ? "text-sky-900/50" : "text-white/30"}`}>
           שאר השבוע
         </h3>
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 lg:grid lg:grid-cols-6 lg:gap-3 lg:overflow-visible">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar pb-1 lg:grid lg:grid-cols-6 lg:gap-3 lg:overflow-visible">
           {otherDays.map((day, i) => (
             <div
               key={day.date}
-              className="flex-shrink-0 lg:flex-shrink animate-fade-up no-color-transition"
+              className="flex-shrink-0 w-[72px] sm:w-auto lg:flex-shrink animate-fade-up no-color-transition"
               style={{ animationDelay: `${i * 40}ms` }}
             >
               <DayColumn
@@ -243,20 +243,20 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
 
       {/* Weekly progress */}
       {totalThisWeek > 0 && (
-        <div className={`rounded-xl lg:rounded-2xl p-3 lg:p-4 ${
+        <div className={`rounded-xl lg:rounded-2xl p-2.5 sm:p-3 lg:p-4 ${
           isDay
             ? "bg-white border-2 border-sky-100 shadow-sm"
             : "bg-white/10 backdrop-blur-sm border-2 border-white/15"
         }`}>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-white/80"}`}>
+          <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+            <span className={`text-[11px] sm:text-xs lg:text-base font-black ${isDay ? "text-sky-700" : "text-white/80"}`}>
               סה״כ שבועי: {completedThisWeek} / {totalThisWeek}
             </span>
-            <span className={`text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
+            <span className={`text-[11px] sm:text-xs lg:text-base font-black ${isDay ? "text-sky-500" : "text-fuchsia-400"}`}>
               {Math.round((completedThisWeek / totalThisWeek) * 100)}%
             </span>
           </div>
-          <div className={`h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/15"}`}>
+          <div className={`h-1.5 sm:h-2 lg:h-3 rounded-full overflow-hidden ${isDay ? "bg-sky-100" : "bg-white/15"}`}>
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isDay

@@ -44,7 +44,6 @@ export default function DashboardPage() {
 
     fetch("/api/daily-tip").then(r => r.ok ? r.json() : null).then(d => d && setDailyTip(d.tip)).catch(() => null);
 
-    // Load streak from localStorage
     const saved = localStorage.getItem("einapp_streak");
     if (saved) {
       try {
@@ -53,10 +52,8 @@ export default function DashboardPage() {
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split("T")[0];
-        if (data.lastDate === todayStr) {
+        if (data.lastDate === todayStr || data.lastDate === yesterdayStr) {
           setStreak(data.count);
-        } else if (data.lastDate === yesterdayStr) {
-          setStreak(data.count); // Will be updated when tasks are completed
         }
       } catch {}
     }
@@ -74,7 +71,7 @@ export default function DashboardPage() {
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
 
-      {/* ===== HERO (compact) ===== */}
+      {/* ===== HERO (compact, safe-area aware) ===== */}
       <div className={`relative overflow-hidden shrink-0 ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
@@ -82,68 +79,69 @@ export default function DashboardPage() {
       }`}>
         <div className={`absolute -top-10 -left-10 w-32 h-32 rounded-full blur-3xl ${isDay ? "bg-yellow-300/30" : "bg-fuchsia-500/20"}`} />
 
-        <div className="relative z-10 px-5 pt-3 pb-3 lg:px-10 lg:pt-5 lg:pb-4 flex items-center justify-between">
-          <div>
-            <p className="text-white/50 text-[10px] lg:text-xs font-semibold tracking-wider mb-0.5">
+        <div className="relative z-10 px-4 pt-[env(safe-area-inset-top,8px)] pb-2 sm:px-5 sm:pt-3 sm:pb-3 lg:px-10 lg:pt-5 lg:pb-4 flex items-center justify-between">
+          <div className="min-w-0 flex-1">
+            <p className="text-white/50 text-[10px] sm:text-[11px] lg:text-xs font-semibold tracking-wider mb-0.5 truncate">
               {formatHebrewDate(today)}
             </p>
-            <h1 className="text-white text-xl lg:text-3xl font-black leading-tight">
+            <h1 className="text-white text-lg sm:text-xl lg:text-3xl font-black leading-tight truncate">
               {getGreeting()}
             </h1>
           </div>
-          {/* Streak badge */}
           {streak > 0 && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-2xl ${
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-2xl shrink-0 ml-2 ${
               isDay ? "bg-white/20" : "bg-white/10"
             }`}>
-              <Flame size={16} className="text-orange-300" />
-              <span className="text-white text-sm font-black">{streak}</span>
+              <Flame size={14} className="text-orange-300" />
+              <span className="text-white text-xs sm:text-sm font-black">{streak}</span>
             </div>
           )}
         </div>
 
-        <div className={`h-2 ${
+        <div className={`h-1.5 ${
           isDay ? "bg-gradient-to-b from-transparent to-sky-50" : "bg-gradient-to-b from-transparent to-[#1a0e2e]"
         }`} />
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="flex-1 overflow-y-auto px-4 lg:px-10 pb-2 max-w-4xl mx-auto w-full space-y-3 lg:space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-10 pb-1 max-w-4xl mx-auto w-full space-y-2 sm:space-y-3 lg:space-y-4">
 
-        {/* Quick action buttons — big, simple, mobile-first */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Quick action buttons */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
           <button
             onClick={() => router.push("/chat")}
-            className={`rounded-2xl p-4 lg:p-5 flex items-center gap-3 transition-all active:scale-[0.97] ${
+            className={`rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-2 sm:gap-3 transition-all active:scale-[0.97] ${
               isDay
                 ? "bg-white border-2 border-sky-100 shadow-sm"
                 : "bg-white/10 border-2 border-white/15"
             }`}
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${
               isDay ? "bg-gradient-to-br from-cyan-400 to-blue-500" : "bg-gradient-to-br from-orange-400 to-rose-500"
             }`}>
-              <MessageCircle size={22} className="text-white" strokeWidth={2.5} />
+              <MessageCircle size={20} className="text-white sm:hidden" strokeWidth={2.5} />
+              <MessageCircle size={22} className="text-white hidden sm:block" strokeWidth={2.5} />
             </div>
-            <span className={`text-sm font-black ${isDay ? "text-sky-800" : "text-white/80"}`}>
+            <span className={`text-xs sm:text-sm font-black ${isDay ? "text-sky-800" : "text-white/80"}`}>
               דברי איתי
             </span>
           </button>
 
           <button
             onClick={() => setShowAddTask(true)}
-            className={`rounded-2xl p-4 lg:p-5 flex items-center gap-3 transition-all active:scale-[0.97] ${
+            className={`rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-2 sm:gap-3 transition-all active:scale-[0.97] ${
               isDay
                 ? "bg-white border-2 border-sky-100 shadow-sm"
                 : "bg-white/10 border-2 border-white/15"
             }`}
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${
               isDay ? "bg-gradient-to-br from-emerald-400 to-teal-500" : "bg-gradient-to-br from-violet-500 to-indigo-600"
             }`}>
-              <Plus size={24} className="text-white" strokeWidth={2.5} />
+              <Plus size={22} className="text-white sm:hidden" strokeWidth={2.5} />
+              <Plus size={24} className="text-white hidden sm:block" strokeWidth={2.5} />
             </div>
-            <span className={`text-sm font-black ${isDay ? "text-teal-800" : "text-white/80"}`}>
+            <span className={`text-xs sm:text-sm font-black ${isDay ? "text-teal-800" : "text-white/80"}`}>
               משימה חדשה
             </span>
           </button>
@@ -154,19 +152,19 @@ export default function DashboardPage() {
 
         {/* Daily tip */}
         {dailyTip && (
-          <div className={`rounded-2xl p-3 flex items-start gap-2.5 ${
+          <div className={`rounded-2xl p-2.5 sm:p-3 flex items-start gap-2 ${
             isDay
               ? "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60"
               : "bg-gradient-to-r from-amber-500/10 to-orange-500/[0.06] border border-amber-500/15"
           }`}>
-            <Lightbulb size={16} className={`shrink-0 mt-0.5 ${isDay ? "text-amber-500" : "text-amber-400"}`} />
-            <p className={`text-xs font-semibold leading-relaxed ${isDay ? "text-amber-800" : "text-amber-200/90"}`} dir="rtl">
+            <Lightbulb size={14} className={`shrink-0 mt-0.5 ${isDay ? "text-amber-500" : "text-amber-400"}`} />
+            <p className={`text-[11px] sm:text-xs font-semibold leading-relaxed ${isDay ? "text-amber-800" : "text-amber-200/90"}`} dir="rtl">
               {dailyTip}
             </p>
           </div>
         )}
 
-        {/* Week view — today big, other days compact */}
+        {/* Week view */}
         <WeekView isDay={isDay} refreshKey={refreshKey} onStreakUpdate={(s: number) => setStreak(s)} />
       </div>
 

@@ -32,8 +32,8 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, compa
 
   return (
     <div
-      className={`rounded-2xl lg:rounded-3xl p-2.5 lg:p-4 transition-all ${
-        compact ? "min-w-[80px]" : "min-w-[100px] lg:min-w-0"
+      className={`rounded-xl sm:rounded-2xl lg:rounded-3xl p-2 sm:p-2.5 lg:p-4 transition-all ${
+        compact ? "min-w-0 w-full" : "min-w-0 lg:min-w-0"
       } ${
         isToday
           ? isDay

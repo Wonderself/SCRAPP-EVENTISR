@@ -148,12 +148,12 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
         ) : (
           <div>
             <p className={`text-sm lg:text-base mb-3 font-black ${isDay ? "text-sky-500" : "text-fuchsia-300"}`}>באילו ימים?</p>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 sm:gap-2">
               {DAYS.map((d) => (
                 <button
                   key={d.key}
                   onClick={() => toggleDay(d.key)}
-                  className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-sm lg:text-base font-black transition-all ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-black transition-all ${
                     daysOfWeek.includes(d.key) ? activeBtn : inactiveBtn
                   }`}
                 >
