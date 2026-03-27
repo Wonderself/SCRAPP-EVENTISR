@@ -127,7 +127,7 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
       const errText = await res.text();
       console.error("[Chat] Gemini API error:", res.status, errText);
       if (res.status === 403) {
-        return "צריך להפעיל את Generative Language API בגוגל קלאוד 🔑 תגידי לעמנואל!";
+        return `שגיאת הרשאה 403 בגמיני 🔑 (${errText.slice(0, 120)})`;
       }
       if (res.status === 429) {
         return "יותר מדי הודעות ברגע 😅 חכי שניה ותנסי שוב נשמה";
