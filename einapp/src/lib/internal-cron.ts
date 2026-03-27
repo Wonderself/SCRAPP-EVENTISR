@@ -55,7 +55,11 @@ export function scheduleCronJobs() {
       const url = `${BASE_URL}/api/cron?job=${job}&secret=${SECRET}`;
       const res = await fetch(url);
       const data = await res.json();
-      console.log(`[Cron] ${job}:`, res.ok ? "OK" : data);
+      if (res.ok) {
+        console.log(`[Cron] ${job}: OK`);
+      } else {
+        console.error(`[Cron] ${job} error (${res.status}):`, JSON.stringify(data));
+      }
     } catch (e: any) {
       console.error(`[Cron] ${job} failed:`, e.message);
     }

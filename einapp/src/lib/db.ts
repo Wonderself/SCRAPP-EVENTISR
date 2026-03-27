@@ -6,8 +6,16 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "einapp.db");
 
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    // Verify we can write
+    fs.accessSync(DATA_DIR, fs.constants.W_OK);
+  } catch (e: any) {
+    console.error(`[DB] Cannot access data directory ${DATA_DIR}: ${e.message}`);
+    console.error(`[DB] Current user: uid=${process.getuid?.()}, gid=${process.getgid?.()}`);
+    throw e;
   }
 }
 
@@ -17,7 +25,13 @@ export function getDb(): Database.Database {
   if (_db) return _db;
 
   ensureDataDir();
-  _db = new Database(DB_PATH);
+  try {
+    _db = new Database(DB_PATH);
+  } catch (e: any) {
+    console.error(`[DB] Cannot open database at ${DB_PATH}: ${e.message}`);
+    console.error(`[DB] Check volume mount permissions. Run: chown -R 1001:1001 /opt/einapp-data`);
+    throw e;
+  }
   _db.pragma("journal_mode = WAL");
   _db.pragma("foreign_keys = ON");
 

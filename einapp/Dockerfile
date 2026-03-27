@@ -25,15 +25,20 @@ COPY --from=base /app/public ./public
 COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
 
-# Create data directories with correct permissions
+# Create data directories (will be overridden by volume mount)
 RUN mkdir -p data/memory data/memory/chat-summaries data/memory/raw-conversations data/backups && \
     chown -R nextjs:nodejs data
 
+# Entrypoint script fixes volume permissions then starts app
+COPY --from=base /app/entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+
 VOLUME ["/app/data"]
 
-USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Run as root initially so entrypoint can fix volume permissions,
+# then drops to nextjs user before starting node
+CMD ["./entrypoint.sh"]
