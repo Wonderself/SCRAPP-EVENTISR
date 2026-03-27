@@ -16,7 +16,10 @@ const APP_SECRET = process.env.WHATSAPP_APP_SECRET;
 const VOICE_REPLY_ENABLED = process.env.WHATSAPP_VOICE_REPLY !== "false";
 
 function verifySignature(body: string, signature: string | null): boolean {
-  if (!APP_SECRET) return true; // No secret configured, skip verification
+  if (!APP_SECRET) {
+    console.warn("[WhatsApp] WHATSAPP_APP_SECRET not configured — skipping signature verification");
+    return true;
+  }
   if (!signature) return false;
   const expected = "sha256=" + crypto.createHmac("sha256", APP_SECRET).update(body).digest("hex");
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));

@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
+  const secret = url.searchParams.get("secret");
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "unauthorized — add ?secret=YOUR_CRON_SECRET" }, { status: 401 });
+  }
   const doTest = url.searchParams.get("test") === "1";
 
   const geminiKey = process.env.GEMINI_API_KEY || "";
