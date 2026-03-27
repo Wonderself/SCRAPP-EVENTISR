@@ -1,7 +1,7 @@
 import { sendWhatsAppMessage } from "./whatsapp";
 import { generateMorningMessage, generateEveningMessage, generateTaskReminder } from "./ai-parser";
 import { getTasksForDate, getCompletionsForDate, getAppState, setAppState } from "./db";
-import { toDateString, getDayKey, getDayName } from "./hebrew";
+import { toDateString, getDayKey, getDayName, isErevShabbat, isShabbat, getJewishHolidayGreeting, getShabbatGreeting } from "./hebrew";
 import { getWeather, formatWeatherForMessage } from "./weather";
 
 const EINAT_PHONE = process.env.EINAT_PHONE_NUMBER || "";
@@ -33,7 +33,21 @@ export async function sendMorningMessage() {
     }))
   );
 
-  const message = await generateMorningMessage(tasksJson, dayName, dateStr, weatherText);
+  // Add Shabbat/holiday context
+  let specialGreeting = "";
+  const holidayGreeting = getJewishHolidayGreeting(today);
+  if (holidayGreeting) {
+    specialGreeting = holidayGreeting;
+  } else if (isErevShabbat(today)) {
+    specialGreeting = getShabbatGreeting();
+  } else if (isShabbat(today)) {
+    specialGreeting = "שבת שלום נשמהההה! 🕯️💛 שבת מנוחה!";
+  }
+
+  let message = await generateMorningMessage(tasksJson, dayName, dateStr, weatherText);
+  if (specialGreeting) {
+    message = specialGreeting + "\n\n" + message;
+  }
   if (!isWhatsAppConfigured()) {
     console.log("[Scheduler] WhatsApp not configured, skipping morning message");
     return;
@@ -69,10 +83,21 @@ export async function sendEveningMessage() {
   const tomorrowDayKey = getDayKey(tomorrow.getDay());
   const tomorrowTasks = getTasksForDate(tomorrowDateStr, tomorrowDayKey);
 
-  const message = await generateEveningMessage(
+  let message = await generateEveningMessage(
     JSON.stringify(todayStatus),
     JSON.stringify(tomorrowTasks.map((t: any) => t.description))
   );
+
+  // Add Shabbat greeting on Friday evening
+  if (isErevShabbat(today)) {
+    message = getShabbatGreeting() + "\n\n" + message;
+  }
+
+  // Add holiday greeting if applicable
+  const holidayEvening = getJewishHolidayGreeting(today);
+  if (holidayEvening && !isErevShabbat(today)) {
+    message = holidayEvening + "\n\n" + message;
+  }
 
   if (!isWhatsAppConfigured()) {
     console.log("[Scheduler] WhatsApp not configured, skipping evening message");

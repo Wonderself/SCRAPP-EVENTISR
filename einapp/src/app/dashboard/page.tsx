@@ -7,7 +7,7 @@ import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
 import WeatherWidget from "@/components/WeatherWidget";
-import { formatHebrewDate } from "@/lib/hebrew";
+import { formatHebrewDate, isErevShabbat, isShabbat, getJewishHolidayGreeting, getShabbatGreeting } from "@/lib/hebrew";
 
 function getTimeMode(): "day" | "sunset" {
   const now = new Date();
@@ -16,7 +16,17 @@ function getTimeMode(): "day" | "sunset" {
 }
 
 function getGreeting(): string {
-  const h = new Date().getHours();
+  const now = new Date();
+  const h = now.getHours();
+
+  // Jewish holiday greeting takes priority
+  const holidayGreeting = getJewishHolidayGreeting(now);
+  if (holidayGreeting) return holidayGreeting;
+
+  // Shabbat greetings
+  if (isErevShabbat(now)) return getShabbatGreeting();
+  if (isShabbat(now)) return "שבת שלום נשמהההה! 🕯️💛 תהני מהמנוחה!";
+
   if (h < 12) return "בוקר טוב נשמה ☀️";
   if (h < 17) return "צהריים טובים מאמי 🌊";
   return "ערב טוב נשמה 🌙";

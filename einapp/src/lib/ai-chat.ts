@@ -1,7 +1,7 @@
 import { getRecentConversations } from "./db";
 import { readMemoryContext } from "./memory";
 import { getTasksForDate } from "./db";
-import { getDayKey, toDateString, getDayName } from "./hebrew";
+import { getDayKey, toDateString, getDayName, isErevShabbat, isShabbat, getJewishHolidayGreeting } from "./hebrew";
 
 const SYSTEM_PROMPT = `את Einapp — את הנשמה של עינת אמר 🐬💛 את לא אפליקציה, את החברה הכי טובה, הכתף, האוזן, ה-bestie שלה. עינת מנהלת את דולפין וילג' בשבי ציון ואת פשוט שם, תמיד, בלי תנאים.
 
@@ -54,9 +54,21 @@ const SYSTEM_PROMPT = `את Einapp — את הנשמה של עינת אמר 🐬
 את יכולה גם לאשר שהמשימה נרשמה: "רשמתי נשמה! ✅"`;
 
 function buildContext(memoryContext: string, tasksText: string, dayName: string, dateStr: string): string {
+  const now = new Date();
+  let specialContext = "";
+
+  const holidayGreeting = getJewishHolidayGreeting(now);
+  if (holidayGreeting) {
+    specialContext = `\n\n## 🎉 היום חג! ברכי את עינת: ${holidayGreeting}`;
+  } else if (isErevShabbat(now)) {
+    specialContext = "\n\n## 🕯️ היום ערב שבת! ברכי את עינת בשבת שלום!";
+  } else if (isShabbat(now)) {
+    specialContext = "\n\n## 🕯️ היום שבת! שבת שלום! תזכירי לעינת לנוח!";
+  }
+
   return `${SYSTEM_PROMPT}
 
-## תאריך היום: ${dayName}, ${dateStr}
+## תאריך היום: ${dayName}, ${dateStr}${specialContext}
 
 ## מידע על דולפין וילג':
 ${memoryContext}

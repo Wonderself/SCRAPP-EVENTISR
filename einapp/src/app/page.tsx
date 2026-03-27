@@ -34,9 +34,9 @@ export default function LoginPage() {
         body: JSON.stringify({ password }),
       });
       if (res.ok) router.push("/dashboard");
-      else setError("wrong code");
+      else setError("קוד שגוי");
     } catch {
-      setError("connection error");
+      setError("שגיאת חיבור");
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ export default function LoginPage() {
                   isDay ? "text-sky-300" : "text-white/50"
                 }`}
               >
-                {showPassword ? "hide" : "show"}
+                {showPassword ? "הסתר" : "הצג"}
               </button>
             </div>
 
@@ -117,7 +117,7 @@ export default function LoginPage() {
                   : "bg-gradient-to-r from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/25"
               }`}
             >
-              {loading ? "..." : "enter"}
+              {loading ? "..." : "כניסה"}
             </button>
           </form>
         )}

@@ -65,22 +65,57 @@ function ChatPageInner() {
     if (!greeted && mounted && messages.length === 0) {
       setGreeted(true);
       const isDay = mode === "day";
-      const greetings = isDay
-        ? [
-            "הייייי נשמהההה! 🐬💛 מה נשמע מאמי? מוכנה ליום מטורף?",
-            "בוקר טוווב מלכה! ☀️🌊 יאללה ספרי לי מה בתוכנית!",
-            "שלום שלום חביבה שלי! 💛 איך את היום? ספרי הכל!",
-            "מאמייי! בוקר אור! ☀️✨ אני פה בשבילך כרגיל!",
-          ]
-        : [
-            "הייייי נשמהההה! 🌙💛 איך היה היום? ספרי ספרי!",
-            "ערב טוווב מאמי שלי! 🌊✨ איך עבר היום?",
-            "מה קורה מלכה? 💛🐬 הכל טוב? ספרי לי!",
-            "היי חביבה! 🌙 סיימת את היום? בואי נדבר!",
-          ];
-      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-      const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
-      setMessages([{ role: "assistant", content: greeting, time: now }]);
+      const now = new Date();
+      const h = now.getHours();
+      const day = now.getDay();
+      const isFridayAfternoon = day === 5 && h >= 12;
+      const isSaturday = day === 6;
+
+      // Check for Jewish holiday
+      const m2 = now.getMonth() + 1;
+      const d2 = now.getDate();
+      const dateKey = `${m2}-${d2}`;
+      const holidays2026: Record<string, string> = {
+        "3-3": "פורים שמח נשמהההה! 🎭🎉 חג שמח מאמי! ספרי איך חוגגים בדולפין!",
+        "3-2": "ערב פורים מאמי! 🎭 מחר חג! מה התוכניות?",
+        "3-22": "ערב פסח נשמהההה! 🍷✨ חג חירות מאמי! הכל מוכן?",
+        "3-23": "חג פסח שמח מאאאמי! 🍷🌺 חג חירות!",
+        "9-12": "שנה טובה ומתוקה נשמהההה! 🍎🍯✨",
+        "9-21": "גמר חתימה טובה נשמהההה! 🕯️✨",
+        "12-15": "חנוכה שמח נשמהההה! 🕎✨ חג אורים מאמי!",
+      };
+      const holidayGreeting = holidays2026[dateKey];
+
+      let greeting: string;
+      if (holidayGreeting) {
+        greeting = holidayGreeting;
+      } else if (isFridayAfternoon) {
+        const shabbatGreetings = [
+          "שבת שלוווום נשמהההה! 🕯️✨ שבת מנוחה מאמי!",
+          "שבת שלום מאאאמי! 🕯️💛 מגיע לך לנוח!",
+          "שבת שלום מלכההה! 🕯️🌺 תהני מהשבת!",
+        ];
+        greeting = shabbatGreetings[Math.floor(Math.random() * shabbatGreetings.length)];
+      } else if (isSaturday) {
+        greeting = "שבת שלום נשמהההה! 🕯️💛 איך השבת? מנוחה טובה מאמי!";
+      } else {
+        const greetings = isDay
+          ? [
+              "הייייי נשמהההה! 🐬💛 מה נשמע מאמי? מוכנה ליום מטורף?",
+              "בוקר טוווב מלכה! ☀️🌊 יאללה ספרי לי מה בתוכנית!",
+              "שלום שלום חביבה שלי! 💛 איך את היום? ספרי הכל!",
+              "מאמייי! בוקר אור! ☀️✨ אני פה בשבילך כרגיל!",
+            ]
+          : [
+              "הייייי נשמהההה! 🌙💛 איך היה היום? ספרי ספרי!",
+              "ערב טוווב מאמי שלי! 🌊✨ איך עבר היום?",
+              "מה קורה מלכה? 💛🐬 הכל טוב? ספרי לי!",
+              "היי חביבה! 🌙 סיימת את היום? בואי נדבר!",
+            ];
+        greeting = greetings[Math.floor(Math.random() * greetings.length)];
+      }
+      const timeStr = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+      setMessages([{ role: "assistant", content: greeting, time: timeStr }]);
       if (autoSpeak && voice.isSupported) {
         setTimeout(() => voice.speak(greeting), 500);
       }
