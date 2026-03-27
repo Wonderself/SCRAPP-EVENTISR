@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendMorningMessage, sendEveningMessage, checkMissingYou } from "@/lib/scheduler";
+import { sendMorningMessage, sendEveningMessage, checkMissingYou, sendTaskReminders } from "@/lib/scheduler";
 import { nightlyExtraction, weeklySummary, monthlyOptimization } from "@/lib/memory-cron";
 
 // Called by external cron (e.g., Coolify cron or system crontab)
-// GET /api/cron?job=morning | evening | missing | nightly | weekly | monthly
+// GET /api/cron?job=morning | evening | reminders | missing | nightly | weekly | monthly
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const job = searchParams.get("job");
@@ -22,6 +22,9 @@ export async function GET(req: NextRequest) {
       case "evening":
         await sendEveningMessage();
         return NextResponse.json({ ok: true, job: "evening" });
+      case "reminders":
+        await sendTaskReminders();
+        return NextResponse.json({ ok: true, job: "reminders" });
       case "missing":
         await checkMissingYou();
         return NextResponse.json({ ok: true, job: "missing" });

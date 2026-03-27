@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { sendWhatsAppMessage, sendWhatsAppVoiceNote, getMediaUrl, downloadMedia } from "@/lib/whatsapp";
 import { chatWithClaude, extractTasks } from "@/lib/ai-chat";
 import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate, createTask } from "@/lib/db";
+import { sendUrgentAlert } from "@/lib/scheduler";
 import { saveRawConversation } from "@/lib/memory";
 import { toDateString, getDayKey, getDayName, getWeekDates } from "@/lib/hebrew";
 import { transcribeAudio, isSTTConfigured } from "@/lib/google-stt";
@@ -117,6 +118,10 @@ async function handleTextMessage(from: string, text: string, dateStr: string, is
         date: task.date,
       });
       console.log(`[WhatsApp] Auto-created task: "${task.description}" on ${task.date}`);
+      // Send immediate WhatsApp alert for urgent tasks
+      if (task.priority === "urgent") {
+        sendUrgentAlert(task.description, task.date).catch(console.error);
+      }
     } catch (e) {
       console.error("[WhatsApp] Failed to create task:", e);
     }

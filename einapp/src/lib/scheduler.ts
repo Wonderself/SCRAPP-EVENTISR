@@ -1,5 +1,5 @@
 import { sendWhatsAppMessage } from "./whatsapp";
-import { generateMorningMessage, generateEveningMessage } from "./ai-parser";
+import { generateMorningMessage, generateEveningMessage, generateTaskReminder } from "./ai-parser";
 import { getTasksForDate, getCompletionsForDate, getAppState, setAppState } from "./db";
 import { toDateString, getDayKey, getDayName } from "./hebrew";
 import { getWeather, formatWeatherForMessage } from "./weather";
@@ -14,7 +14,6 @@ export async function sendMorningMessage() {
   const today = new Date();
   const dateStr = toDateString(today);
 
-  // Avoid duplicate
   const lastDate = getAppState("last_morning_message_date");
   if (lastDate === dateStr) return;
 
@@ -22,7 +21,6 @@ export async function sendMorningMessage() {
   const dayName = getDayName(today.getDay());
   const tasks = getTasksForDate(dateStr, dayKey);
 
-  // Get weather
   const weather = await getWeather();
   const weatherText = weather ? formatWeatherForMessage(weather) : "";
 
@@ -48,7 +46,6 @@ export async function sendEveningMessage() {
   const today = new Date();
   const dateStr = toDateString(today);
 
-  // Avoid duplicate
   const lastDate = getAppState("last_evening_message_date");
   if (lastDate === dateStr) return;
 
@@ -66,7 +63,6 @@ export async function sendEveningMessage() {
     isFriday: today.getDay() === 5,
   };
 
-  // Tomorrow's tasks
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const tomorrowDateStr = toDateString(tomorrow);
@@ -86,6 +82,63 @@ export async function sendEveningMessage() {
   setAppState("last_evening_message_date", dateStr);
 }
 
+/**
+ * Check tasks with specific times and send WhatsApp reminders.
+ * Call every 15 minutes via cron. Sends reminder if task time is within 0-15 min.
+ */
+export async function sendTaskReminders() {
+  if (!isWhatsAppConfigured()) return;
+
+  const now = new Date();
+  const dateStr = toDateString(now);
+  const dayKey = getDayKey(now.getDay());
+  const tasks = getTasksForDate(dateStr, dayKey);
+  const completions = getCompletionsForDate(dateStr);
+  const completedIds = new Set(completions.map((c) => c.task_id));
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  for (const task of tasks) {
+    if (completedIds.has((task as any).id)) continue;
+    if (!(task as any).time) continue;
+
+    const [h, m] = (task as any).time.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) continue;
+
+    const taskMinutes = h * 60 + m;
+    const diff = taskMinutes - currentMinutes;
+
+    // Send reminder if task is within next 15 minutes
+    if (diff < 0 || diff > 15) continue;
+
+    // Don't send same reminder twice
+    const reminderKey = `reminder_${(task as any).id}_${dateStr}`;
+    if (getAppState(reminderKey)) continue;
+
+    const isUrgent = (task as any).priority === "urgent";
+    const message = await generateTaskReminder(
+      (task as any).description,
+      (task as any).time,
+      isUrgent
+    );
+
+    await sendWhatsAppMessage(EINAT_PHONE, message);
+    setAppState(reminderKey, new Date().toISOString());
+    console.log(`[Scheduler] Sent reminder for: ${(task as any).description}`);
+  }
+}
+
+/**
+ * Send immediate WhatsApp alert for urgent tasks.
+ */
+export async function sendUrgentAlert(description: string, date: string) {
+  if (!isWhatsAppConfigured()) return;
+
+  const message = `🔴🔴 נשמהההה! משימה דחופה!\n\n${description}\n📅 ${date}\n\nאת שומעת מאמי? זה חשוב! 💪`;
+  await sendWhatsAppMessage(EINAT_PHONE, message);
+  console.log(`[Scheduler] Sent urgent alert: ${description}`);
+}
+
 export async function checkMissingYou() {
   const lastMsg = getAppState("last_user_message_at");
   if (!lastMsg) return;
@@ -100,13 +153,11 @@ export async function checkMissingYou() {
       if (sinceMissing < threshold) return;
     }
 
-    if (!isWhatsAppConfigured()) {
-      console.log("[Scheduler] WhatsApp not configured, skipping missing-you message");
-      return;
-    }
+    if (!isWhatsAppConfigured()) return;
+
     await sendWhatsAppMessage(
       EINAT_PHONE,
-      "היי עינת, נעלמת לי! הכל בסדר?\nאני פה אם צריך משהו"
+      "נשמהההה! 🐬💛 נעלמת לי! הכל בסדר מאמי?\nאני פה אם צריך משהו, תמיד תמיד! 😘"
     );
     setAppState("last_missing_you_at", new Date().toISOString());
   }

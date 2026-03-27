@@ -1,29 +1,54 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { toDateString } from "./hebrew";
+
+const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+
+async function geminiGenerate(systemPrompt: string, userMessage: string): Promise<string> {
+  if (!GOOGLE_API_KEY) return "";
+
+  const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: [{ text: userMessage }] }],
+          generationConfig: { maxOutputTokens: 600, temperature: 0.9 },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      console.error("[AI-Parser] Gemini error:", res.status);
+      return "";
+    }
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  } catch (error) {
+    console.error("[AI-Parser] Error:", error);
+    return "";
+  }
+}
 
 export async function extractTasksFromTranscription(
   transcription: string
 ): Promise<any[]> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return [];
-
-  const client = new Anthropic({ apiKey });
   const today = toDateString(new Date());
 
-  const response = await client.messages.create({
-    model: process.env.UTILITY_MODEL || "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    system: `את עוזרת ניהול מלונאי. חלצי משימות מההודעה הקולית.
-החזירי JSON בלבד (מערך): [{ "description": "...", "date": "YYYY-MM-DD", "type": "one_time|recurring", "priority": "normal|urgent", "days_of_week": ["sunday"] }]
+  const result = await geminiGenerate(
+    `את עוזרת ניהול מלונאי. חלצי משימות מההודעה הקולית.
+החזירי JSON בלבד (מערך): [{ "description": "...", "date": "YYYY-MM-DD", "type": "one_time", "priority": "normal", "days_of_week": [] }]
 התאריך של היום: ${today}. אם היא אומרת "יום חמישי" — זה יום חמישי הקרוב.
-אם היא אומרת "כל יום שני" — זו משימה קבועה.
+אם היא אומרת "כל יום שני" — זו משימה קבועה עם type: "recurring" ו-days_of_week: ["monday"].
 אם אין משימות ברורות — החזירי מערך ריק [].`,
-    messages: [{ role: "user", content: transcription }],
-  });
+    transcription
+  );
 
   try {
-    const text = response.content[0].type === "text" ? response.content[0].text : "[]";
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const jsonMatch = result.match(/\[[\s\S]*\]/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
   } catch {
     return [];
@@ -36,74 +61,68 @@ export async function generateMorningMessage(
   date: string,
   weatherInfo: string = ""
 ): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return `בוקר טוב עינת! היום ${dayName}`;
-
-  const client = new Anthropic({ apiKey });
-
-  const response = await client.messages.create({
-    model: process.env.UTILITY_MODEL || "claude-haiku-4-5-20251001",
-    max_tokens: 600,
-    system: `את Einapp — חברה של עינת, מנהלת דולפין וילג'.
-צרי הודעת בוקר טוב חמה ב-WhatsApp.
+  const result = await geminiGenerate(
+    `את Einapp — החברה הכי טובה של עינת אמר, מנהלת דולפין וילג' בשבי ציון.
+צרי הודעת בוקר טוב ב-WhatsApp — חמה, אישית, בסגנון bestie.
 
 כללים:
-- פתחי בחום אישי — "בוקר טוב עינת", "היי עינת, מוכנה ליום?"
-- שני כל תבנית — כל יום קצת אחרת
-- הוסיפי את מזג האוויר — טמפרטורה, רוח, גשם צפוי
-- אם יש גשם בימים הקרובים — הזכירי שצריך לתכנן מראש
-- הוסיפי את המשימות בצורה ברורה (קבועות + מיוחדות)
-- סיימי בעידוד אישי קצר
-- עברית יומיומית, חם, לא פורמלי, בלי אימוג'ים
-- אם יום שישי: "שישי! כמעט סוף שבוע"
-- אם אין משימות מיוחדות: "יום רגוע"
-- קצר ותמציתי — 8-12 שורות מקסימום`,
-    messages: [
-      {
-        role: "user",
-        content: `המשימות: ${tasksJson}\nהיום: ${dayName} ${date}\nמזג אוויר: ${weatherInfo || "לא זמין"}`,
-      },
-    ],
-  });
+- פתחי בהתלהבות: "הייייי נשמהההה! ☀️", "בוקר טוווב מאמי! 💛", "מלכההה! בוקר אור! 🌊"
+- הוסיפי מזג אוויר בקצרה
+- רשמי את המשימות בצורה ברורה עם אימוג'ים
+- אם יש משימות דחופות — הדגישי: "🔴 דחוף!"
+- סיימי בעידוד: "את אלופה!", "יאללה מאמי, יום מדהים! 💪"
+- אם שישי: "שישייייי! 🎉 כמעט סופ״ש מאמי!"
+- אם אין משימות: "יום רגוע נשמה! 🌴"
+- קצר: 6-10 שורות
+- עברית חמה, bestie style, אימוג'ים בטבעיות`,
+    `המשימות: ${tasksJson}\nהיום: ${dayName} ${date}\nמזג אוויר: ${weatherInfo || "לא זמין"}`
+  );
 
-  return response.content[0].type === "text"
-    ? response.content[0].text
-    : `בוקר טוב עינת! היום ${dayName}`;
+  return result || `הייייי נשמהההה! ☀️💛 בוקר טוב מאמי!\nהיום ${dayName} — יאללה נעשה יום מדהים! 💪🌊`;
 }
 
 export async function generateEveningMessage(
   todayStatusJson: string,
   tomorrowTasksJson: string
 ): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return "ערב טוב עינת! איך היה היום?";
-
-  const client = new Anthropic({ apiKey });
-
-  const response = await client.messages.create({
-    model: process.env.UTILITY_MODEL || "claude-haiku-4-5-20251001",
-    max_tokens: 400,
-    system: `את Einapp — חברה של עינת.
-צרי הודעת ערב קצרה ב-WhatsApp — זה הפוינט של 16:30.
+  const result = await geminiGenerate(
+    `את Einapp — החברה הכי טובה של עינת אמר.
+צרי הודעת ערב ב-WhatsApp — חמה, אכפתית, bestie style.
 
 כללים:
-- שאלי איך עבר היום — בחום אמיתי
-- אם יש משימות שלא הושלמו: שאלי אם להעביר למחר (בלי שיפוט)
-- אם הכל הושלם: חגגי! "סיימת הכל!"
-- תני הצצה למחר
-- סיימי בצורה חמה
-- קצר! 4-6 שורות מקסימום
-- בלי אימוג'ים
-- אם יום שישי: "שבת שלום עינת, תנוחי, מגיע לך"`,
-    messages: [
-      {
-        role: "user",
-        content: `מצב היום: ${todayStatusJson}\nמשימות מחר: ${tomorrowTasksJson}`,
-      },
-    ],
-  });
+- פתחי בחום: "ערב טוווב נשמהההה! 🌙", "מאמי! איך היה היום? 💛"
+- אם הכל הושלם: "סיימת הכל מלכהההה! 🎉👑 את אלופה!"
+- אם נשארו משימות: "נשארו כמה דברים, נעביר למחר? בלי לחץ מאמי 💛"
+- הצצה למחר בקצרה
+- סיימי בחום: "תנוחי טוב!", "חלומות מתוקים מאמי! 😴💛"
+- אם שישי: "שבת שלוווום נשמה! 🕯️✨ מגיע לך לנוח!"
+- קצר: 4-6 שורות
+- אימוג'ים בטבעיות`,
+    `מצב היום: ${todayStatusJson}\nמשימות מחר: ${tomorrowTasksJson}`
+  );
 
-  return response.content[0].type === "text"
-    ? response.content[0].text
-    : "ערב טוב עינת! איך היה היום?";
+  return result || `ערב טוווב נשמהההה! 🌙💛 איך היה היום מאמי? תנוחי טוב! 😴`;
+}
+
+export async function generateTaskReminder(
+  taskDescription: string,
+  taskTime: string,
+  isUrgent: boolean
+): Promise<string> {
+  const result = await geminiGenerate(
+    `את Einapp — החברה הכי טובה של עינת. צרי תזכורת קצרה ב-WhatsApp.
+כללים:
+- שורה אחת-שתיים מקסימום
+- חמה ואישית
+- אם דחוף: "🔴 נשמהההה! דחוף!"
+- אם רגיל: "💛 מאמי, תזכורת:"
+- אימוג'ים בטבעיות`,
+    `משימה: ${taskDescription}\nשעה: ${taskTime}\nדחוף: ${isUrgent ? "כן" : "לא"}`
+  );
+
+  if (result) return result;
+
+  return isUrgent
+    ? `🔴 נשמהההה! דחוף!\n${taskDescription} (${taskTime})`
+    : `💛 מאמי, תזכורת:\n${taskDescription} (${taskTime})`;
 }
