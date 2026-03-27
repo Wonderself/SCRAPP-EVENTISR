@@ -4,41 +4,57 @@ import { toDateString } from "./hebrew";
 import { readMemoryContext, ensureMemoryDir, readMemoryFile, writeMemoryFile } from "./memory";
 
 const MEMORY_DIR = process.env.MEMORY_DIR || path.join(process.cwd(), "data", "memory");
-const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+function getGeminiKey(): string {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
+}
 
 async function geminiGenerate(systemPrompt: string, userMessage: string, maxTokens = 1500): Promise<string> {
-  if (!GOOGLE_API_KEY) return "";
+  const apiKey = getGeminiKey();
+  if (!apiKey) return "";
 
-  const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: "user", parts: [{ text: userMessage }] }],
-          generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 },
-        }),
+  const models = [
+    process.env.CHAT_MODEL || "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: userMessage }] }],
+            generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 },
+          }),
+        }
+      );
+
+      if (res.status === 429 || res.status === 403 || res.status === 404) {
+        console.log(`[Memory-Cron] ${model} error ${res.status}, trying fallback...`);
+        await new Promise((r) => setTimeout(r, 2000));
+        continue;
       }
-    );
 
-    if (!res.ok) {
-      console.error("[Memory-Cron] Gemini error:", res.status);
-      return "";
+      if (!res.ok) {
+        console.error("[Memory-Cron] Gemini error:", res.status);
+        return "";
+      }
+
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } catch (error) {
+      console.error(`[Memory-Cron] ${model} error:`, error);
+      continue;
     }
-
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  } catch (error) {
-    console.error("[Memory-Cron] Error:", error);
-    return "";
   }
+  return "";
 }
 
 export async function nightlyExtraction() {
-  if (!GOOGLE_API_KEY) return;
+  if (!getGeminiKey()) return;
 
   const dateStr = toDateString(new Date());
   const rawPath = path.join(MEMORY_DIR, "raw-conversations", `${dateStr}.md`);
@@ -98,7 +114,7 @@ export async function nightlyExtraction() {
 }
 
 export async function weeklySummary() {
-  if (!GOOGLE_API_KEY) return;
+  if (!getGeminiKey()) return;
 
   ensureMemoryDir();
   const rawDir = path.join(MEMORY_DIR, "raw-conversations");
@@ -155,7 +171,7 @@ export async function weeklySummary() {
 }
 
 export async function monthlyOptimization() {
-  if (!GOOGLE_API_KEY) return;
+  if (!getGeminiKey()) return;
 
   ensureMemoryDir();
 

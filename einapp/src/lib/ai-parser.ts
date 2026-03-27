@@ -1,36 +1,57 @@
 import { toDateString } from "./hebrew";
 
-const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+function getGeminiKey(): string {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
+}
 
 async function geminiGenerate(systemPrompt: string, userMessage: string): Promise<string> {
-  if (!GOOGLE_API_KEY) return "";
+  const apiKey = getGeminiKey();
+  if (!apiKey) return "";
 
-  const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: "user", parts: [{ text: userMessage }] }],
-          generationConfig: { maxOutputTokens: 600, temperature: 0.9 },
-        }),
+  const models = [
+    process.env.CHAT_MODEL || "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: userMessage }] }],
+            generationConfig: { maxOutputTokens: 600, temperature: 0.9 },
+          }),
+        }
+      );
+
+      if (res.status === 429) {
+        console.log(`[AI-Parser] Rate limited on ${model}, trying fallback...`);
+        await new Promise((r) => setTimeout(r, 2000));
+        continue;
       }
-    );
 
-    if (!res.ok) {
-      console.error("[AI-Parser] Gemini error:", res.status);
-      return "";
+      if (res.status === 403 || res.status === 404) {
+        console.log(`[AI-Parser] ${model} error ${res.status}, trying fallback...`);
+        continue;
+      }
+
+      if (!res.ok) {
+        console.error("[AI-Parser] Gemini error:", res.status);
+        return "";
+      }
+
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } catch (error) {
+      console.error(`[AI-Parser] ${model} error:`, error);
+      continue;
     }
-
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  } catch (error) {
-    console.error("[AI-Parser] Error:", error);
-    return "";
   }
+  return "";
 }
 
 export async function extractTasksFromTranscription(

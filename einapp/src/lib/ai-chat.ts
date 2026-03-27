@@ -112,9 +112,9 @@ async function getContextData() {
 
 // Google Gemini API (free tier: 1500 req/day)
 async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): Promise<string> {
-  const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY;
   if (!apiKey) {
-    return "אוי, GOOGLE_CLOUD_API_KEY לא מוגדר 😅 תגידי לעמנואל!";
+    return "אוי, GEMINI_API_KEY לא מוגדר 😅 תגידי לעמנואל!";
   }
 
   const { memoryContext, tasksText, recentConvos, dayName, dateStr } = await getContextData();
@@ -130,57 +130,71 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
   }
   contents.push({ role: "user", parts: [{ text: userMessage }] });
 
-  const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const requestBody = JSON.stringify({
-    system_instruction: { parts: [{ text: systemPrompt }] },
-    contents,
-    generationConfig: {
-      maxOutputTokens: 1024,
-      temperature: 0.8,
-    },
-  });
+  // Try primary model, then fallback
+  const models = [
+    process.env.CHAT_MODEL || "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
 
-  // Retry up to 3 times on 429 rate limit
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: requestBody,
-      });
+  for (const model of models) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const requestBody = JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents,
+      generationConfig: {
+        maxOutputTokens: 1024,
+        temperature: 0.8,
+      },
+    });
 
-      if (res.status === 429) {
-        console.log(`[Chat] Rate limited, retry ${attempt + 1}/3...`);
-        await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
-        continue;
-      }
+    // Retry up to 2 times on 429 rate limit
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: requestBody,
+        });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("[Chat] Gemini API error:", res.status, errText);
-        if (res.status === 403) {
-          return `שגיאת הרשאה 403 בגמיני 🔑 (${errText.slice(0, 120)})`;
+        if (res.status === 429) {
+          console.log(`[Chat] Rate limited on ${model}, attempt ${attempt + 1}/2...`);
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 3000));
+          continue;
         }
-        return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
-      }
 
-      const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
-        return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
-      }
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error(`[Chat] Gemini ${model} error:`, res.status, errText);
+          if (res.status === 403) {
+            // Try fallback model
+            break;
+          }
+          if (res.status === 404) {
+            // Model not found, try fallback
+            console.log(`[Chat] Model ${model} not found, trying fallback...`);
+            break;
+          }
+          return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
+        }
 
-      return text;
-    } catch (error: any) {
-      console.error("[Chat] Gemini error:", error?.message || error);
-      if (attempt < 2) {
-        await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
-        continue;
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) {
+          console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
+          return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
+        }
+
+        console.log(`[Chat] Success with model: ${model}`);
+        return text;
+      } catch (error: any) {
+        console.error(`[Chat] Gemini ${model} error:`, error?.message || error);
+        if (attempt < 1) {
+          await new Promise((r) => setTimeout(r, 3000));
+          continue;
+        }
       }
-      return `אוי, משהו קרה 😅 (${(error?.message || "").slice(0, 80)})`;
     }
+    console.log(`[Chat] Model ${model} failed, trying next...`);
   }
 
   return "עומס ברגע נשמה 😅 נסי שוב בעוד כמה שניות!";
