@@ -24,7 +24,22 @@ async function sendTestMessage() {
 אני מחכה לך פה תמיד 🌊🐬💛`;
 
   await sendWhatsAppMessage(phone, message);
-  return NextResponse.json({ ok: true, sent_to: phone });
+
+  // Also send directly to dev phone if configured
+  const devPhone = process.env.DEV_PHONE_NUMBER;
+  const results: any = { ok: true, sent_to: phone, dev_phone: devPhone || "not configured" };
+
+  if (devPhone && devPhone !== phone) {
+    try {
+      await sendWhatsAppMessage(devPhone, `[TEST] Message envoyé à ${phone}:\n\n${message}`);
+      results.dev_sent = true;
+    } catch (e: any) {
+      results.dev_sent = false;
+      results.dev_error = e.message;
+    }
+  }
+
+  return NextResponse.json(results);
 }
 
 export async function GET(req: NextRequest) {

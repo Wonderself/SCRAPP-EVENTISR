@@ -30,7 +30,8 @@ export async function sendWhatsAppMessage(to: string, text: string) {
   const devPhone = process.env.DEV_PHONE_NUMBER;
   if (devPhone && devPhone !== to) {
     try {
-      await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/messages`, {
+      console.log(`[WhatsApp] Sending dev copy to ${devPhone}`);
+      const devRes = await fetch(`${API_BASE}/${PHONE_NUMBER_ID}/messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -43,8 +44,13 @@ export async function sendWhatsAppMessage(to: string, text: string) {
           text: { body: `[COPY → ${to}]\n${text}` },
         }),
       });
+      if (!devRes.ok) {
+        console.error("[WhatsApp] Dev copy error:", await devRes.text());
+      } else {
+        console.log("[WhatsApp] Dev copy sent OK");
+      }
     } catch (e) {
-      console.error("[WhatsApp] Dev copy error:", e);
+      console.error("[WhatsApp] Dev copy fetch error:", e);
     }
   }
 }
