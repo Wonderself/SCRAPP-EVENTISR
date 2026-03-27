@@ -16,9 +16,10 @@ interface Props {
   isDay: boolean;
   refreshKey: number;
   onStreakUpdate?: (streak: number) => void;
+  onTaskToggle?: (completed: boolean) => void;
 }
 
-export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
+export default function WeekView({ isDay, refreshKey, onStreakUpdate, onTaskToggle }: Props) {
   const [week, setWeek] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const today = toDateString(new Date());
@@ -97,11 +98,13 @@ export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
   }, [refreshKey]);
 
   async function handleToggle(taskId: number, date: string) {
-    await fetch("/api/tasks", {
+    const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "toggle", task_id: taskId, date }),
     });
+    const data = await res.json();
+    onTaskToggle?.(data.completed);
     await fetchWeek();
   }
 

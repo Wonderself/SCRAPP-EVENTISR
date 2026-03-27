@@ -180,7 +180,7 @@ export default function AddTaskModal({ open, isDay, onClose, onCreated }: Props)
               : "bg-gradient-to-r from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/25"
           }`}
         >
-          {saving ? "..." : "הוסיפי"}
+          {saving ? "שומרת..." : "שמרי משימה ✅"}
         </button>
       </div>
     </div>

@@ -108,7 +108,10 @@ export default function TaskCard({ task, date, isDay, compact, onToggle, onDelet
           )}
           {onDelete && (
             <button
-              onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm("למחוק את המשימה?")) onDelete(task.id);
+              }}
               className={`p-1.5 rounded-lg transition-all ${isDay ? "hover:bg-red-100 text-red-400" : "hover:bg-red-500/20 text-red-400/60"}`}
             >
               <Trash2 size={13} />

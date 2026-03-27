@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MessageCircle, Lightbulb, Flame } from "lucide-react";
+import { Plus, MessageCircle, Flame, CheckCircle } from "lucide-react";
 import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
-import WeatherWidget from "@/components/WeatherWidget";
 import { formatHebrewDate, isErevShabbat, isShabbat, getJewishHolidayGreeting, getShabbatGreeting } from "@/lib/hebrew";
 
 function getTimeMode(): "day" | "sunset" {
@@ -32,17 +31,20 @@ export default function DashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [mode, setMode] = useState<"day" | "sunset">("day");
   const [mounted, setMounted] = useState(false);
-  const [dailyTip, setDailyTip] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
   const router = useRouter();
   const today = new Date();
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  }
 
   useEffect(() => {
     setMounted(true);
     setMode(getTimeMode());
     const interval = setInterval(() => setMode(getTimeMode()), 60000);
-
-    fetch("/api/daily-tip").then(r => r.ok ? r.json() : null).then(d => d && setDailyTip(d.tip)).catch(() => null);
 
     const saved = localStorage.getItem("einapp_streak");
     if (saved) {
@@ -71,7 +73,19 @@ export default function DashboardPage() {
         : "bg-gradient-to-b from-[#1a0e2e] via-[#12081f] to-[#0a0514]"
     }`}>
 
-      {/* ===== HERO (compact, safe-area aware) ===== */}
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-up">
+          <div className={`flex items-center gap-2 px-5 py-3 rounded-2xl shadow-2xl ${
+            isDay ? "bg-emerald-500 text-white" : "bg-emerald-600 text-white"
+          }`}>
+            <CheckCircle size={18} />
+            <span className="text-sm font-black">{toast}</span>
+          </div>
+        </div>
+      )}
+
+      {/* ===== HERO ===== */}
       <div className={`relative overflow-hidden shrink-0 ${
         isDay
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
@@ -104,75 +118,76 @@ export default function DashboardPage() {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-10 pb-1 max-w-4xl mx-auto w-full space-y-2 sm:space-y-3 lg:space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-10 pb-1 max-w-4xl mx-auto w-full space-y-2.5 sm:space-y-3 lg:space-y-4">
 
-        {/* Quick action buttons */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
+        {/* Quick action buttons — clearly explained */}
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1.5">
           <button
             onClick={() => router.push("/chat")}
-            className={`rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-2 sm:gap-3 transition-all active:scale-[0.97] ${
+            className={`rounded-2xl p-3.5 sm:p-4 lg:p-5 flex flex-col items-center gap-2 transition-all active:scale-[0.97] ${
               isDay
                 ? "bg-white border-2 border-sky-100 shadow-sm"
                 : "bg-white/10 border-2 border-white/15"
             }`}
           >
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md ${
               isDay ? "bg-gradient-to-br from-cyan-400 to-blue-500" : "bg-gradient-to-br from-orange-400 to-rose-500"
             }`}>
-              <MessageCircle size={20} className="text-white sm:hidden" strokeWidth={2.5} />
-              <MessageCircle size={22} className="text-white hidden sm:block" strokeWidth={2.5} />
+              <MessageCircle size={24} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className={`text-xs sm:text-sm font-black ${isDay ? "text-sky-800" : "text-white/80"}`}>
-              דברי איתי
-            </span>
+            <div className="text-center">
+              <p className={`text-sm sm:text-base font-black ${isDay ? "text-sky-800" : "text-white/90"}`}>
+                דברי איתי
+              </p>
+              <p className={`text-[10px] sm:text-[11px] font-semibold mt-0.5 ${isDay ? "text-sky-400" : "text-white/40"}`}>
+                שאלי, ספרי, או בקשי משהו
+              </p>
+            </div>
           </button>
 
           <button
             onClick={() => setShowAddTask(true)}
-            className={`rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-2 sm:gap-3 transition-all active:scale-[0.97] ${
+            className={`rounded-2xl p-3.5 sm:p-4 lg:p-5 flex flex-col items-center gap-2 transition-all active:scale-[0.97] ${
               isDay
                 ? "bg-white border-2 border-sky-100 shadow-sm"
                 : "bg-white/10 border-2 border-white/15"
             }`}
           >
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md ${
               isDay ? "bg-gradient-to-br from-emerald-400 to-teal-500" : "bg-gradient-to-br from-violet-500 to-indigo-600"
             }`}>
-              <Plus size={22} className="text-white sm:hidden" strokeWidth={2.5} />
-              <Plus size={24} className="text-white hidden sm:block" strokeWidth={2.5} />
+              <Plus size={26} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className={`text-xs sm:text-sm font-black ${isDay ? "text-teal-800" : "text-white/80"}`}>
-              משימה חדשה
-            </span>
+            <div className="text-center">
+              <p className={`text-sm sm:text-base font-black ${isDay ? "text-teal-800" : "text-white/90"}`}>
+                משימה חדשה
+              </p>
+              <p className={`text-[10px] sm:text-[11px] font-semibold mt-0.5 ${isDay ? "text-teal-400" : "text-white/40"}`}>
+                הוסיפי תזכורת או מטלה
+              </p>
+            </div>
           </button>
         </div>
 
-        {/* Weather (compact) */}
-        <WeatherWidget isDay={isDay} />
-
-        {/* Daily tip */}
-        {dailyTip && (
-          <div className={`rounded-2xl p-2.5 sm:p-3 flex items-start gap-2 ${
-            isDay
-              ? "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60"
-              : "bg-gradient-to-r from-amber-500/10 to-orange-500/[0.06] border border-amber-500/15"
-          }`}>
-            <Lightbulb size={14} className={`shrink-0 mt-0.5 ${isDay ? "text-amber-500" : "text-amber-400"}`} />
-            <p className={`text-[11px] sm:text-xs font-semibold leading-relaxed ${isDay ? "text-amber-800" : "text-amber-200/90"}`} dir="rtl">
-              {dailyTip}
-            </p>
-          </div>
-        )}
-
-        {/* Week view */}
-        <WeekView isDay={isDay} refreshKey={refreshKey} onStreakUpdate={(s: number) => setStreak(s)} />
+        {/* Week view — today big, other days compact */}
+        <WeekView
+          isDay={isDay}
+          refreshKey={refreshKey}
+          onStreakUpdate={(s: number) => setStreak(s)}
+          onTaskToggle={(completed: boolean) => {
+            showToast(completed ? "משימה בוצעה! 👑" : "משימה חזרה לרשימה");
+          }}
+        />
       </div>
 
       <AddTaskModal
         open={showAddTask}
         isDay={isDay}
         onClose={() => setShowAddTask(false)}
-        onCreated={() => setRefreshKey((k) => k + 1)}
+        onCreated={() => {
+          setRefreshKey((k) => k + 1);
+          showToast("משימה נוספה! ✅");
+        }}
       />
 
       <BottomTabs isDay={isDay} />
