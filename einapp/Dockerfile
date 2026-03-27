@@ -26,7 +26,7 @@ COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
 
 # Create data directories with correct permissions
-RUN mkdir -p data/memory data/memory/chat-summaries data/memory/raw-conversations && \
+RUN mkdir -p data/memory data/memory/chat-summaries data/memory/raw-conversations data/backups && \
     chown -R nextjs:nodejs data
 
 VOLUME ["/app/data"]
