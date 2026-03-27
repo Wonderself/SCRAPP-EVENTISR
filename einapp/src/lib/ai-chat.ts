@@ -133,7 +133,7 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
   // Try primary model, then fallback
   const models = [
     process.env.CHAT_MODEL || "gemini-2.0-flash",
-    "gemini-1.5-flash",
+    "gemini-2.0-flash-lite",
   ];
 
   for (const model of models) {
@@ -158,7 +158,7 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
 
         if (res.status === 429) {
           console.log(`[Chat] Rate limited on ${model}, attempt ${attempt + 1}/2...`);
-          await new Promise((r) => setTimeout(r, (attempt + 1) * 3000));
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 8000));
           continue;
         }
 
