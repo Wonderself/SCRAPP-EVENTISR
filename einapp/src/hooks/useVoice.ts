@@ -136,22 +136,36 @@ export function useVoice(): UseVoiceReturn {
 
     const doSpeak = () => {
       const voices = window.speechSynthesis.getVoices();
-      // Find Hebrew voice only
-      const hebrewVoice = voices.find(
+      const hebrewVoices = voices.filter(
         (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
       );
 
       // Don't speak at all if no Hebrew voice (better than speaking French!)
-      if (!hebrewVoice) {
+      if (hebrewVoices.length === 0) {
         console.log("[Voice] No Hebrew voice found. Available:", voices.map((v) => `${v.name} (${v.lang})`).join(", "));
         return;
       }
 
+      // Prefer male Hebrew voice: look for known male names or "male" keyword
+      const maleNames = ["asaf", "male", "amit", "david", "daniel", "guy", "omer"];
+      const femaleNames = ["carmit", "female", "yael", "noa", "dana", "michal", "lihi"];
+      const maleVoice = hebrewVoices.find((v) => {
+        const name = v.name.toLowerCase();
+        return maleNames.some((m) => name.includes(m));
+      });
+      const nonFemaleVoice = hebrewVoices.find((v) => {
+        const name = v.name.toLowerCase();
+        return !femaleNames.some((f) => name.includes(f));
+      });
+
+      const chosenVoice = maleVoice || nonFemaleVoice || hebrewVoices[hebrewVoices.length - 1];
+      console.log("[Voice] Using:", chosenVoice.name, "from", hebrewVoices.map((v) => v.name).join(", "));
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "he-IL";
-      utterance.voice = hebrewVoice;
-      utterance.rate = 1.12;
-      utterance.pitch = 1.3;
+      utterance.voice = chosenVoice;
+      utterance.rate = 1.1;
+      utterance.pitch = 0.85; // Lower pitch = more masculine
 
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
