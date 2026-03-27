@@ -83,8 +83,8 @@ export default function RecurringPage() {
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <h1 className="text-2xl lg:text-4xl font-black text-white">משימות קבועות</h1>
-        <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 tracking-widest uppercase font-bold">recurring tasks</p>
+        <h1 className="text-2xl lg:text-4xl font-black text-white">משימות קבועות 🔄</h1>
+        <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 font-bold">המשימות שחוזרות כל שבוע</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:px-10 space-y-3 max-w-3xl mx-auto w-full">
@@ -98,8 +98,9 @@ export default function RecurringPage() {
         )}
         {!loading && tasks.length === 0 && (
           <div className={`text-center py-12 ${isDay ? "text-sky-400" : "text-white/50"}`}>
+            <p className="text-4xl mb-3">🐬</p>
             <p className="text-lg lg:text-2xl font-black">אין משימות קבועות עדיין</p>
-            <p className="text-sm lg:text-base font-bold mt-1">הוסיפי מהדשבורד</p>
+            <p className="text-sm lg:text-base font-bold mt-1">הוסיפי מהדשבורד נשמה!</p>
           </div>
         )}
         {tasks.map((task, i) => (

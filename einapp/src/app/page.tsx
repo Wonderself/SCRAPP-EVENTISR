@@ -70,11 +70,12 @@ export default function LoginPage() {
             : "bg-[#1a0e2e]/90 backdrop-blur-xl border border-white/15 shadow-2xl shadow-fuchsia-500/10"
         }`}
       >
+        <div className="text-5xl lg:text-7xl mb-2">🐬</div>
         <h1 className={`text-4xl lg:text-6xl font-black tracking-tight mb-0.5 ${isDay ? "text-sky-700" : "text-white"}`}>
           Einapp
         </h1>
         <p className={`text-sm lg:text-lg font-bold mb-6 ${isDay ? "text-sky-400" : "text-fuchsia-300/80"}`}>
-          Dolphin Village
+          Dolphin Village 🌊
         </p>
 
         {mounted && (
@@ -121,10 +122,10 @@ export default function LoginPage() {
           </form>
         )}
 
-        <p className={`mt-5 text-[10px] lg:text-xs font-bold tracking-[0.3em] uppercase ${
+        <p className={`mt-5 text-[10px] lg:text-xs font-bold ${
           isDay ? "text-sky-300" : "text-white/40"
         }`}>
-          Sea Vibes Vacation
+          שבי ציון 💛
         </p>
       </div>
     </div>

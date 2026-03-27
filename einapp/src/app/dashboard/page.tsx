@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MessageCircle, Mic, Lightbulb } from "lucide-react";
+import { Plus, MessageCircle, Lightbulb } from "lucide-react";
 import WeekView from "@/components/WeekView";
 import AddTaskModal from "@/components/AddTaskModal";
 import BottomTabs from "@/components/BottomTabs";
@@ -17,9 +17,9 @@ function getTimeMode(): "day" | "sunset" {
 
 function getGreeting(): string {
   const h = new Date().getHours();
-  if (h < 12) return "בוקר טוב, עינת";
-  if (h < 17) return "צהריים טובים, עינת";
-  return "ערב טוב, עינת";
+  if (h < 12) return "בוקר טוב נשמה ☀️";
+  if (h < 17) return "צהריים טובים מאמי 🌊";
+  return "ערב טוב נשמה 🌙";
 }
 
 export default function DashboardPage() {
@@ -121,71 +121,49 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 3 Action buttons */}
-        <div className="grid grid-cols-3 gap-2.5 lg:gap-4">
+        {/* 2 Action buttons */}
+        <div className="grid grid-cols-2 gap-3 lg:gap-4">
           {/* Chat */}
           <button
             onClick={() => router.push("/chat")}
-            className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
+            className={`group rounded-[24px] p-5 lg:p-7 flex flex-col items-center gap-2.5 lg:gap-3 transition-all active:scale-[0.96] ${
               isDay
-                ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                ? "bg-white border-2 border-sky-100 shadow-[0_4px_24px_rgba(14,165,233,0.1)]"
+                : "bg-white/10 border-2 border-white/15 shadow-[0_4px_24px_rgba(168,85,247,0.08)]"
             }`}
           >
-            <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${
+            <div className={`w-14 h-14 lg:w-18 lg:h-18 rounded-2xl flex items-center justify-center shadow-lg ${
               isDay
                 ? "bg-gradient-to-br from-cyan-400 to-blue-500 shadow-cyan-500/25"
                 : "bg-gradient-to-br from-orange-400 to-rose-500 shadow-rose-500/25"
             }`}>
-              <MessageCircle size={22} className="text-white lg:hidden" strokeWidth={2.5} />
-              <MessageCircle size={28} className="text-white hidden lg:block" strokeWidth={2.5} />
+              <MessageCircle size={26} className="text-white lg:hidden" strokeWidth={2.5} />
+              <MessageCircle size={32} className="text-white hidden lg:block" strokeWidth={2.5} />
             </div>
-            <span className={`text-xs lg:text-sm font-bold ${isDay ? "text-sky-800" : "text-white/80"}`}>
-              שיחה
-            </span>
-          </button>
-
-          {/* Voice */}
-          <button
-            onClick={() => router.push("/chat?voice=1")}
-            className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
-              isDay
-                ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
-            }`}
-          >
-            <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${
-              isDay
-                ? "bg-gradient-to-br from-rose-400 to-pink-500 shadow-pink-500/25"
-                : "bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-purple-500/25"
-            }`}>
-              <Mic size={22} className="text-white lg:hidden" strokeWidth={2.5} />
-              <Mic size={28} className="text-white hidden lg:block" strokeWidth={2.5} />
-            </div>
-            <span className={`text-xs lg:text-sm font-bold ${isDay ? "text-pink-700" : "text-white/80"}`}>
-              הקלטה
+            <span className={`text-sm lg:text-base font-black ${isDay ? "text-sky-800" : "text-white/80"}`}>
+              דברי איתי 💬
             </span>
           </button>
 
           {/* Add task */}
           <button
             onClick={() => setShowAddTask(true)}
-            className={`group rounded-[20px] p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-3 transition-all active:scale-[0.96] ${
+            className={`group rounded-[24px] p-5 lg:p-7 flex flex-col items-center gap-2.5 lg:gap-3 transition-all active:scale-[0.96] ${
               isDay
-                ? "bg-white border border-sky-100 shadow-[0_2px_16px_rgba(14,165,233,0.08)]"
-                : "bg-white/10 border border-white/15 shadow-[0_2px_16px_rgba(168,85,247,0.06)]"
+                ? "bg-white border-2 border-sky-100 shadow-[0_4px_24px_rgba(14,165,233,0.1)]"
+                : "bg-white/10 border-2 border-white/15 shadow-[0_4px_24px_rgba(168,85,247,0.08)]"
             }`}
           >
-            <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shadow-lg ${
+            <div className={`w-14 h-14 lg:w-18 lg:h-18 rounded-2xl flex items-center justify-center shadow-lg ${
               isDay
                 ? "bg-gradient-to-br from-emerald-400 to-teal-500 shadow-emerald-500/25"
                 : "bg-gradient-to-br from-violet-500 to-indigo-600 shadow-violet-500/25"
             }`}>
-              <Plus size={24} className="text-white lg:hidden" strokeWidth={2.5} />
-              <Plus size={30} className="text-white hidden lg:block" strokeWidth={2.5} />
+              <Plus size={28} className="text-white lg:hidden" strokeWidth={2.5} />
+              <Plus size={34} className="text-white hidden lg:block" strokeWidth={2.5} />
             </div>
-            <span className={`text-xs lg:text-sm font-bold ${isDay ? "text-teal-800" : "text-white/80"}`}>
-              משימה
+            <span className={`text-sm lg:text-base font-black ${isDay ? "text-teal-800" : "text-white/80"}`}>
+              משימה חדשה ✨
             </span>
           </button>
         </div>

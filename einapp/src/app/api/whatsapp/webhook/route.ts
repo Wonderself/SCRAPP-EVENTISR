@@ -180,9 +180,9 @@ function handleQuickCommand(text: string): string | null {
     const completions = getCompletionsForDate(dateStr);
     const completedIds = new Set(completions.map((c) => c.task_id));
 
-    if (tasks.length === 0) return "אין משימות להיום! יום רגוע";
+    if (tasks.length === 0) return "אין משימות להיום נשמה! 🎉 יום רגוע, תהני! 🌊";
 
-    let msg = `משימות להיום (${getDayName(today.getDay())}):\n\n`;
+    let msg = `הייי מאמי! 📋 המשימות שלך ל${getDayName(today.getDay())}:\n\n`;
     tasks.forEach((t: any) => {
       const done = completedIds.has(t.id);
       const prefix = done ? "V" : t.priority === "urgent" ? "!" : t.type === "recurring" ? "~" : "-";
@@ -198,9 +198,9 @@ function handleQuickCommand(text: string): string | null {
     const dayKey = getDayKey(tomorrow.getDay());
     const tasks = getTasksForDate(dateStr, dayKey);
 
-    if (tasks.length === 0) return "אין משימות למחר!";
+    if (tasks.length === 0) return "אין משימות למחר! 🎉 תישני בשקט מאמי 😴💛";
 
-    let msg = `משימות למחר (${getDayName(tomorrow.getDay())}):\n\n`;
+    let msg = `נשמהההה! 📋 מחר (${getDayName(tomorrow.getDay())}) מחכה לך:\n\n`;
     tasks.forEach((t: any) => {
       const prefix = t.priority === "urgent" ? "!" : t.type === "recurring" ? "~" : "-";
       msg += `${prefix} ${t.description}\n`;
@@ -210,7 +210,7 @@ function handleQuickCommand(text: string): string | null {
 
   if (lower === "שבוע") {
     const weekDates = getWeekDates(today);
-    let msg = "סקירת השבוע:\n\n";
+    let msg = "מאמי! 🗓️ הנה סקירת השבוע שלך:\n\n";
     weekDates.forEach((d) => {
       const dateStr = toDateString(d);
       const dayKey = getDayKey(d.getDay());
@@ -227,7 +227,7 @@ function handleQuickCommand(text: string): string | null {
   }
 
   if (lower === "זיכרון") {
-    return "אני זוכרת הכל על דולפין וילג'! ספקים, צוות, נהלים, אורחים קבועים... תשאלי אותי כל דבר";
+    return "נשמהההה! 🧠🐬 אני זוכרת הכל על דולפין וילג'! ספקים, צוות, נהלים, אורחים קבועים... תשאלי אותי כל דבר מאמי!";
   }
 
   return null;

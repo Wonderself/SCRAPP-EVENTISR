@@ -14,15 +14,23 @@ export default function ChatBubble({ role, content, time, isDay, onSpeak }: Prop
   const isUser = role === "user";
 
   return (
-    <div className={`flex ${isUser ? "justify-start" : "justify-end"} mb-2`}>
+    <div className={`flex items-end gap-1.5 ${isUser ? "justify-start flex-row" : "justify-end flex-row-reverse"} mb-2`}>
+      {/* Avatar - only for bot */}
+      {!isUser && (
+        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mb-1 ${
+          isDay ? "bg-sky-100" : "bg-white/10"
+        }`}>
+          🐬
+        </div>
+      )}
       <div
-        className={`max-w-[82%] px-4 py-3 text-sm lg:text-base leading-relaxed whitespace-pre-wrap ${
+        className={`max-w-[78%] px-4 py-3 text-sm lg:text-base leading-relaxed whitespace-pre-wrap ${
           isUser
             ? isDay
               ? "bg-gradient-to-br from-sky-400 to-cyan-500 text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px] shadow-lg shadow-sky-400/15"
               : "bg-gradient-to-br from-fuchsia-500 to-violet-600 text-white rounded-t-[20px] rounded-bl-[20px] rounded-br-[4px] shadow-lg shadow-fuchsia-500/15"
             : isDay
-            ? "bg-white border border-sky-100 text-sky-800 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm"
+            ? "bg-white border-2 border-sky-100 text-sky-800 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px] shadow-sm"
             : "bg-white/10 border border-white/15 text-white/90 rounded-t-[20px] rounded-br-[20px] rounded-bl-[4px]"
         }`}
       >
