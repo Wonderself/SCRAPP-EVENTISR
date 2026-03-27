@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
-export async function POST(req: NextRequest) {
-  const { secret } = await req.json();
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
+async function sendTestMessage() {
   const phone = process.env.EINAT_PHONE_NUMBER;
   if (!phone) {
     return NextResponse.json({ error: "no phone configured" }, { status: 400 });
@@ -26,4 +21,21 @@ export async function POST(req: NextRequest) {
 
   await sendWhatsAppMessage(phone, message);
   return NextResponse.json({ ok: true, sent_to: phone });
+}
+
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const secret = url.searchParams.get("secret");
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "unauthorized — add ?secret=einapp2026" }, { status: 401 });
+  }
+  return sendTestMessage();
+}
+
+export async function POST(req: NextRequest) {
+  const { secret } = await req.json();
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  return sendTestMessage();
 }
