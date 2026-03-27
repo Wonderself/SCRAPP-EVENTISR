@@ -136,22 +136,42 @@ export function useVoice(): UseVoiceReturn {
     if (!window.speechSynthesis) return;
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "he-IL";
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
 
+    const doSpeak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "he-IL";
+      utterance.rate = 1.12;
+      utterance.pitch = 1.3;
+
+      const voices = window.speechSynthesis.getVoices();
+      // Prefer male Hebrew voice
+      const hebrewMale = voices.find(
+        (v) => (v.lang.startsWith("he") || v.lang.startsWith("iw")) &&
+          (v.name.toLowerCase().includes("male") || v.name.includes("Google") || v.name.includes("Daniel"))
+      );
+      const hebrewAny = voices.find(
+        (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
+      );
+      if (hebrewMale) {
+        utterance.voice = hebrewMale;
+      } else if (hebrewAny) {
+        utterance.voice = hebrewAny;
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Voices may not be loaded yet — wait for them
     const voices = window.speechSynthesis.getVoices();
-    const hebrewVoice = voices.find(
-      (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
-    );
-    if (hebrewVoice) utterance.voice = hebrewVoice;
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.speak(utterance);
+    if (voices.length > 0) {
+      doSpeak();
+    } else {
+      window.speechSynthesis.onvoiceschanged = () => doSpeak();
+    }
   }, []);
 
   const speak = useCallback((text: string) => {
