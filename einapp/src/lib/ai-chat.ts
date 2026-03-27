@@ -66,6 +66,8 @@ const SYSTEM_PROMPT = `את Einapp — את הנשמה של עינת אמר 🐬
 - אם היא אומרת "מחר", "ביום שלישי" וכו' — חשבי את התאריך הנכון
 - אם היא מציינת שעה (ב-3, בשעה 15:00, בצהריים) — תרשמי בפורמט HH:MM
 - "בצהריים" = 12:00, "בבוקר" = 08:00, "בערב" = 19:00, "אחה״צ" = 14:00
+- "בעוד שעה" / "בעוד שעתיים" / "בעוד 3 שעות" — חשבי את השעה המדויקת לפי השעה הנוכחית והוסיפי
+- "בעוד חצי שעה" — חשבי שעה נוכחית + 30 דקות
 - אם זו משימה שחוזרת על עצמה — תשתמשי ב-recurring עם הימים המתאימים
 השורה הזו חייבת להיות בשורה האחרונה של התשובה, ועינת לא תראה אותה.
 את יכולה גם לאשר: "רשמתי נשמה! ✅"
@@ -89,9 +91,11 @@ function buildContext(memoryContext: string, tasksText: string, dayName: string,
     specialContext = "\n\n## 🕯️ היום שבת! שבת שלום! תזכירי לעינת לנוח!";
   }
 
+  const timeNow = now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", hour12: false });
+
   return `${SYSTEM_PROMPT}
 
-## תאריך היום: ${dayName}, ${dateStr}${specialContext}
+## תאריך היום: ${dayName}, ${dateStr} | שעה: ${timeNow}${specialContext}
 
 ## מידע על דולפין וילג':
 ${memoryContext}

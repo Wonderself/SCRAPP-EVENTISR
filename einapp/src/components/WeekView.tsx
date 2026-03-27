@@ -15,21 +15,84 @@ interface DayData {
 interface Props {
   isDay: boolean;
   refreshKey: number;
+  onStreakUpdate?: (streak: number) => void;
 }
 
-export default function WeekView({ isDay, refreshKey }: Props) {
+export default function WeekView({ isDay, refreshKey, onStreakUpdate }: Props) {
   const [week, setWeek] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const today = toDateString(new Date());
 
+  function updateStreak(weekData: DayData[]) {
+    if (!onStreakUpdate) return;
+    const todayData = weekData.find((d) => d.date === today);
+    const todayCompleted = todayData ? todayData.tasks.filter(t => t.completed).length : 0;
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    try {
+      const saved = localStorage.getItem("einapp_streak");
+      const data = saved ? JSON.parse(saved) : { count: 0, lastDate: "" };
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (todayCompleted > 0) {
+        if (data.lastDate === todayStr) {
+          onStreakUpdate(data.count);
+        } else if (data.lastDate === yesterdayStr || data.lastDate === "") {
+          const newCount = data.count + 1;
+          localStorage.setItem("einapp_streak", JSON.stringify({ count: newCount, lastDate: todayStr }));
+          onStreakUpdate(newCount);
+        } else {
+          localStorage.setItem("einapp_streak", JSON.stringify({ count: 1, lastDate: todayStr }));
+          onStreakUpdate(1);
+        }
+      } else {
+        if (data.lastDate === todayStr || data.lastDate === yesterdayStr) {
+          onStreakUpdate(data.count);
+        } else {
+          onStreakUpdate(0);
+        }
+      }
+    } catch {}
+  }
+
+  function cacheWeek(data: DayData[]) {
+    try {
+      localStorage.setItem("einapp_week_cache", JSON.stringify({ data, ts: Date.now() }));
+    } catch {}
+  }
+
+  function loadCachedWeek(): DayData[] | null {
+    try {
+      const cached = localStorage.getItem("einapp_week_cache");
+      if (!cached) return null;
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts > 3600000) return null; // 1 hour max
+      return data;
+    } catch { return null; }
+  }
+
   async function fetchWeek() {
-    const res = await fetch("/api/tasks?action=week");
-    const data = await res.json();
-    setWeek(data);
+    try {
+      const res = await fetch("/api/tasks?action=week");
+      const data = await res.json();
+      setWeek(data);
+      cacheWeek(data);
+      updateStreak(data);
+    } catch {
+      const cached = loadCachedWeek();
+      if (cached) setWeek(cached);
+    }
     setLoading(false);
   }
 
   useEffect(() => {
+    const cached = loadCachedWeek();
+    if (cached && loading) {
+      setWeek(cached);
+      setLoading(false);
+    }
     fetchWeek();
   }, [refreshKey]);
 
@@ -39,7 +102,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "toggle", task_id: taskId, date }),
     });
-    fetchWeek();
+    await fetchWeek();
   }
 
   async function handleDelete(taskId: number) {
