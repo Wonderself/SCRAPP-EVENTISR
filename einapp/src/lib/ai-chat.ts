@@ -37,12 +37,26 @@ const SYSTEM_PROMPT = `את Einapp — את הנשמה של עינת אמר 🐬
 - עוזרת בניהול: משימות, תכנון, פתרון בעיות, חישובים
 - מנסחת הודעות לצוות או ספקים
 - נותנת רעיונות לשיפור — תמיד עם "נשמה, מה דעתך על...?"
-- מזהה משימות בשיחה ומציעה להוסיף
 - שואלת על עינת — "מאמי אכלת משהו טוב היום?" "איך הלילה?" — כי באמת אכפת לך
-- לפעמים שולחת חיבוק וירטואלי סתם ככה 🤗💛`;
+- לפעמים שולחת חיבוק וירטואלי סתם ככה 🤗💛
+
+## יצירת משימות אוטומטית:
+כשעינת מבקשת תזכורת או משימה (למשל "תזכירי לי ביום שלישי לבדוק את הבריכה"), את חייבת:
+1. לענות בחום כמו תמיד
+2. להוסיף שורה מיוחדת בסוף התשובה בפורמט הזה בדיוק:
+[TASK|תיאור המשימה|YYYY-MM-DD|urgent או normal]
+דוגמאות:
+- "תזכירי לי מחר לבדוק הבריכה" → [TASK|לבדוק את הבריכה|2026-03-28|normal]
+- "דחוף! צריך להזמין ספק ביום ראשון" → [TASK|להזמין ספק|2026-03-29|urgent]
+- "תרשמי לי משימה לנקות את המטבח" → [TASK|לנקות את המטבח|today|normal]
+אם עינת לא מציינת תאריך, תשאלי אותה. אם היא אומרת "מחר", "ביום שלישי" וכו' — חשבי את התאריך הנכון.
+השורה הזו חייבת להיות בשורה האחרונה של התשובה, ועינת לא תראה אותה — המערכת תקרא אותה ותיצור את המשימה.
+את יכולה גם לאשר שהמשימה נרשמה: "רשמתי נשמה! ✅"`;
 
 function buildContext(memoryContext: string, tasksText: string, dayName: string, dateStr: string): string {
   return `${SYSTEM_PROMPT}
+
+## תאריך היום: ${dayName}, ${dateStr}
 
 ## מידע על דולפין וילג':
 ${memoryContext}
@@ -149,10 +163,50 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
   }
 }
 
+export interface ExtractedTask {
+  description: string;
+  date: string;
+  priority: "normal" | "urgent";
+}
+
+/**
+ * Extract [TASK|description|date|priority] tags from AI response.
+ * Returns the cleaned text (without tags) and any extracted tasks.
+ */
+export function extractTasks(reply: string): { cleanReply: string; tasks: ExtractedTask[] } {
+  const tasks: ExtractedTask[] = [];
+  const taskRegex = /\[TASK\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
+  let match;
+
+  while ((match = taskRegex.exec(reply)) !== null) {
+    const description = match[1].trim();
+    let date = match[2].trim();
+    const priority = match[3].trim() === "urgent" ? "urgent" as const : "normal" as const;
+
+    // Handle "today" / "tomorrow"
+    const today = new Date();
+    if (date === "today") {
+      date = toDateString(today);
+    } else if (date === "tomorrow") {
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      date = toDateString(tomorrow);
+    }
+
+    if (description) {
+      tasks.push({ description, date, priority });
+    }
+  }
+
+  // Remove task tags from reply
+  const cleanReply = reply.replace(/\n?\[TASK\|[^\]]+\]/g, "").trim();
+
+  return { cleanReply, tasks };
+}
+
 export async function chatWithClaude(
   userMessage: string,
   source: "web" | "whatsapp" = "web"
 ): Promise<string> {
-  // Use Gemini (free) by default, Claude only if explicitly configured
   return chatWithGemini(userMessage, source);
 }

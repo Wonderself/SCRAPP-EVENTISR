@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { sendWhatsAppMessage, sendWhatsAppVoiceNote, getMediaUrl, downloadMedia } from "@/lib/whatsapp";
-import { chatWithClaude } from "@/lib/ai-chat";
-import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate } from "@/lib/db";
+import { chatWithClaude, extractTasks } from "@/lib/ai-chat";
+import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate, createTask } from "@/lib/db";
 import { saveRawConversation } from "@/lib/memory";
 import { toDateString, getDayKey, getDayName, getWeekDates } from "@/lib/hebrew";
 import { transcribeAudio, isSTTConfigured } from "@/lib/google-stt";
@@ -104,7 +104,23 @@ async function handleTextMessage(from: string, text: string, dateStr: string, is
   saveConversation("whatsapp", "user", text);
 
   // Chat with Claude
-  const reply = await chatWithClaude(text, "whatsapp");
+  const rawReply = await chatWithClaude(text, "whatsapp");
+
+  // Extract any tasks the AI created
+  const { cleanReply: reply, tasks } = extractTasks(rawReply);
+  for (const task of tasks) {
+    try {
+      createTask({
+        description: task.description,
+        type: "one_time",
+        priority: task.priority,
+        date: task.date,
+      });
+      console.log(`[WhatsApp] Auto-created task: "${task.description}" on ${task.date}`);
+    } catch (e) {
+      console.error("[WhatsApp] Failed to create task:", e);
+    }
+  }
 
   // Save assistant message
   saveConversation("whatsapp", "assistant", reply);

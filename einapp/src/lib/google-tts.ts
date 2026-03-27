@@ -45,8 +45,8 @@ export async function synthesizeSpeech(
           },
           audioConfig: {
             audioEncoding: format,
-            speakingRate: 1.0,
-            pitch: 1.0,
+            speakingRate: 1.12, // Slightly faster — more animated/expressive
+            pitch: 3.2, // Higher pitch — warm, bestie energy
             // OGG_OPUS is perfect for WhatsApp voice notes
             // MP3 for web playback
             ...(format === "OGG_OPUS" ? { sampleRateHertz: 24000 } : {}),
