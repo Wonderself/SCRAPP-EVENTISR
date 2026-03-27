@@ -4,57 +4,71 @@ import { toDateString } from "./hebrew";
 import { readMemoryContext, ensureMemoryDir, readMemoryFile, writeMemoryFile } from "./memory";
 
 const MEMORY_DIR = process.env.MEMORY_DIR || path.join(process.cwd(), "data", "memory");
-function getGeminiKey(): string {
-  return process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
+
+function hasAIKey(): boolean {
+  return !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || process.env.GROQ_API_KEY);
 }
 
-async function geminiGenerate(systemPrompt: string, userMessage: string, maxTokens = 1500): Promise<string> {
-  const apiKey = getGeminiKey();
-  if (!apiKey) return "";
-
-  const models = [
-    process.env.CHAT_MODEL || "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-  ];
-
-  for (const model of models) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: userMessage }] }],
-            generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 },
-          }),
+async function aiGenerate(systemPrompt: string, userMessage: string, maxTokens = 1500): Promise<string> {
+  // Try Gemini first
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
+  if (geminiKey) {
+    const models = [process.env.CHAT_MODEL || "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+    for (const model of models) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: "user", parts: [{ text: userMessage }] }],
+              generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 },
+            }),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) return text;
         }
-      );
-
-      if (res.status === 429 || res.status === 403 || res.status === 404) {
-        console.log(`[Memory-Cron] ${model} error ${res.status}, trying fallback...`);
-        await new Promise((r) => setTimeout(r, 2000));
-        continue;
+        console.log(`[Memory-Cron] Gemini ${model}: ${res.status}`);
+      } catch (e) {
+        console.error(`[Memory-Cron] Gemini ${model} error:`, e);
       }
-
-      if (!res.ok) {
-        console.error("[Memory-Cron] Gemini error:", res.status);
-        return "";
-      }
-
-      const data = await res.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    } catch (error) {
-      console.error(`[Memory-Cron] ${model} error:`, error);
-      continue;
     }
   }
+
+  // Groq fallback
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqKey}` },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }],
+          max_tokens: maxTokens,
+          temperature: 0.3,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "";
+      }
+      console.error("[Memory-Cron] Groq error:", res.status);
+    } catch (e) {
+      console.error("[Memory-Cron] Groq error:", e);
+    }
+  }
+
   return "";
 }
 
 export async function nightlyExtraction() {
-  if (!getGeminiKey()) return;
+  if (!hasAIKey()) return;
 
   const dateStr = toDateString(new Date());
   const rawPath = path.join(MEMORY_DIR, "raw-conversations", `${dateStr}.md`);
@@ -66,7 +80,7 @@ export async function nightlyExtraction() {
 
   const existingMemory = await readMemoryContext();
 
-  const text = await geminiGenerate(
+  const text = await aiGenerate(
     `את מנתחת שיחות של עינת אמר, מנהלת דולפין וילג'.
 
 משימתך: לנתח את השיחות של היום ולחלץ מידע חדש בלבד.
@@ -114,7 +128,7 @@ export async function nightlyExtraction() {
 }
 
 export async function weeklySummary() {
-  if (!getGeminiKey()) return;
+  if (!hasAIKey()) return;
 
   ensureMemoryDir();
   const rawDir = path.join(MEMORY_DIR, "raw-conversations");
@@ -134,7 +148,7 @@ export async function weeklySummary() {
 
   if (conversations.length === 0) return;
 
-  const summary = await geminiGenerate(
+  const summary = await aiGenerate(
     `סכמי את השבוע של עינת בדולפין וילג'.
 
 כללי הסיכום:
@@ -171,7 +185,7 @@ export async function weeklySummary() {
 }
 
 export async function monthlyOptimization() {
-  if (!getGeminiKey()) return;
+  if (!hasAIKey()) return;
 
   ensureMemoryDir();
 
@@ -187,7 +201,7 @@ export async function monthlyOptimization() {
     if (Buffer.byteLength(content, "utf-8") < 5000) continue;
 
     try {
-      const optimized = await geminiGenerate(
+      const optimized = await aiGenerate(
         `ייעלי את קובץ הזיכרון הזה.
 
 כללים:

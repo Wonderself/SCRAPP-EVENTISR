@@ -110,17 +110,35 @@ async function getContextData() {
   return { memoryContext, tasksText, recentConvos, dayName: getDayName(today.getDay()), dateStr };
 }
 
-// Google Gemini API (free tier: 1500 req/day)
-async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY;
-  if (!apiKey) {
-    return "אוי, GEMINI_API_KEY לא מוגדר 😅 תגידי לעמנואל!";
-  }
-
+// Try Gemini first, then Groq as fallback
+async function chatWithAI(userMessage: string, source: "web" | "whatsapp"): Promise<string> {
   const { memoryContext, tasksText, recentConvos, dayName, dateStr } = await getContextData();
   const systemPrompt = buildContext(memoryContext, tasksText, dayName, dateStr);
 
-  // Build Gemini message history
+  // Try Gemini first
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY;
+  if (geminiKey) {
+    const result = await tryGemini(geminiKey, systemPrompt, recentConvos, userMessage);
+    if (result) return result;
+    console.log("[Chat] Gemini failed, trying Groq fallback...");
+  }
+
+  // Groq fallback (free: 14400 req/day)
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    const result = await tryGroq(groqKey, systemPrompt, recentConvos, userMessage);
+    if (result) return result;
+    console.log("[Chat] Groq also failed");
+  }
+
+  if (!geminiKey && !groqKey) {
+    return "אוי, לא מוגדר מפתח API 😅 תגידי לעמנואל!";
+  }
+
+  return "עומס ברגע נשמה 😅 נסי שוב בעוד כמה שניות!";
+}
+
+async function tryGemini(apiKey: string, systemPrompt: string, recentConvos: any[], userMessage: string): Promise<string | null> {
   const contents: any[] = [];
   for (const c of recentConvos) {
     contents.push({
@@ -130,74 +148,87 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
   }
   contents.push({ role: "user", parts: [{ text: userMessage }] });
 
-  // Try primary model, then fallback
-  const models = [
-    process.env.CHAT_MODEL || "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-  ];
+  const models = [process.env.CHAT_MODEL || "gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
   for (const model of models) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const requestBody = JSON.stringify({
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents,
-      generationConfig: {
-        maxOutputTokens: 1024,
-        temperature: 0.8,
-      },
-    });
-
-    // Retry up to 2 times on 429 rate limit
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const res = await fetch(url, {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: requestBody,
-        });
-
-        if (res.status === 429) {
-          console.log(`[Chat] Rate limited on ${model}, attempt ${attempt + 1}/2...`);
-          await new Promise((r) => setTimeout(r, (attempt + 1) * 8000));
-          continue;
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents,
+            generationConfig: { maxOutputTokens: 1024, temperature: 0.8 },
+          }),
         }
+      );
 
-        if (!res.ok) {
-          const errText = await res.text();
-          console.error(`[Chat] Gemini ${model} error:`, res.status, errText);
-          if (res.status === 403) {
-            // Try fallback model
-            break;
-          }
-          if (res.status === 404) {
-            // Model not found, try fallback
-            console.log(`[Chat] Model ${model} not found, trying fallback...`);
-            break;
-          }
-          return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
-        }
-
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-          console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
-          return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
-        }
-
-        console.log(`[Chat] Success with model: ${model}`);
-        return text;
-      } catch (error: any) {
-        console.error(`[Chat] Gemini ${model} error:`, error?.message || error);
-        if (attempt < 1) {
-          await new Promise((r) => setTimeout(r, 3000));
-          continue;
-        }
+      if (res.status === 429 || res.status === 403 || res.status === 404) {
+        console.log(`[Chat] Gemini ${model}: ${res.status}, trying next...`);
+        continue;
       }
-    }
-    console.log(`[Chat] Model ${model} failed, trying next...`);
-  }
 
-  return "עומס ברגע נשמה 😅 נסי שוב בעוד כמה שניות!";
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error(`[Chat] Gemini ${model} error:`, res.status, errText);
+        continue;
+      }
+
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        console.log(`[Chat] Success with Gemini ${model}`);
+        return text;
+      }
+    } catch (error: any) {
+      console.error(`[Chat] Gemini ${model} error:`, error?.message);
+      continue;
+    }
+  }
+  return null;
+}
+
+async function tryGroq(apiKey: string, systemPrompt: string, recentConvos: any[], userMessage: string): Promise<string | null> {
+  const messages: any[] = [{ role: "system", content: systemPrompt }];
+  for (const c of recentConvos) {
+    messages.push({ role: c.role === "assistant" ? "assistant" : "user", content: c.content });
+  }
+  messages.push({ role: "user", content: userMessage });
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages,
+        max_tokens: 1024,
+        temperature: 0.8,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("[Chat] Groq error:", res.status, errText);
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (text) {
+      console.log("[Chat] Success with Groq");
+      return text;
+    }
+    return null;
+  } catch (error: any) {
+    console.error("[Chat] Groq error:", error?.message);
+    return null;
+  }
 }
 
 export interface ExtractedTask {
@@ -245,5 +276,5 @@ export async function chatWithClaude(
   userMessage: string,
   source: "web" | "whatsapp" = "web"
 ): Promise<string> {
-  return chatWithGemini(userMessage, source);
+  return chatWithAI(userMessage, source);
 }

@@ -1,56 +1,67 @@
 import { toDateString } from "./hebrew";
 
-function getGeminiKey(): string {
-  return process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
-}
-
-async function geminiGenerate(systemPrompt: string, userMessage: string): Promise<string> {
-  const apiKey = getGeminiKey();
-  if (!apiKey) return "";
-
-  const models = [
-    process.env.CHAT_MODEL || "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-  ];
-
-  for (const model of models) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: userMessage }] }],
-            generationConfig: { maxOutputTokens: 600, temperature: 0.9 },
-          }),
+async function aiGenerate(systemPrompt: string, userMessage: string): Promise<string> {
+  // Try Gemini first
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
+  if (geminiKey) {
+    const models = [process.env.CHAT_MODEL || "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+    for (const model of models) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: "user", parts: [{ text: userMessage }] }],
+              generationConfig: { maxOutputTokens: 600, temperature: 0.9 },
+            }),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) return text;
         }
-      );
-
-      if (res.status === 429) {
-        console.log(`[AI-Parser] Rate limited on ${model}, trying fallback...`);
-        await new Promise((r) => setTimeout(r, 2000));
-        continue;
+        console.log(`[AI-Parser] Gemini ${model}: ${res.status}`);
+      } catch (e) {
+        console.error(`[AI-Parser] Gemini ${model} error:`, e);
       }
-
-      if (res.status === 403 || res.status === 404) {
-        console.log(`[AI-Parser] ${model} error ${res.status}, trying fallback...`);
-        continue;
-      }
-
-      if (!res.ok) {
-        console.error("[AI-Parser] Gemini error:", res.status);
-        return "";
-      }
-
-      const data = await res.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    } catch (error) {
-      console.error(`[AI-Parser] ${model} error:`, error);
-      continue;
     }
   }
+
+  // Groq fallback
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${groqKey}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage },
+          ],
+          max_tokens: 600,
+          temperature: 0.9,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) return text;
+      }
+      console.error("[AI-Parser] Groq error:", res.status);
+    } catch (e) {
+      console.error("[AI-Parser] Groq error:", e);
+    }
+  }
+
   return "";
 }
 
@@ -59,7 +70,7 @@ export async function extractTasksFromTranscription(
 ): Promise<any[]> {
   const today = toDateString(new Date());
 
-  const result = await geminiGenerate(
+  const result = await aiGenerate(
     `את עוזרת ניהול מלונאי. חלצי משימות מההודעה הקולית.
 החזירי JSON בלבד (מערך): [{ "description": "...", "date": "YYYY-MM-DD", "type": "one_time", "priority": "normal", "days_of_week": [] }]
 התאריך של היום: ${today}. אם היא אומרת "יום חמישי" — זה יום חמישי הקרוב.
@@ -82,7 +93,7 @@ export async function generateMorningMessage(
   date: string,
   weatherInfo: string = ""
 ): Promise<string> {
-  const result = await geminiGenerate(
+  const result = await aiGenerate(
     `את Einapp — החברה הכי טובה של עינת אמר, מנהלת דולפין וילג' בשבי ציון.
 צרי הודעת בוקר טוב ב-WhatsApp — חמה, אישית, בסגנון bestie.
 
@@ -106,7 +117,7 @@ export async function generateEveningMessage(
   todayStatusJson: string,
   tomorrowTasksJson: string
 ): Promise<string> {
-  const result = await geminiGenerate(
+  const result = await aiGenerate(
     `את Einapp — החברה הכי טובה של עינת אמר.
 צרי הודעת ערב ב-WhatsApp — חמה, אכפתית, bestie style.
 
@@ -130,7 +141,7 @@ export async function generateTaskReminder(
   taskTime: string,
   isUrgent: boolean
 ): Promise<string> {
-  const result = await geminiGenerate(
+  const result = await aiGenerate(
     `את Einapp — החברה הכי טובה של עינת. צרי תזכורת קצרה ב-WhatsApp.
 כללים:
 - שורה אחת-שתיים מקסימום
