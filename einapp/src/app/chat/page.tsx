@@ -66,8 +66,18 @@ function ChatPageInner() {
       setGreeted(true);
       const isDay = mode === "day";
       const greetings = isDay
-        ? ["היי נשמה! מה נשמע? מוכנה ליום?", "בוקר טוב מאמי! ספרי לי מה בתוכנית", "שלום חביבה, יאללה נתחיל את היום"]
-        : ["ערב טוב נשמה, איך היה היום?", "היי מאמי, ספרי לי איך עבר היום", "ערב טוב חביבה! הכל בסדר?"];
+        ? [
+            "הייייי נשמהההה! 🐬💛 מה נשמע מאמי? מוכנה ליום מטורף?",
+            "בוקר טוווב מלכה! ☀️🌊 יאללה ספרי לי מה בתוכנית!",
+            "שלום שלום חביבה שלי! 💛 איך את היום? ספרי הכל!",
+            "מאמייי! בוקר אור! ☀️✨ אני פה בשבילך כרגיל!",
+          ]
+        : [
+            "הייייי נשמהההה! 🌙💛 איך היה היום? ספרי ספרי!",
+            "ערב טוווב מאמי שלי! 🌊✨ איך עבר היום?",
+            "מה קורה מלכה? 💛🐬 הכל טוב? ספרי לי!",
+            "היי חביבה! 🌙 סיימת את היום? בואי נדבר!",
+          ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       const now = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
       setMessages([{ role: "assistant", content: greeting, time: now }]);
@@ -160,14 +170,14 @@ function ChatPageInner() {
             <ArrowRight size={20} strokeWidth={3} />
           </button>
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 lg:w-11 lg:h-11 rounded-xl flex items-center justify-center text-white font-black text-base lg:text-xl ${
+            <div className={`w-9 h-9 lg:w-11 lg:h-11 rounded-xl flex items-center justify-center text-lg lg:text-xl ${
               isDay ? "bg-white/20" : "bg-white/10"
             }`}>
-              E
+              🐬
             </div>
             <div>
               <h1 className="font-black text-white text-base lg:text-xl">Einapp</h1>
-              <p className="text-[9px] lg:text-[11px] text-white/50 tracking-widest uppercase font-bold">your assistant</p>
+              <p className="text-[9px] lg:text-[11px] text-white/50 tracking-widest font-bold">החברה הכי טובה שלך 💛</p>
             </div>
           </div>
         </div>

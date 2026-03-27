@@ -4,10 +4,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { Home, MessageCircle, RefreshCw, Brain } from "lucide-react";
 
 const TABS = [
-  { path: "/dashboard", label: "בית", icon: Home },
-  { path: "/chat", label: "שיחה", icon: MessageCircle },
-  { path: "/recurring", label: "קבועות", icon: RefreshCw },
-  { path: "/memory", label: "זיכרון", icon: Brain },
+  { path: "/dashboard", label: "בית", icon: Home, emoji: "🏠" },
+  { path: "/chat", label: "שיחה", icon: MessageCircle, emoji: "💬" },
+  { path: "/recurring", label: "קבועות", icon: RefreshCw, emoji: "🔄" },
+  { path: "/memory", label: "זיכרון", icon: Brain, emoji: "🧠" },
 ];
 
 interface Props {

@@ -93,9 +93,9 @@ export default function MemoryPage() {
           ? "bg-gradient-to-br from-sky-400 via-cyan-400 to-teal-300"
           : "bg-gradient-to-br from-rose-500 via-fuchsia-600 to-violet-700"
       }`}>
-        <h1 className="text-2xl lg:text-4xl font-black text-white">זיכרון</h1>
-        <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 tracking-widest uppercase font-bold">
-          {(totalSize / 1024).toFixed(1)} kb memory
+        <h1 className="text-2xl lg:text-4xl font-black text-white">זיכרון 🧠</h1>
+        <p className="text-white/40 text-[10px] lg:text-xs mt-0.5 font-bold">
+          מה שאני זוכרת על דולפין וילג'
         </p>
       </div>
 
