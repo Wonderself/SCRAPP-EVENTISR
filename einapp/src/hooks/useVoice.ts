@@ -30,14 +30,11 @@ export function useVoice(): UseVoiceReturn {
     const hasSynthesis = !!window.speechSynthesis;
     setIsSupported(hasSpeech || hasSynthesis);
 
-    // Check if Google TTS is available
-    fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "test" }) })
+    // Check if Google TTS is available with a real test
+    fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "שלום" }) })
       .then((r) => {
-        if (r.ok || r.status === 400) {
-          // API exists - check if configured (503 = not configured)
-          setTtsMode(r.status === 503 ? (hasSynthesis ? "browser" : "none") : "google");
-        } else if (r.status === 503) {
-          setTtsMode(hasSynthesis ? "browser" : "none");
+        if (r.ok) {
+          setTtsMode("google");
         } else {
           setTtsMode(hasSynthesis ? "browser" : "none");
         }
@@ -138,25 +135,23 @@ export function useVoice(): UseVoiceReturn {
     window.speechSynthesis.cancel();
 
     const doSpeak = () => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "he-IL";
-      utterance.rate = 1.12;
-      utterance.pitch = 1.3;
-
       const voices = window.speechSynthesis.getVoices();
-      // Prefer male Hebrew voice
-      const hebrewMale = voices.find(
-        (v) => (v.lang.startsWith("he") || v.lang.startsWith("iw")) &&
-          (v.name.toLowerCase().includes("male") || v.name.includes("Google") || v.name.includes("Daniel"))
-      );
-      const hebrewAny = voices.find(
+      // Find Hebrew voice only
+      const hebrewVoice = voices.find(
         (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
       );
-      if (hebrewMale) {
-        utterance.voice = hebrewMale;
-      } else if (hebrewAny) {
-        utterance.voice = hebrewAny;
+
+      // Don't speak at all if no Hebrew voice (better than speaking French!)
+      if (!hebrewVoice) {
+        console.log("[Voice] No Hebrew voice found. Available:", voices.map((v) => `${v.name} (${v.lang})`).join(", "));
+        return;
       }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "he-IL";
+      utterance.voice = hebrewVoice;
+      utterance.rate = 1.12;
+      utterance.pitch = 1.3;
 
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
