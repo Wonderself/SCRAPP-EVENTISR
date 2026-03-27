@@ -30,8 +30,8 @@ export function useVoice(): UseVoiceReturn {
     const hasSynthesis = !!window.speechSynthesis;
     setIsSupported(hasSpeech || hasSynthesis);
 
-    // Check if Google TTS is available with a real test
-    fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "שלום" }) })
+    // Check if Google TTS is configured (HEAD-like check, no audio generated)
+    fetch("/api/tts/check")
       .then((r) => {
         if (r.ok) {
           setTtsMode("google");
@@ -96,39 +96,6 @@ export function useVoice(): UseVoiceReturn {
     setIsListening(false);
   }, []);
 
-  const speakWithGoogle = useCallback(async (text: string) => {
-    setIsSpeaking(true);
-    try {
-      const res = await fetch("/api/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!res.ok) throw new Error("TTS failed");
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-
-      audioRef.current = audio;
-      audio.onended = () => {
-        setIsSpeaking(false);
-        URL.revokeObjectURL(url);
-      };
-      audio.onerror = () => {
-        setIsSpeaking(false);
-        URL.revokeObjectURL(url);
-      };
-
-      await audio.play();
-    } catch {
-      setIsSpeaking(false);
-      // Fallback to browser TTS
-      speakWithBrowser(text);
-    }
-  }, []);
-
   const speakWithBrowser = useCallback((text: string) => {
     if (!window.speechSynthesis) return;
 
@@ -140,26 +107,12 @@ export function useVoice(): UseVoiceReturn {
         (v) => v.lang.startsWith("he") || v.lang.startsWith("iw")
       );
 
-      // Don't speak at all if no Hebrew voice (better than speaking French!)
-      if (hebrewVoices.length === 0) {
-        console.log("[Voice] No Hebrew voice found. Available:", voices.map((v) => `${v.name} (${v.lang})`).join(", "));
-        return;
-      }
-
-      // Prefer male Hebrew voice: look for known male names or "male" keyword
+      // Prefer Hebrew male voice, but speak in ANY voice if none found
       const maleNames = ["asaf", "male", "amit", "david", "daniel", "guy", "omer"];
-      const femaleNames = ["carmit", "female", "yael", "noa", "dana", "michal", "lihi"];
-      const maleVoice = hebrewVoices.find((v) => {
-        const name = v.name.toLowerCase();
-        return maleNames.some((m) => name.includes(m));
-      });
-      const nonFemaleVoice = hebrewVoices.find((v) => {
-        const name = v.name.toLowerCase();
-        return !femaleNames.some((f) => name.includes(f));
-      });
-
-      const chosenVoice = maleVoice || nonFemaleVoice || hebrewVoices[hebrewVoices.length - 1];
-      console.log("[Voice] Using:", chosenVoice.name, "from", hebrewVoices.map((v) => v.name).join(", "));
+      const maleVoice = hebrewVoices.find((v) => maleNames.some((m) => v.name.toLowerCase().includes(m)));
+      const chosenVoice = maleVoice || hebrewVoices[0] || voices[0];
+      if (!chosenVoice) return;
+      console.log("[Voice] Using:", chosenVoice.name);
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "he-IL";
@@ -182,6 +135,38 @@ export function useVoice(): UseVoiceReturn {
       window.speechSynthesis.onvoiceschanged = () => doSpeak();
     }
   }, []);
+
+  const speakWithGoogle = useCallback((text: string) => {
+    setIsSpeaking(true);
+    // Create audio element synchronously (required for iOS Safari user gesture)
+    const audio = new Audio();
+    audioRef.current = audio;
+    audio.onended = () => { setIsSpeaking(false); };
+    audio.onerror = () => {
+      setIsSpeaking(false);
+      speakWithBrowser(text);
+    };
+
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("TTS failed");
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        audio.src = url;
+        audio.onended = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
+        return audio.play();
+      })
+      .catch(() => {
+        setIsSpeaking(false);
+        speakWithBrowser(text);
+      });
+  }, [speakWithBrowser]);
 
   const speak = useCallback((text: string) => {
     if (ttsMode === "google") {
