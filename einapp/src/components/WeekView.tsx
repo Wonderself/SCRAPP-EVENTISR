@@ -46,7 +46,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
     await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "delete", task_id: taskId }),
+      body: JSON.stringify({ action: "delete", id: taskId }),
     });
     fetchWeek();
   }
@@ -55,7 +55,7 @@ export default function WeekView({ isDay, refreshKey }: Props) {
     await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "update", task_id: taskId, ...updates }),
+      body: JSON.stringify({ action: "update", id: taskId, updates }),
     });
     fetchWeek();
   }
