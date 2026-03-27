@@ -68,9 +68,14 @@ export async function POST(req: NextRequest) {
   }
 
   const from = message.from;
+  const DEV_PHONE = process.env.DEV_PHONE_NUMBER || "";
 
-  // Only accept messages from Einat
-  if (EINAT_PHONE && normalizePhone(from) !== normalizePhone(EINAT_PHONE)) {
+  // Only accept messages from Einat or Dev
+  const normalFrom = normalizePhone(from);
+  const isEinat = EINAT_PHONE && normalFrom === normalizePhone(EINAT_PHONE);
+  const isDev = DEV_PHONE && normalFrom === normalizePhone(DEV_PHONE);
+
+  if (!isEinat && !isDev) {
     console.log(`[WhatsApp] Ignoring message from unknown sender: ${from}`);
     return NextResponse.json({ ok: true });
   }
