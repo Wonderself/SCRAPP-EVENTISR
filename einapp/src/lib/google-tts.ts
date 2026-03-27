@@ -1,4 +1,8 @@
-const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+// TTS requires a Google Cloud API key (NOT an AI Studio key)
+// AI Studio keys only work for Generative Language API
+function getTTSKey(): string {
+  return process.env.GOOGLE_CLOUD_API_KEY || "";
+}
 
 interface TTSResponse {
   audioContent: string; // base64
@@ -13,6 +17,7 @@ export async function synthesizeSpeech(
   text: string,
   format: "OGG_OPUS" | "MP3" = "MP3"
 ): Promise<Buffer | null> {
+  const GOOGLE_API_KEY = getTTSKey();
   if (!GOOGLE_API_KEY) {
     console.log("[TTS] GOOGLE_CLOUD_API_KEY not configured");
     return null;
@@ -70,5 +75,5 @@ export async function synthesizeSpeech(
 }
 
 export function isTTSConfigured(): boolean {
-  return !!GOOGLE_API_KEY;
+  return !!getTTSKey();
 }
