@@ -131,48 +131,59 @@ async function chatWithGemini(userMessage: string, source: "web" | "whatsapp"): 
   contents.push({ role: "user", parts: [{ text: userMessage }] });
 
   const model = process.env.CHAT_MODEL || "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const requestBody = JSON.stringify({
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents,
+    generationConfig: {
+      maxOutputTokens: 1024,
+      temperature: 0.8,
+    },
+  });
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
+  // Retry up to 3 times on 429 rate limit
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents,
-          generationConfig: {
-            maxOutputTokens: 1024,
-            temperature: 0.8,
-          },
-        }),
-      }
-    );
+        body: requestBody,
+      });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("[Chat] Gemini API error:", res.status, errText);
-      if (res.status === 403) {
-        return `שגיאת הרשאה 403 בגמיני 🔑 (${errText.slice(0, 120)})`;
-      }
       if (res.status === 429) {
-        return "יותר מדי הודעות ברגע 😅 חכי שניה ותנסי שוב נשמה";
+        console.log(`[Chat] Rate limited, retry ${attempt + 1}/3...`);
+        await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
+        continue;
       }
-      return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
-    }
 
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
-      return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
-    }
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("[Chat] Gemini API error:", res.status, errText);
+        if (res.status === 403) {
+          return `שגיאת הרשאה 403 בגמיני 🔑 (${errText.slice(0, 120)})`;
+        }
+        return `אוי, משהו קרה 😅 (${res.status}: ${errText.slice(0, 80)})`;
+      }
 
-    return text;
-  } catch (error: any) {
-    console.error("[Chat] Gemini error:", error?.message || error);
-    return `אוי, משהו קרה 😅 (${(error?.message || "").slice(0, 80)})`;
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        console.error("[Chat] Gemini empty response:", JSON.stringify(data).slice(0, 200));
+        return "לא הצלחתי לחשוב על תשובה 😅 תנסי שוב?";
+      }
+
+      return text;
+    } catch (error: any) {
+      console.error("[Chat] Gemini error:", error?.message || error);
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
+        continue;
+      }
+      return `אוי, משהו קרה 😅 (${(error?.message || "").slice(0, 80)})`;
+    }
   }
+
+  return "עומס ברגע נשמה 😅 נסי שוב בעוד כמה שניות!";
 }
 
 export interface ExtractedTask {
