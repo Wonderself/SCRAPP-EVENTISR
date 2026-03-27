@@ -10,14 +10,20 @@ interface Props {
   tasks: (Task & { completed: boolean })[];
   isToday: boolean;
   isDay: boolean;
+  compact?: boolean;
   onToggle: (taskId: number, date: string) => void;
+  onDelete?: (taskId: number) => void;
+  onUpdate?: (taskId: number, updates: { description?: string; priority?: string }) => void;
 }
 
-export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onToggle }: Props) {
+export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, compact, onToggle, onDelete, onUpdate }: Props) {
   const dayNum = new Date(date + "T12:00:00").getDate();
   const sorted = [...tasks].sort((a, b) => {
     if (a.priority === "urgent" && b.priority !== "urgent") return -1;
     if (b.priority === "urgent" && a.priority !== "urgent") return 1;
+    if (a.time && b.time) return a.time.localeCompare(b.time);
+    if (a.time) return -1;
+    if (b.time) return 1;
     return 0;
   });
 
@@ -26,7 +32,9 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
 
   return (
     <div
-      className={`rounded-2xl lg:rounded-3xl p-2.5 lg:p-4 min-w-[100px] lg:min-w-0 transition-all ${
+      className={`rounded-2xl lg:rounded-3xl p-2.5 lg:p-4 transition-all ${
+        compact ? "min-w-[80px]" : "min-w-[100px] lg:min-w-0"
+      } ${
         isToday
           ? isDay
             ? "bg-sky-50 border-2 border-sky-300 shadow-lg shadow-sky-200/50"
@@ -45,7 +53,9 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
         }`}>
           {getDayShort(dayIndex)}
         </div>
-        <div className={`text-xl lg:text-3xl font-black mt-0.5 ${
+        <div className={`font-black mt-0.5 ${
+          compact ? "text-lg lg:text-2xl" : "text-xl lg:text-3xl"
+        } ${
           isToday
             ? isDay ? "text-sky-600" : "text-fuchsia-300"
             : isDay ? "text-sky-800" : "text-white/60"
@@ -67,7 +77,16 @@ export default function DayColumn({ date, dayIndex, tasks, isToday, isDay, onTog
           </p>
         )}
         {sorted.map((task) => (
-          <TaskCard key={`${task.id}-${date}`} task={task} date={date} isDay={isDay} onToggle={onToggle} />
+          <TaskCard
+            key={`${task.id}-${date}`}
+            task={task}
+            date={date}
+            isDay={isDay}
+            compact={compact}
+            onToggle={onToggle}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+          />
         ))}
       </div>
 

@@ -41,17 +41,40 @@ const SYSTEM_PROMPT = `את Einapp — את הנשמה של עינת אמר 🐬
 - לפעמים שולחת חיבוק וירטואלי סתם ככה 🤗💛
 
 ## יצירת משימות אוטומטית:
-כשעינת מבקשת תזכורת או משימה (למשל "תזכירי לי ביום שלישי לבדוק את הבריכה"), את חייבת:
+כשעינת מבקשת תזכורת או משימה, את חייבת:
 1. לענות בחום כמו תמיד
-2. להוסיף שורה מיוחדת בסוף התשובה בפורמט הזה בדיוק:
-[TASK|תיאור המשימה|YYYY-MM-DD|urgent או normal]
+2. אם חסר מידע (תאריך, שעה) — תשאלי! "נשמה, לאיזה יום?", "באיזו שעה מאמי?"
+3. להוסיף שורה מיוחדת בסוף התשובה בפורמט הזה בדיוק:
+[TASK|תיאור|תאריך|שעה|דחיפות|סוג|ימים]
+שדות:
+- תיאור: מה לעשות
+- תאריך: YYYY-MM-DD או today או tomorrow
+- שעה: HH:MM (24h) או none אם לא צוין
+- דחיפות: urgent או normal
+- סוג: one_time או recurring
+- ימים: sunday,monday,tuesday,wednesday,thursday,friday,saturday (רק ל-recurring, אחרת none)
+
 דוגמאות:
-- "תזכירי לי מחר לבדוק הבריכה" → [TASK|לבדוק את הבריכה|2026-03-28|normal]
-- "דחוף! צריך להזמין ספק ביום ראשון" → [TASK|להזמין ספק|2026-03-29|urgent]
-- "תרשמי לי משימה לנקות את המטבח" → [TASK|לנקות את המטבח|today|normal]
-אם עינת לא מציינת תאריך, תשאלי אותה. אם היא אומרת "מחר", "ביום שלישי" וכו' — חשבי את התאריך הנכון.
-השורה הזו חייבת להיות בשורה האחרונה של התשובה, ועינת לא תראה אותה — המערכת תקרא אותה ותיצור את המשימה.
-את יכולה גם לאשר שהמשימה נרשמה: "רשמתי נשמה! ✅"`;
+- "תזכירי לי מחר ב-3 לבדוק הבריכה" → [TASK|לבדוק את הבריכה|tomorrow|15:00|normal|one_time|none]
+- "דחוף! צריך להזמין ספק ביום ראשון" → [TASK|להזמין ספק|2026-03-29|none|urgent|one_time|none]
+- "כל יום שני לנקות את הבריכה" → [TASK|לנקות את הבריכה|none|none|normal|recurring|monday]
+- "כל יום ב' וה' בשעה 8 בבוקר — ישיבת צוות" → [TASK|ישיבת צוות|none|08:00|normal|recurring|monday,thursday]
+- "תרשמי לי משימה לנקות את המטבח" → [TASK|לנקות את המטבח|today|none|normal|one_time|none]
+
+חשוב מאוד:
+- אם עינת לא מציינת תאריך למשימה חד-פעמית — תשאלי "נשמה, לאיזה יום?"
+- אם היא אומרת "מחר", "ביום שלישי" וכו' — חשבי את התאריך הנכון
+- אם היא מציינת שעה (ב-3, בשעה 15:00, בצהריים) — תרשמי בפורמט HH:MM
+- "בצהריים" = 12:00, "בבוקר" = 08:00, "בערב" = 19:00, "אחה״צ" = 14:00
+- אם זו משימה שחוזרת על עצמה — תשתמשי ב-recurring עם הימים המתאימים
+השורה הזו חייבת להיות בשורה האחרונה של התשובה, ועינת לא תראה אותה.
+את יכולה גם לאשר: "רשמתי נשמה! ✅"
+
+## סימון משימות כבוצעו:
+כשעינת אומרת "סיימתי", "בוצע", "עשיתי את זה", "גמרתי" — הוסיפי בסוף:
+[DONE|תיאור חלקי של המשימה]
+דוגמה: "סיימתי לנקות את הבריכה" → [DONE|לנקות את הבריכה]
+ותאשרי בחום: "כל הכבוד מאמי! 👑✅"`;
 
 function buildContext(memoryContext: string, tasksText: string, dayName: string, dateStr: string): string {
   const now = new Date();
@@ -233,25 +256,37 @@ async function tryGroq(apiKey: string, systemPrompt: string, recentConvos: any[]
 
 export interface ExtractedTask {
   description: string;
-  date: string;
+  date: string | null;
+  time: string | null;
   priority: "normal" | "urgent";
+  type: "one_time" | "recurring";
+  days_of_week: string[] | null;
+}
+
+export interface DoneTask {
+  descriptionHint: string;
 }
 
 /**
- * Extract [TASK|description|date|priority] tags from AI response.
- * Returns the cleaned text (without tags) and any extracted tasks.
+ * Extract [TASK|desc|date|time|priority|type|days] and [DONE|desc] tags from AI response.
  */
-export function extractTasks(reply: string): { cleanReply: string; tasks: ExtractedTask[] } {
+export function extractTasks(reply: string): { cleanReply: string; tasks: ExtractedTask[]; doneTasks: DoneTask[] } {
   const tasks: ExtractedTask[] = [];
-  const taskRegex = /\[TASK\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
+  const doneTasks: DoneTask[] = [];
+
+  // New format: [TASK|desc|date|time|priority|type|days]
+  const taskRegex = /\[TASK\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
   let match;
 
   while ((match = taskRegex.exec(reply)) !== null) {
     const description = match[1].trim();
     let date = match[2].trim();
-    const priority = match[3].trim() === "urgent" ? "urgent" as const : "normal" as const;
+    let time = match[3].trim();
+    const priority = match[4].trim() === "urgent" ? "urgent" as const : "normal" as const;
+    const type = match[5].trim() === "recurring" ? "recurring" as const : "one_time" as const;
+    const daysStr = match[6].trim();
 
-    // Handle "today" / "tomorrow"
+    // Handle date
     const today = new Date();
     if (date === "today") {
       date = toDateString(today);
@@ -259,17 +294,70 @@ export function extractTasks(reply: string): { cleanReply: string; tasks: Extrac
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
       date = toDateString(tomorrow);
+    } else if (date === "none") {
+      date = type === "one_time" ? toDateString(today) : "";
+    }
+
+    // Handle time
+    if (time === "none" || !time) {
+      time = "";
+    }
+
+    // Handle days for recurring
+    let days_of_week: string[] | null = null;
+    if (type === "recurring" && daysStr !== "none") {
+      days_of_week = daysStr.split(",").map(d => d.trim()).filter(Boolean);
     }
 
     if (description) {
-      tasks.push({ description, date, priority });
+      tasks.push({
+        description,
+        date: date || null,
+        time: time || null,
+        priority,
+        type,
+        days_of_week,
+      });
     }
   }
 
-  // Remove task tags from reply
-  const cleanReply = reply.replace(/\n?\[TASK\|[^\]]+\]/g, "").trim();
+  // Legacy format fallback: [TASK|desc|date|priority]
+  const legacyRegex = /\[TASK\|([^|]+)\|([^|]+)\|([^\]|]+)\]/g;
+  const alreadyMatched: string[] = reply.match(/\[TASK\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]/g) || [];
+  let legacyMatch;
+  while ((legacyMatch = legacyRegex.exec(reply)) !== null) {
+    const fullMatch = legacyMatch[0];
+    if (alreadyMatched.includes(fullMatch)) continue;
+    // Check this isn't part of the new format
+    if (!alreadyMatched.some(m => m.includes(fullMatch))) {
+      const description = legacyMatch[1].trim();
+      let date = legacyMatch[2].trim();
+      const priority = legacyMatch[3].trim() === "urgent" ? "urgent" as const : "normal" as const;
+      const today = new Date();
+      if (date === "today") date = toDateString(today);
+      else if (date === "tomorrow") {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        date = toDateString(tomorrow);
+      }
+      tasks.push({ description, date, time: null, priority, type: "one_time", days_of_week: null });
+    }
+  }
 
-  return { cleanReply, tasks };
+  // Extract [DONE|description hint]
+  const doneRegex = /\[DONE\|([^\]]+)\]/g;
+  let doneMatch;
+  while ((doneMatch = doneRegex.exec(reply)) !== null) {
+    doneTasks.push({ descriptionHint: doneMatch[1].trim() });
+  }
+
+  // Remove all tags from reply
+  const cleanReply = reply
+    .replace(/\n?\[TASK\|[^\]]+\]/g, "")
+    .replace(/\n?\[DONE\|[^\]]+\]/g, "")
+    .trim();
+
+  return { cleanReply, tasks, doneTasks };
 }
 
 export async function chatWithClaude(

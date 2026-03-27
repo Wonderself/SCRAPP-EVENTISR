@@ -178,13 +178,8 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Week view */}
-        <div>
-          <h2 className={`text-sm lg:text-lg font-bold mb-2 lg:mb-3 ${isDay ? "text-sky-900/70" : "text-white/40"}`}>
-            השבוע שלך
-          </h2>
-          <WeekView isDay={isDay} refreshKey={refreshKey} />
-        </div>
+        {/* Week view — today big, other days compact */}
+        <WeekView isDay={isDay} refreshKey={refreshKey} />
       </div>
 
       <AddTaskModal

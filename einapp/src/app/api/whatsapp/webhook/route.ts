@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { sendWhatsAppMessage, sendWhatsAppVoiceNote, getMediaUrl, downloadMedia } from "@/lib/whatsapp";
 import { chatWithClaude, extractTasks } from "@/lib/ai-chat";
-import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate, createTask } from "@/lib/db";
+import { saveConversation, setAppState, getTasksForDate, getCompletionsForDate, createTask, toggleTaskCompletion } from "@/lib/db";
 import { sendUrgentAlert } from "@/lib/scheduler";
 import { saveRawConversation } from "@/lib/memory";
 import { toDateString, getDayKey, getDayName, getWeekDates } from "@/lib/hebrew";
@@ -116,22 +116,48 @@ async function handleTextMessage(from: string, text: string, dateStr: string, is
   const rawReply = await chatWithClaude(text, "whatsapp");
 
   // Extract any tasks the AI created
-  const { cleanReply: reply, tasks } = extractTasks(rawReply);
+  const { cleanReply: reply, tasks, doneTasks } = extractTasks(rawReply);
   for (const task of tasks) {
     try {
       createTask({
         description: task.description,
-        type: "one_time",
+        type: task.type,
         priority: task.priority,
-        date: task.date,
+        date: task.date || undefined,
+        time: task.time || undefined,
+        days_of_week: task.days_of_week || undefined,
       });
-      console.log(`[WhatsApp] Auto-created task: "${task.description}" on ${task.date}`);
-      // Send immediate WhatsApp alert for urgent tasks
+      console.log(`[WhatsApp] Auto-created ${task.type} task: "${task.description}" on ${task.date || "recurring"} at ${task.time || "no time"}`);
       if (task.priority === "urgent") {
-        sendUrgentAlert(task.description, task.date).catch(console.error);
+        sendUrgentAlert(task.description, task.date || dateStr).catch(console.error);
       }
     } catch (e) {
       console.error("[WhatsApp] Failed to create task:", e);
+    }
+  }
+
+  // Handle [DONE] — mark matching tasks as completed
+  for (const done of doneTasks) {
+    try {
+      const dayKey = getDayKey(new Date().getDay());
+      const todayTasks = getTasksForDate(dateStr, dayKey);
+      const completions = getCompletionsForDate(dateStr);
+      const completedIds = new Set(completions.map((c) => c.task_id));
+
+      // Find best match by description
+      const hint = done.descriptionHint.toLowerCase();
+      const match = todayTasks.find((t: any) =>
+        !completedIds.has(t.id) &&
+        t.description.toLowerCase().includes(hint) ||
+        hint.includes(t.description.toLowerCase().substring(0, 10))
+      );
+
+      if (match) {
+        toggleTaskCompletion((match as any).id, dateStr);
+        console.log(`[WhatsApp] Marked task done: "${(match as any).description}"`);
+      }
+    } catch (e) {
+      console.error("[WhatsApp] Failed to mark task done:", e);
     }
   }
 
@@ -257,6 +283,44 @@ function handleQuickCommand(text: string): string | null {
 
   if (lower === "זיכרון") {
     return "נשמהההה! 🧠🐬 אני זוכרת הכל על דולפין וילג'! ספקים, צוות, נהלים, אורחים קבועים... תשאלי אותי כל דבר מאמי!";
+  }
+
+  // "בוצע" or "בוצע 1" — mark task as done
+  if (lower.startsWith("בוצע") || lower.startsWith("סיימתי") || lower.startsWith("עשיתי")) {
+    const dateStr = toDateString(today);
+    const dayKey = getDayKey(today.getDay());
+    const tasks = getTasksForDate(dateStr, dayKey);
+    const completions = getCompletionsForDate(dateStr);
+    const completedIds = new Set(completions.map((c) => c.task_id));
+    const pendingTasks = tasks.filter((t: any) => !completedIds.has(t.id));
+
+    if (pendingTasks.length === 0) return "אין משימות פתוחות להיום מאמי! 🎉 את אלופה! 👑";
+
+    // If just "בוצע" alone, show numbered list to pick
+    const words = lower.split(/\s+/);
+    const num = parseInt(words[1]);
+
+    if (isNaN(num) || words.length < 2) {
+      let msg = "איזו משימה סיימת מאמי? שלחי מספר:\n\n";
+      pendingTasks.forEach((t: any, i: number) => {
+        msg += `${i + 1}. ${t.description}\n`;
+      });
+      msg += "\nלדוגמה: בוצע 1";
+      return msg;
+    }
+
+    if (num < 1 || num > pendingTasks.length) {
+      return `נשמה, שלחי מספר בין 1 ל-${pendingTasks.length} 💛`;
+    }
+
+    const taskToComplete = pendingTasks[num - 1] as any;
+    toggleTaskCompletion(taskToComplete.id, dateStr);
+    return `כל הכבוד מאמי! 👑✅\n"${taskToComplete.description}" — בוצע!\n\n${pendingTasks.length - 1 === 0 ? "סיימת הכל להיום! 🎉🌊" : `נשארו עוד ${pendingTasks.length - 1} משימות`}`;
+  }
+
+  // "עזרה" — show available commands
+  if (lower === "עזרה" || lower === "פקודות") {
+    return `הייי נשמהההה! 🐬 הנה מה אני יודעת:\n\n📋 "היום" — המשימות שלך להיום\n📅 "מחר" — משימות למחר\n🗓️ "שבוע" — סקירת השבוע\n✅ "בוצע" — סמני משימה כבוצעה\n🧠 "זיכרון" — מה אני זוכרת\n\nאו פשוט תכתבי/תשלחי קולית — ואני פה! 💛`;
   }
 
   return null;

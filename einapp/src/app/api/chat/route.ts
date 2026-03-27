@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatWithClaude, extractTasks } from "@/lib/ai-chat";
-import { saveConversation, createTask } from "@/lib/db";
+import { saveConversation, createTask, getTasksForDate, getCompletionsForDate, toggleTaskCompletion } from "@/lib/db";
+import { getDayKey } from "@/lib/hebrew";
 import { saveRawConversation } from "@/lib/memory";
 import { toDateString } from "@/lib/hebrew";
 
@@ -29,12 +30,41 @@ export async function POST(req: NextRequest) {
     const rawReply = await chatWithClaude(message, "web");
 
     // Extract any auto-created tasks
-    const { cleanReply: reply, tasks } = extractTasks(rawReply);
+    const { cleanReply: reply, tasks, doneTasks } = extractTasks(rawReply);
     for (const task of tasks) {
       try {
-        createTask({ description: task.description, type: "one_time", priority: task.priority, date: task.date });
-        console.log(`[Chat] Auto-created task: "${task.description}" on ${task.date}`);
+        createTask({
+          description: task.description,
+          type: task.type,
+          priority: task.priority,
+          date: task.date || undefined,
+          time: task.time || undefined,
+          days_of_week: task.days_of_week || undefined,
+        });
+        console.log(`[Chat] Auto-created ${task.type} task: "${task.description}"`);
       } catch (e) { console.error("[Chat] Failed to create task:", e); }
+    }
+
+    // Handle [DONE] tags
+    for (const done of doneTasks) {
+      try {
+        const dateStr = toDateString(new Date());
+        const dayKey = getDayKey(new Date().getDay());
+        const todayTasks = getTasksForDate(dateStr, dayKey);
+        const completions = getCompletionsForDate(dateStr);
+        const completedIds = new Set(completions.map((c) => c.task_id));
+        const hint = done.descriptionHint.toLowerCase();
+        const match = todayTasks.find((t: any) =>
+          !completedIds.has(t.id) && (
+            t.description.toLowerCase().includes(hint) ||
+            hint.includes(t.description.toLowerCase().substring(0, 10))
+          )
+        );
+        if (match) {
+          toggleTaskCompletion((match as any).id, dateStr);
+          console.log(`[Chat] Marked task done: "${(match as any).description}"`);
+        }
+      } catch (e) { console.error("[Chat] Failed to mark done:", e); }
     }
 
     // Save assistant message (don't crash if DB fails)
