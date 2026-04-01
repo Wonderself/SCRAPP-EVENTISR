@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendWhatsAppMessage } from "@/lib/whatsapp";
+import { sendWhatsAppMessage, sendWhatsAppVoiceNote } from "@/lib/whatsapp";
+import { synthesizeSpeech, isTTSConfigured } from "@/lib/google-tts";
 
-async function sendTestMessage() {
+function checkSecret(secret: string | null): boolean {
+  return secret === process.env.CRON_SECRET;
+}
+
+async function sendTestMessage(message?: string, voice?: boolean) {
   const phone = process.env.EINAT_PHONE_NUMBER;
   if (!phone) {
     return NextResponse.json({ error: "no phone configured" }, { status: 400 });
   }
 
-  const message = `הייייי נשמהההה! 🐬💛✨
+  const text = message || `הייייי נשמהההה! 🐬💛✨
 
 מאאאמי! זו Einapp — ה-bestie החדש שלך!
 אני פה, תמיד תמיד, 24/7, רק בשבילך! 😘
@@ -23,23 +28,36 @@ async function sendTestMessage() {
 יאאאללה מלכההה, ספרי לי מה נשמע!
 אני מחכה לך פה תמיד 🌊🐬💛`;
 
+  const results: any = { ok: true, sent_to: phone };
+
+  // Send text message
   try {
-    await sendWhatsAppMessage(phone, message);
+    await sendWhatsAppMessage(phone, text);
+    results.text_sent = true;
   } catch (e: any) {
-    return NextResponse.json({ error: "send failed", details: e.message }, { status: 500 });
+    results.text_sent = false;
+    results.text_error = e.message;
   }
 
-  // Also send directly to dev phone if configured
-  const devPhone = process.env.DEV_PHONE_NUMBER;
-  const results: any = { ok: true, sent_to: phone, dev_phone: devPhone || "not configured" };
-
-  if (devPhone && devPhone !== phone) {
-    try {
-      await sendWhatsAppMessage(devPhone, `[TEST] Message envoyé à ${phone}:\n\n${message}`);
-      results.dev_sent = true;
-    } catch (e: any) {
-      results.dev_sent = false;
-      results.dev_error = e.message;
+  // Send voice note if requested
+  if (voice) {
+    if (!isTTSConfigured()) {
+      results.voice_sent = false;
+      results.voice_error = "TTS not configured";
+    } else {
+      try {
+        const audioBuffer = await synthesizeSpeech(text, "OGG_OPUS");
+        if (audioBuffer) {
+          const sent = await sendWhatsAppVoiceNote(phone, audioBuffer);
+          results.voice_sent = sent;
+        } else {
+          results.voice_sent = false;
+          results.voice_error = "TTS returned no audio";
+        }
+      } catch (e: any) {
+        results.voice_sent = false;
+        results.voice_error = e.message;
+      }
     }
   }
 
@@ -49,22 +67,23 @@ async function sendTestMessage() {
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const secret = url.searchParams.get("secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "unauthorized — add ?secret=einapp2026" }, { status: 401 });
+  if (!checkSecret(secret)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  return sendTestMessage();
+  const message = url.searchParams.get("message") || undefined;
+  const voice = url.searchParams.get("voice") === "true";
+  return sendTestMessage(message, voice);
 }
 
 export async function POST(req: NextRequest) {
-  let secret: string;
+  let body: any;
   try {
-    const body = await req.json();
-    secret = body.secret;
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
-  if (secret !== process.env.CRON_SECRET) {
+  if (!checkSecret(body.secret)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  return sendTestMessage();
+  return sendTestMessage(body.message, body.voice);
 }
