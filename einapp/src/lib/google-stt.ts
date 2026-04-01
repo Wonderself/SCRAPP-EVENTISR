@@ -1,4 +1,5 @@
-const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+// STT uses a separate API key since Generative Language API keys can't access STT
+const GOOGLE_API_KEY = process.env.GOOGLE_TTS_API_KEY || process.env.GOOGLE_CLOUD_API_KEY;
 
 interface STTResponse {
   results?: {

@@ -1,7 +1,7 @@
-// TTS requires a Google Cloud API key (NOT an AI Studio key)
-// AI Studio keys only work for Generative Language API
+// TTS uses a separate API key since Generative Language API keys can't access TTS
+// Falls back to GOOGLE_CLOUD_API_KEY if GOOGLE_TTS_API_KEY not set
 function getTTSKey(): string {
-  return process.env.GOOGLE_CLOUD_API_KEY || "";
+  return process.env.GOOGLE_TTS_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "";
 }
 
 interface TTSResponse {
