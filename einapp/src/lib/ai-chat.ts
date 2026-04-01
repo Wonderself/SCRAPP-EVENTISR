@@ -298,7 +298,7 @@ export function extractTasks(reply: string): { cleanReply: string; tasks: Extrac
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
       date = toDateString(tomorrow);
-    } else if (date === "none") {
+    } else if (date === "none" || !date) {
       date = type === "one_time" ? toDateString(today) : "";
     }
 

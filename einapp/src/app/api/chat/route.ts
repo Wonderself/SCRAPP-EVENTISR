@@ -80,6 +80,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("[Chat] Error:", error?.message || error);
-    return NextResponse.json({ reply: "אוי, משהו קרה 😅 תנסי שוב עוד רגע!" });
+    return NextResponse.json({ reply: "אוי, משהו קרה 😅 תנסי שוב עוד רגע!" }, { status: 500 });
   }
 }

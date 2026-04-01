@@ -69,6 +69,10 @@ export async function synthesizeSpeech(
     }
 
     const data: TTSResponse = await res.json();
+    if (!data.audioContent) {
+      console.error("[TTS] No audioContent in response");
+      return null;
+    }
     return Buffer.from(data.audioContent, "base64");
   } catch (error) {
     console.error("[TTS] Error:", error);

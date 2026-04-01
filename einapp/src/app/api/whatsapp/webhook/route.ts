@@ -56,7 +56,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid signature" }, { status: 401 });
   }
 
-  const body = JSON.parse(rawBody);
+  let body: any;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    console.error("[WhatsApp] Invalid JSON in webhook body");
+    return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
 
   const entry = body.entry?.[0];
   const changes = entry?.changes?.[0];

@@ -127,15 +127,19 @@ export function getTasksForDate(dateStr: string, dayKey: string) {
     )
     .all(dateStr, dateStr)
     .filter((t: any) => {
-      const days = JSON.parse(t.days_of_week || "[]");
-      return days.includes(dayKey);
+      try {
+        const days = JSON.parse(t.days_of_week || "[]");
+        return days.includes(dayKey);
+      } catch {
+        return false;
+      }
     });
 
-  return [...oneTime, ...recurring].map((t: any) => ({
-    ...t,
-    is_active: Boolean(t.is_active),
-    days_of_week: t.days_of_week ? JSON.parse(t.days_of_week) : null,
-  }));
+  return [...oneTime, ...recurring].map((t: any) => {
+    let parsedDays = null;
+    try { parsedDays = t.days_of_week ? JSON.parse(t.days_of_week) : null; } catch {}
+    return { ...t, is_active: Boolean(t.is_active), days_of_week: parsedDays };
+  });
 }
 
 export function getCompletionsForDate(dateStr: string) {
@@ -261,11 +265,11 @@ export function getAllRecurringTasks() {
   return db
     .prepare(`SELECT * FROM tasks WHERE type = 'recurring' ORDER BY is_active DESC, created_at DESC`)
     .all()
-    .map((t: any) => ({
-      ...t,
-      is_active: Boolean(t.is_active),
-      days_of_week: t.days_of_week ? JSON.parse(t.days_of_week) : null,
-    }));
+    .map((t: any) => {
+      let parsedDays = null;
+      try { parsedDays = t.days_of_week ? JSON.parse(t.days_of_week) : null; } catch {}
+      return { ...t, is_active: Boolean(t.is_active), days_of_week: parsedDays };
+    });
 }
 
 export function saveConversation(

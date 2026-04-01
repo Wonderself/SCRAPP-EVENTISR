@@ -173,14 +173,18 @@ export async function weeklySummary() {
   fs.writeFileSync(fp, `# סיכום שבוע ${weekNum}, ${year}\n\n${summary}\n`, "utf-8");
 
   // Clean old raw conversations (> 7 days)
-  const files = fs.readdirSync(rawDir);
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 7);
-  for (const file of files) {
-    const dateStr = file.replace(".md", "");
-    if (new Date(dateStr) < cutoff) {
-      fs.unlinkSync(path.join(rawDir, file));
+  try {
+    const files = fs.readdirSync(rawDir);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 7);
+    for (const file of files) {
+      try {
+        const dateStr = file.replace(".md", "");
+        if (new Date(dateStr) < cutoff) fs.unlinkSync(path.join(rawDir, file));
+      } catch {}
     }
+  } catch (e) {
+    console.error("[Memory] Failed to clean old conversations:", e);
   }
 }
 

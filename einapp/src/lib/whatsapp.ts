@@ -142,7 +142,12 @@ export async function getMediaUrl(mediaId: string): Promise<string> {
   const res = await fetch(`${API_BASE}/${mediaId}`, {
     headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
   });
+  if (!res.ok) {
+    console.error("[WhatsApp] getMediaUrl error:", res.status, await res.text());
+    throw new Error(`Failed to get media URL: ${res.status}`);
+  }
   const data = await res.json();
+  if (!data.url) throw new Error("No URL in media response");
   return data.url;
 }
 
@@ -150,6 +155,10 @@ export async function downloadMedia(url: string): Promise<Buffer> {
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
   });
+  if (!res.ok) {
+    console.error("[WhatsApp] downloadMedia error:", res.status);
+    throw new Error(`Failed to download media: ${res.status}`);
+  }
   const arrayBuffer = await res.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }

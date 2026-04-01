@@ -54,11 +54,12 @@ export function scheduleCronJobs() {
     try {
       const url = `${BASE_URL}/api/cron?job=${job}&secret=${SECRET}`;
       const res = await fetch(url);
-      const data = await res.json();
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
         console.log(`[Cron] ${job}: OK`);
       } else {
-        console.error(`[Cron] ${job} error (${res.status}):`, JSON.stringify(data));
+        const errText = await res.text().catch(() => "");
+        console.error(`[Cron] ${job} error (${res.status}):`, errText);
       }
     } catch (e: any) {
       console.error(`[Cron] ${job} failed:`, e.message);

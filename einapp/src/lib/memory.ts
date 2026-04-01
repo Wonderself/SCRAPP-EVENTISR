@@ -146,24 +146,34 @@ export async function readMemoryContext(): Promise<string> {
   ensureMemoryDir();
   const parts: string[] = [];
   for (const file of MEMORY_FILES) {
-    const fp = path.join(MEMORY_DIR, file);
-    if (fs.existsSync(fp)) {
-      const content = fs.readFileSync(fp, "utf-8").trim();
-      if (content) parts.push(content);
+    try {
+      const fp = path.join(MEMORY_DIR, file);
+      if (fs.existsSync(fp)) {
+        const content = fs.readFileSync(fp, "utf-8").trim();
+        if (content) parts.push(content);
+      }
+    } catch (e) {
+      console.error(`[Memory] Failed to read ${file}:`, e);
     }
   }
 
   // Include recent weekly summaries (last 4 weeks)
-  const summaryDir = path.join(MEMORY_DIR, "chat-summaries");
-  if (fs.existsSync(summaryDir)) {
-    const summaries = fs.readdirSync(summaryDir)
-      .filter(f => f.endsWith(".md"))
-      .sort()
-      .slice(-4);
-    for (const file of summaries) {
-      const content = fs.readFileSync(path.join(summaryDir, file), "utf-8").trim();
-      if (content) parts.push(content);
+  try {
+    const summaryDir = path.join(MEMORY_DIR, "chat-summaries");
+    if (fs.existsSync(summaryDir)) {
+      const summaries = fs.readdirSync(summaryDir)
+        .filter(f => f.endsWith(".md"))
+        .sort()
+        .slice(-4);
+      for (const file of summaries) {
+        try {
+          const content = fs.readFileSync(path.join(summaryDir, file), "utf-8").trim();
+          if (content) parts.push(content);
+        } catch {}
+      }
     }
+  } catch (e) {
+    console.error("[Memory] Failed to read summaries:", e);
   }
 
   return parts.join("\n\n---\n\n");
